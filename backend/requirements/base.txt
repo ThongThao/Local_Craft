@@ -1,0 +1,20 @@
+# ==============================================================================
+# LocalCraft Backend - Base Dependencies
+# ==============================================================================
+
+# Core Framework & REST API
+Django>=5.0,<6.0
+djangorestframework>=3.15.0
+django-cors-headers>=4.3.0
+djangorestframework-simplejwt>=5.3.1
+
+# Database (MySQL)
+mysqlclient>=2.2.4
+PyMySQL>=1.1.0
+cryptography>=42.0.5
+
+# Environment & Configuration
+python-dotenv>=1.0.1
+
+# Utilities & Media
+Pillow>=10.3.0

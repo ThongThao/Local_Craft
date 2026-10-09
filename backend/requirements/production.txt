@@ -1,0 +1,9 @@
+# ==============================================================================
+# LocalCraft Backend - Production Dependencies
+# ==============================================================================
+
+-r base.txt
+
+# Production HTTP Application Servers
+gunicorn>=21.2.0
+uvicorn[standard]>=0.29.0

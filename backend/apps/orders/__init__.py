@@ -1,0 +1,1 @@
+"""LocalCraft $app application package."""

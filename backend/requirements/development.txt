@@ -1,0 +1,15 @@
+# ==============================================================================
+# LocalCraft Backend - Development Dependencies
+# ==============================================================================
+
+-r base.txt
+
+# Testing & Quality Assurance
+pytest>=8.1.0
+pytest-django>=4.8.0
+flake8>=7.0.0
+black>=24.3.0
+
+# Development Helpers
+django-extensions>=3.2.3
+ipython>=8.22.0
