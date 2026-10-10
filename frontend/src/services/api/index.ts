@@ -5,3 +5,4 @@ export * from './bookings';
 export * from './orders';
 export * from './recommendations';
 export * from './chatbot';
+export * from './upload';

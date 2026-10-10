@@ -30,14 +30,8 @@ class BusinessAPITestCase(TestCase):
             status=CraftVillage.VillageStatus.ACTIVE,
         )
 
-        # Artisan
-        self.artisan_user = User.objects.create(
-            email='artisan@localcraft.vn',
-            full_name='Nghệ nhân Test',
-            status=User.UserStatus.ACTIVE
-        )
+        # Artisan (Informational profile, no user account)
         self.artisan = ArtisanProfile.objects.create(
-            user=self.artisan_user,
             village=self.village,
             display_name='Nghệ nhân Test',
             verification_status=ArtisanProfile.VerificationStatus.APPROVED,
@@ -52,6 +46,7 @@ class BusinessAPITestCase(TestCase):
 
         # Product & Variant & Inventory
         self.product = Product.objects.create(
+            village=self.village,
             artisan=self.artisan,
             category=self.category,
             product_name='Bình gốm Test',
@@ -105,6 +100,8 @@ class BusinessAPITestCase(TestCase):
         self.assertEqual(order_res.status_code, 201)
         self.assertTrue(order_res.data['success'])
         self.assertEqual(order_res.data['data']['items'][0]['quantity'], 2)
+        self.assertEqual(len(order_res.data['data']['vendor_orders']), 1)
+        self.assertEqual(order_res.data['data']['vendor_orders'][0]['village'], self.village.village_id)
 
         # Verify inventory deducted
         self.inventory.refresh_from_db()

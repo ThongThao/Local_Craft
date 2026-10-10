@@ -19,6 +19,7 @@ export interface NavbarProps {
     avatar_url?: string;
     roles?: string[];
   } | null;
+  isLanding?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -30,6 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onBackToHome,
   isLoggedIn = false,
   currentUser = null,
+  isLanding = false,
 }) => {
   const [scrolled, setScrolled] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
@@ -104,7 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const avatarUrl = currentUser?.avatarUrl || currentUser?.avatar_url || dbUser?.avatar_url;
 
   return (
-    <header className={`app-navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
+    <header className={`app-navbar ${isLanding ? 'navbar-landing' : ''} ${scrolled ? 'navbar-scrolled' : ''}`}>
       <div className="navbar-container">
         {/* Brand Logo & Tagline */}
         <a
@@ -321,22 +323,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   role="button"
                   tabIndex={0}
                   title="Tài khoản cá nhân"
-                  style={{
-                    paddingTop: 4,
-                    paddingBottom: 4,
-                    paddingLeft: 4,
-                    paddingRight: 16,
-                    background: '#F6F3ED',
-                    borderRadius: 9999,
-                    outline: '1px #E6D8C5 solid',
-                    outlineOffset: '-1px',
-                    justifyContent: 'flex-start',
-                    alignItems: 'center',
-                    gap: 8,
-                    display: 'flex',
-                    cursor: 'pointer',
-                    userSelect: 'none',
-                  }}
                 >
                   {/* User Avatar Circle: 32x32 */}
                   <div

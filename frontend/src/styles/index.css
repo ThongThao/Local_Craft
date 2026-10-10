@@ -7,6 +7,7 @@
 @import './ui/badges.css';
 @import './ui/modals.css';
 @import './ui/craft-3d.css';
+@import './ui/floating-bubbles.css';
 
 /* Layout Styles */
 @import './layout/navbar.css';
@@ -22,6 +23,7 @@
 @import './landing/artisan.css';
 @import './landing/cta.css';
 @import './landing/page-modals.css';
+@import './landing/visual-storytelling.css';
 
 /* Auth Feature Styles */
 @import './auth/login.css';

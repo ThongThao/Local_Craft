@@ -42,6 +42,17 @@ class RegisterSerializer(serializers.Serializer):
     phone = serializers.CharField(required=False, allow_blank=True, max_length=20)
     gender = serializers.CharField(required=False, allow_blank=True, default='OTHER')
     birth_date = serializers.DateField(required=False, allow_null=True)
+    role = serializers.CharField(required=False, allow_blank=True, default='TOURIST')
+
+    def validate_role(self, value):
+        if not value:
+            return 'TOURIST'
+        val = str(value).strip().upper()
+        if val == 'ADMIN':
+            raise serializers.ValidationError('Không thể đăng ký tài khoản Quản trị viên công khai.')
+        if val not in ['TOURIST', 'CRAFT_VILLAGE']:
+            raise serializers.ValidationError('Vai trò không hợp lệ. Chỉ chấp nhận TOURIST hoặc CRAFT_VILLAGE.')
+        return val
 
     def validate_email(self, value):
         normalized = value.strip().lower()

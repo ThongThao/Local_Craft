@@ -3,7 +3,7 @@ import { VillageItem, ProductItem, WorkshopItem, MasterArtisan, AIQueryPreset } 
 export const HERO_DATA = {
   badge: 'DI SẢN SỐNG · TRẢI NGHIỆM BẢN ĐỊA',
   titlePart1: 'Chạm vào',
-  titleHighlight: 'tinh hoa',
+  titleHighlight: 'Tinh hoa',
   titlePart2: 'thủ công Việt.',
   subtitle:
     'Khám phá làng nghề. Gặp gỡ nghệ nhân. Tự tay tạo nên những tác phẩm độc bản lưu giữ ngàn năm hồn cốt đất Việt.',

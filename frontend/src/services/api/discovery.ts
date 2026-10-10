@@ -16,11 +16,8 @@ export interface VillageDto {
 
 export interface ArtisanDto {
   artisan_id: number;
-  user: number;
-  user_full_name: string;
-  user_email: string;
-  user_avatar_url?: string;
-  village?: number;
+  avatar_url?: string;
+  village: number;
   village_name?: string;
   village_province?: string;
   display_name: string;
@@ -33,9 +30,10 @@ export interface ArtisanDto {
 
 export interface ProductDto {
   product_id: number;
-  artisan: number;
-  artisan_name: string;
+  village: number;
   village_name: string;
+  artisan?: number | null;
+  artisan_name?: string | null;
   category: number;
   category_name: string;
   product_name: string;
@@ -68,9 +66,10 @@ export interface WorkshopSessionDto {
 
 export interface WorkshopDto {
   workshop_id: number;
-  artisan: number;
-  artisan_name: string;
+  village: number;
   village_name: string;
+  artisan?: number | null;
+  artisan_name?: string | null;
   category_name: string;
   workshop_name: string;
   slug: string;

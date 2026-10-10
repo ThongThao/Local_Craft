@@ -1,9 +1,10 @@
 from decimal import Decimal
 from django.db.models import Q
 from rest_framework import generics, permissions, status
+# pyrefly: ignore [missing-import]
 from apps.common.responses import api_success, api_error
+# pyrefly: ignore [missing-import]
 from apps.workshops.models import Workshop
-from apps.products.models import Product
 from .models import Favorite, UserPreference, UserInteraction
 from .serializers import (
     FavoriteSerializer,
@@ -105,7 +106,7 @@ class AIRecommendationView(generics.GenericAPIView):
         # Query workshops
         ws_qs = Workshop.objects.filter(
             status=Workshop.WorkshopStatus.APPROVED
-        ).select_related('artisan', 'artisan__village')
+        ).select_related('village', 'artisan')
 
         if min_budget:
             ws_qs = ws_qs.filter(price_per_person__gte=min_budget)
@@ -119,8 +120,9 @@ class AIRecommendationView(generics.GenericAPIView):
             query_filter |= (
                 Q(workshop_name__icontains=kw) |
                 Q(description__icontains=kw) |
-                Q(artisan__village__village_name__icontains=kw) |
-                Q(artisan__village__province__icontains=kw)
+                Q(village__village_name__icontains=kw) |
+                Q(village__province__icontains=kw) |
+                Q(artisan__display_name__icontains=kw)
             )
 
         matched_workshops = ws_qs.filter(query_filter) if keywords else ws_qs
@@ -130,19 +132,21 @@ class AIRecommendationView(generics.GenericAPIView):
         results = []
         for w in matched_workshops[:4]:
             match_score = 96 if any(k in w.workshop_name.lower() for k in keywords) else 91
+            village_name = w.village.village_name if w.village else ''
+            artisan_name = w.artisan.display_name if w.artisan else ''
             results.append({
                 'id': w.workshop_id,
                 'type': 'workshop',
                 'title': w.workshop_name,
-                'artisan': w.artisan.display_name,
-                'village': w.artisan.village.village_name if w.artisan.village else '',
+                'artisan': artisan_name,
+                'village': village_name,
                 'location': w.location_address,
                 'price': float(w.price_per_person),
                 'formatted_price': f"{int(w.price_per_person):,} đ".replace(',', '.'),
                 'image': w.cover_image_url,
                 'match_score': match_score,
                 'match_label': 'Phù hợp xuất sắc' if match_score >= 95 else 'Gợi ý lý tưởng',
-                'reason': f"Phù hợp với mong muốn '{query}' tại {w.artisan.village.village_name if w.artisan.village else 'làng nghề'} với mức chi phí hợp lý.",
+                'reason': f"Phù hợp với mong muốn '{query}' tại {village_name or 'làng nghề'} với mức chi phí hợp lý.",
             })
 
         return api_success(

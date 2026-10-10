@@ -122,6 +122,14 @@ class Refund(models.Model):
         related_name='refunds',
         db_column='payment_id',
     )
+    vendor_order = models.ForeignKey(
+        'orders.VendorOrder',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='refunds',
+        db_column='vendor_order_id',
+    )
     refund_policy = models.ForeignKey(
         RefundPolicy,
         on_delete=models.SET_NULL,
@@ -145,6 +153,13 @@ class Refund(models.Model):
         choices=RefundStatus.choices,
         default=RefundStatus.REQUESTED,
     )
+
+    def clean(self):
+        super().clean()
+        if self.payment and self.amount_requested > self.payment.amount:
+            raise ValidationError('Số tiền hoàn yêu cầu không thể vượt quá tổng số tiền thanh toán.')
+        if self.amount_approved is not None and self.payment and self.amount_approved > self.payment.amount:
+            raise ValidationError('Số tiền hoàn được duyệt không thể vượt quá tổng số tiền thanh toán.')
     requested_at = models.DateTimeField(auto_now_add=True)
     processed_at = models.DateTimeField(null=True, blank=True)
     provider_refund_id = models.CharField(max_length=150, null=True, blank=True)

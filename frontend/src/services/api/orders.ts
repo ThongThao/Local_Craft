@@ -23,12 +23,37 @@ export interface CartDto {
 export interface OrderItemDto {
   order_item_id: number;
   variant: number;
+  vendor_order_id?: number;
   product_name_snapshot: string;
   variant_name_snapshot: string;
   sku_snapshot: string;
   unit_price: string;
   quantity: number;
   line_total: string;
+}
+
+export interface VendorOrderDto {
+  vendor_order_id: number;
+  vendor_order_code: string;
+  order: number;
+  village: number;
+  village_name: string;
+  subtotal: string;
+  shipping_fee: string;
+  discount_amount: string;
+  total_amount: string;
+  status: string;
+  payment_status: string;
+  recipient_name: string;
+  recipient_phone: string;
+  shipping_address: string;
+  shipping_note?: string;
+  tracking_code?: string;
+  shipped_at?: string;
+  delivered_at?: string;
+  created_at: string;
+  updated_at: string;
+  items?: OrderItemDto[];
 }
 
 export interface OrderDto {
@@ -45,6 +70,7 @@ export interface OrderDto {
   status: string;
   payment_status: string;
   items: OrderItemDto[];
+  vendor_orders?: VendorOrderDto[];
   created_at: string;
 }
 
@@ -97,5 +123,22 @@ export const ordersApi = {
 
   getOrderDetail: async (id: number): Promise<ApiResponse<OrderDto>> => {
     return apiClient(`/orders/${id}/`, { requiresAuth: true });
+  },
+
+  getVendorOrders: async (params?: { status?: string }): Promise<ApiResponse<VendorOrderDto[]>> => {
+    const qs = params?.status ? `?status=${encodeURIComponent(params.status)}` : '';
+    return apiClient(`/vendor-orders/${qs}`, { requiresAuth: true });
+  },
+
+  getVendorOrderDetail: async (id: number): Promise<ApiResponse<VendorOrderDto>> => {
+    return apiClient(`/vendor-orders/${id}/`, { requiresAuth: true });
+  },
+
+  updateVendorOrderStatus: async (id: number, payload: { status: string; tracking_code?: string }): Promise<ApiResponse<VendorOrderDto>> => {
+    return apiClient(`/vendor-orders/${id}/status/`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+      requiresAuth: true,
+    });
   },
 };

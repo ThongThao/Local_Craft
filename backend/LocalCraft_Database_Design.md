@@ -35,19 +35,20 @@
 | 15 | `reviews` | Product and workshop reviews |
 | 16 | `carts` | Active shopping carts |
 | 17 | `cart_items` | Variants in a cart |
-| 18 | `orders` | Product orders and shipping snapshots |
-| 19 | `order_items` | Order lines and price snapshots |
-| 20 | `payments` | Payments for orders or bookings |
-| 21 | `refund_policies` | Refund rules |
-| 22 | `refunds` | Refund requests and processing |
-| 23 | `user_preferences` | Personalization preferences |
-| 24 | `user_interactions` | Activity used by recommendation features |
-| 25 | `chat_sessions` | Chatbot sessions |
-| 26 | `chat_messages` | Chat messages |
-| 27 | `knowledge_sources` | Approved RAG source material |
-| 28 | `knowledge_chunks` | Text chunks derived from sources |
-| 29 | `favorites` | Saved products/workshops/villages/stories |
-| 30 | `notifications` | User notifications |
+| 18 | `orders` | Product orders and shipping snapshots (parent order) |
+| 19 | `vendor_orders` | Child vendor orders partitioned by craft village |
+| 20 | `order_items` | Order lines and price snapshots (linked to vendor order) |
+| 21 | `payments` | Payments for orders or bookings |
+| 22 | `refund_policies` | Refund rules |
+| 23 | `refunds` | Refund requests and processing |
+| 24 | `user_preferences` | Personalization preferences |
+| 25 | `user_interactions` | Activity used by recommendation features |
+| 26 | `chat_sessions` | Chatbot sessions |
+| 27 | `chat_messages` | Chat messages |
+| 28 | `knowledge_sources` | Approved RAG source material |
+| 29 | `knowledge_chunks` | Text chunks derived from sources |
+| 30 | `favorites` | Saved products/workshops/villages/stories |
+| 31 | `notifications` | User notifications |
 
 ## 3. Detailed Table Definitions
 
@@ -80,41 +81,46 @@ Do not store a single role on `users`; use `roles` and `user_roles`.
 | `description` | TEXT | Nullable |
 | `created_at` | DATETIME | NN |
 
-Suggested roles: `TOURIST`, `ARTISAN`, `ADMIN`.
+Suggested roles: `TOURIST`, `CRAFT_VILLAGE`, `ADMIN`.
+- `TOURIST`: Du khách trải nghiệm làng nghề, đặt sản phẩm & workshop.
+- `CRAFT_VILLAGE`: Tài khoản đại diện quản lý 1 làng nghề (1 tài khoản quản lý đúng 1 làng nghề).
+- `ADMIN`: Quản trị viên toàn hệ thống.
+*(Lưu ý: Nghệ nhân `ARTISAN` là hồ sơ văn hoá thông tin phi đăng nhập, không phải tài khoản người dùng độc lập).*
 
 ### 3.3 `user_roles`
 
 | Field | Type | Constraints / meaning |
 |---|---|---|
 | `user_role_id` | BIGINT | PK, AUTO_INCREMENT |
-| `user_id` | BIGINT | FK → `users.user_id`, NN |
+| `user_id` | BIGINT | FK → `users.user_id`, NN, UQ |
 | `role_id` | BIGINT | FK → `roles.role_id`, NN |
 | `assigned_at` | DATETIME | NN |
 
-Constraint: `UNIQUE(user_id, role_id)`. Relationships: `users` 1:N `user_roles`; `roles` 1:N `user_roles`.
+Constraint: `UNIQUE(user_id)` (mỗi người dùng có đúng 1 vai trò chính).
 
 ### 3.4 `artisan_profiles`
 
 | Field | Type | Constraints / meaning |
 |---|---|---|
 | `artisan_id` | BIGINT | PK, AUTO_INCREMENT |
-| `user_id` | BIGINT | FK → `users.user_id`, NN, UQ |
-| `village_id` | BIGINT | FK → `craft_villages.village_id`, nullable |
+| `village_id` | BIGINT | FK → `craft_villages.village_id`, NN |
 | `display_name` | VARCHAR(150) | NN |
 | `bio` | TEXT | Nullable |
+| `avatar_url` | VARCHAR(500) | Nullable |
 | `experience_years` | SMALLINT | Default 0; >= 0 |
-| `verification_status` | VARCHAR(20) | NN, default `PENDING`: `PENDING`, `APPROVED`, `REJECTED` |
+| `verification_status` | VARCHAR(20) | NN, default `APPROVED`: `PENDING`, `APPROVED`, `REJECTED` |
 | `verification_note` | TEXT | Nullable |
 | `created_at` | DATETIME | NN |
 | `updated_at` | DATETIME | NN |
 
-One account can have at most one artisan profile. Only verified artisans may publish publicly.
+Hồ sơ nghệ nhân là thực thể văn hoá thông tin thuộc quản lý của làng nghề (`village_id`), không sở hữu tài khoản đăng nhập `user_id`. Ban quản lý làng nghề tạo và cập nhật hồ sơ nghệ nhân của làng mình.
 
 ### 3.5 `craft_villages`
 
 | Field | Type | Constraints / meaning |
 |---|---|---|
 | `village_id` | BIGINT | PK, AUTO_INCREMENT |
+| `manager_user_id` | BIGINT | FK → `users.user_id`, UQ, Nullable (liên kết 1-1 với tài khoản có vai trò `CRAFT_VILLAGE`) |
 | `village_name` | VARCHAR(200) | NN |
 | `slug` | VARCHAR(220) | NN, UQ |
 | `description` | TEXT | Nullable |
@@ -127,6 +133,8 @@ One account can have at most one artisan profile. Only verified artisans may pub
 | `status` | VARCHAR(20) | NN, default `ACTIVE` |
 | `created_at` | DATETIME | NN |
 | `updated_at` | DATETIME | NN |
+
+Mỗi tài khoản `CRAFT_VILLAGE` quản lý tối đa 1 làng nghề, và mỗi làng nghề có tối đa 1 tài khoản quản lý đại diện.
 
 A village has many artisan profiles and stories.
 
@@ -168,7 +176,8 @@ Only approved stories should be public or used as chatbot knowledge.
 | Field | Type | Constraints / meaning |
 |---|---|---|
 | `product_id` | BIGINT | PK, AUTO_INCREMENT |
-| `artisan_id` | BIGINT | FK → `artisan_profiles.artisan_id`, NN |
+| `village_id` | BIGINT | FK → `craft_villages.village_id`, NN (Làng nghề sở hữu và quản lý) |
+| `artisan_id` | BIGINT | FK → `artisan_profiles.artisan_id`, Nullable (Nghệ nhân sáng tác/chế tác) |
 | `category_id` | BIGINT | FK → `categories.category_id`, NN |
 | `product_name` | VARCHAR(200) | NN |
 | `slug` | VARCHAR(220) | NN, UQ |
@@ -181,7 +190,7 @@ Only approved stories should be public or used as chatbot knowledge.
 | `created_at` | DATETIME | NN |
 | `updated_at` | DATETIME | NN |
 
-The selected variant determines the actual purchase price. Public listings must be approved and have active variants and available stock.
+Sản phẩm thuộc sở hữu quản lý của làng nghề (`village_id`). Ghi nhận nghệ nhân sáng tác (`artisan_id`) là thông tin văn hóa tùy chọn.
 
 ### 3.9 `product_images`
 
@@ -233,7 +242,8 @@ Constraint: `reserved_quantity <= quantity`. Sellable stock = `quantity - reserv
 | Field | Type | Constraints / meaning |
 |---|---|---|
 | `workshop_id` | BIGINT | PK, AUTO_INCREMENT |
-| `artisan_id` | BIGINT | FK → `artisan_profiles.artisan_id`, NN |
+| `village_id` | BIGINT | FK → `craft_villages.village_id`, NN (Làng nghề tổ chức và quản lý) |
+| `artisan_id` | BIGINT | FK → `artisan_profiles.artisan_id`, Nullable (Nghệ nhân đứng lớp hướng dẫn) |
 | `category_id` | BIGINT | FK → `categories.category_id`, nullable |
 | `workshop_name` | VARCHAR(200) | NN |
 | `slug` | VARCHAR(220) | NN, UQ |
@@ -247,7 +257,7 @@ Constraint: `reserved_quantity <= quantity`. Sellable stock = `quantity - reserv
 | `created_at` | DATETIME | NN |
 | `updated_at` | DATETIME | NN |
 
-Only approved workshops should be public. Preserve the price at the time of booking.
+Workshop thuộc sở hữu quản lý của làng nghề (`village_id`). Ghi nhận nghệ nhân hướng dẫn (`artisan_id`) là thông tin tùy chọn.
 
 ### 3.13 `workshop_sessions`
 
@@ -349,14 +359,41 @@ Constraint: `UNIQUE(cart_id, variant_id)`; update the existing row if the same v
 
 Order statuses: `PENDING`, `CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`, `COMPLETED`. Payment statuses: `UNPAID`, `PENDING`, `PAID`, `PARTIALLY_REFUNDED`, `REFUNDED`, `FAILED`.
 
-Rules: `discount_amount <= subtotal + shipping_fee`; `total_amount = subtotal + shipping_fee - discount_amount`. Shipping details are snapshots. A paid order must use the refund workflow rather than being silently cancelled.
+Đơn hàng cha (`orders`) đóng vai trò đơn gom khách hàng (Parent Order). Khi giỏ hàng có sản phẩm từ nhiều làng nghề, hệ thống tự động tách thành các đơn con làng nghề (`vendor_orders`).
 
-### 3.19 `order_items`
+### 3.19 `vendor_orders`
+
+| Field | Type | Constraints / meaning |
+|---|---|---|
+| `vendor_order_id` | BIGINT | PK, AUTO_INCREMENT |
+| `vendor_order_code` | VARCHAR(60) | NN, UQ |
+| `order_id` | BIGINT | FK → `orders.order_id`, NN |
+| `village_id` | BIGINT | FK → `craft_villages.village_id`, NN |
+| `subtotal` | DECIMAL(12,2) | NN, >= 0 |
+| `shipping_fee` | DECIMAL(12,2) | NN, default 0 |
+| `discount_amount` | DECIMAL(12,2) | NN, default 0 |
+| `total_amount` | DECIMAL(12,2) | NN, >= 0 |
+| `status` | VARCHAR(20) | NN, default `PENDING`: `PENDING`, `CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `COMPLETED`, `CANCELLED` |
+| `payment_status` | VARCHAR(20) | NN, default `UNPAID` |
+| `recipient_name` | VARCHAR(150) | NN |
+| `recipient_phone` | VARCHAR(20) | NN |
+| `shipping_address` | VARCHAR(500) | NN |
+| `shipping_note` | VARCHAR(500) | Nullable |
+| `tracking_code` | VARCHAR(100) | Nullable |
+| `shipped_at` | DATETIME | Nullable |
+| `delivered_at` | DATETIME | Nullable |
+| `created_at` | DATETIME | NN |
+| `updated_at` | DATETIME | NN |
+
+Mỗi đơn hàng con đại diện cho phần đơn hàng do một làng nghề xử lý. Ban quản lý làng nghề chỉ xem và cập nhật đơn hàng con thuộc làng mình. Trạng thái đơn cha được đồng bộ tự động từ các đơn con.
+
+### 3.20 `order_items`
 
 | Field | Type | Constraints / meaning |
 |---|---|---|
 | `order_item_id` | BIGINT | PK, AUTO_INCREMENT |
 | `order_id` | BIGINT | FK → `orders.order_id`, NN |
+| `vendor_order_id` | BIGINT | FK → `vendor_orders.vendor_order_id`, NN |
 | `variant_id` | BIGINT | FK → `product_variants.variant_id`, NN |
 | `product_name_snapshot` | VARCHAR(200) | NN |
 | `variant_name_snapshot` | VARCHAR(150) | NN |
@@ -366,7 +403,7 @@ Rules: `discount_amount <= subtotal + shipping_fee`; `total_amount = subtotal + 
 | `line_total` | DECIMAL(12,2) | NN, >= 0 |
 | `created_at` | DATETIME | NN |
 
-Rules: `line_total = unit_price * quantity`. Store name, SKU, and price snapshots. Do not hard-delete variants referenced by order history.
+Rules: `line_total = unit_price * quantity`. Mỗi mục đơn hàng thuộc đúng 1 đơn hàng con của làng nghề sở hữu sản phẩm đó.
 
 ### 3.20 `payments`
 

@@ -97,8 +97,24 @@ Cập nhật `DB_USER` và `DB_PASSWORD` trong `.env` tương ứng với tài k
 
 ---
 
-## 4. Tài liệu chi tiết (Documentation)
+## 4. Mô hình người dùng & Tài khoản thử nghiệm (User Roles & Seed Accounts)
+
+Hệ thống LocalCraft chuẩn hóa đúng 3 vai trò người dùng:
+1. `TOURIST`: Khách du lịch trải nghiệm di sản, mua sắm sản phẩm thủ công, đặt workshop, viết đánh giá, thanh toán.
+2. `CRAFT_VILLAGE`: Đại diện ban quản lý làng nghề (1 tài khoản quản lý đúng 1 làng nghề, quản lý sản phẩm, workshop, hồ sơ nghệ nhân, đơn hàng con `vendor_orders`).
+3. `ADMIN`: Quản trị viên toàn hệ thống, kiểm duyệt nội dung và giám sát giao dịch.
+
+*(Nghệ nhân `ArtisanProfile` là hồ sơ văn hoá thông tin phi đăng nhập, gắn liền với làng nghề `CraftVillage`).*
+
+### Tài khoản mẫu sau khi seed data (`python manage.py seed_data`):
+- **Admin:** `admin@localcraft.vn` | `Admin@123456`
+- **Quản lý làng gốm Bát Tràng:** `manager.bat-trang@localcraft.vn` | `Manager@123456`
+- **Khách du lịch:** `tourist@localcraft.vn` | `Tourist@123456`
+
+---
+
+## 5. Tài liệu chi tiết (Documentation)
 
 - [Kiến trúc hệ thống](file:///d:/Local%20Craft/docs/architecture.md)
-- [Thiết kế cơ sở dữ liệu](file:///d:/Local%20Craft/docs/database-design.md)
+- [Thiết kế cơ sở dữ liệu](file:///d:/Local%20Craft/backend/LocalCraft_Database_Design.md)
 - [Quy chuẩn thiết kế API](file:///d:/Local%20Craft/docs/api-conventions.md)

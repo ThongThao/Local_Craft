@@ -1,0 +1,1530 @@
+/* ==============================================================================
+   CINEMATIC SCROLL REVEAL (Slower, Diverse & Preserved Once Revealed)
+   ============================================================================== */
+.reveal-on-scroll {
+  opacity: 0;
+  will-change: opacity, transform, filter;
+  transition: 
+    opacity 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 1. Fade Up with Soft Blur Dissipation (Standard / Headers / Badges) */
+.reveal-fade-up {
+  transform: translateY(44px) scale(0.97);
+  filter: blur(6px);
+}
+.reveal-fade-up.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* 2. Slide from Left (Narrative texts & quotes) */
+.reveal-slide-left {
+  transform: translateX(-56px);
+  filter: blur(5px);
+}
+.reveal-slide-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+  filter: blur(0);
+}
+
+/* 3. Slide from Right (Visual stacks & image showcases) */
+.reveal-slide-right {
+  transform: translateX(56px);
+  filter: blur(5px);
+}
+.reveal-slide-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+  filter: blur(0);
+}
+
+/* 4. Zoom / Scale In (3D Stages & Hero Cards) */
+.reveal-zoom-in {
+  transform: scale(0.88) translateY(24px);
+  filter: blur(8px);
+}
+.reveal-zoom-in.is-visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  filter: blur(0);
+}
+
+/* 5. 3D Tilt / Card Flip Entry (Heritage Cards & Steps) */
+.reveal-flip-card {
+  transform: perspective(1000px) rotateX(12deg) translateY(42px);
+  filter: blur(4px);
+}
+.reveal-flip-card.is-visible {
+  opacity: 1;
+  transform: perspective(1000px) rotateX(0deg) translateY(0);
+  filter: blur(0);
+}
+
+/* Default fallback when no specific style is attached */
+.reveal-on-scroll:not(.reveal-slide-left):not(.reveal-slide-right):not(.reveal-zoom-in):not(.reveal-flip-card):not(.reveal-fade-up) {
+  transform: translateY(38px);
+  filter: blur(4px);
+}
+.reveal-on-scroll:not(.reveal-slide-left):not(.reveal-slide-right):not(.reveal-zoom-in):not(.reveal-flip-card):not(.reveal-fade-up).is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* Slower, graceful staggered delays */
+.reveal-delay-1 { transition-delay: 0.16s; }
+.reveal-delay-2 { transition-delay: 0.32s; }
+.reveal-delay-3 { transition-delay: 0.48s; }
+.reveal-delay-4 { transition-delay: 0.64s; }
+
+/* Section Ambient Wrappers - Tightened padding to eliminate excessive empty vertical space */
+.story-section {
+  position: relative;
+  width: 100%;
+  padding: 76px 24px;
+  overflow: hidden;
+}
+
+.story-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* Badge styling */
+.story-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(152, 70, 40, 0.08);
+  border: 1px solid rgba(152, 70, 40, 0.2);
+  border-radius: 9999px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--color-clay);
+  margin-bottom: 20px;
+}
+
+.story-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-clay);
+  box-shadow: 0 0 10px var(--color-clay);
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+.story-title {
+  font-family: var(--font-heading);
+  font-size: clamp(32px, 4.5vw, 52px);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-forest);
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.story-title-italic {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-clay);
+}
+
+.story-subtitle {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  max-width: 640px;
+  margin-bottom: 40px;
+}
+
+/* ==============================================================================
+   1. REGION PARALLAX EXPLORER (3 Miền Di Sản)
+   ============================================================================== */
+.regions-section {
+  background: linear-gradient(180deg, var(--color-cream) 0%, #F5EFE6 50%, var(--color-cream) 100%);
+  position: relative;
+}
+
+.regions-ambient-glow {
+  position: absolute;
+  top: 20%;
+  right: -100px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(152, 70, 40, 0.12) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+/* Region Tabs Switcher */
+.region-tabs-row {
+  display: inline-flex;
+  background: rgba(0, 39, 32, 0.05);
+  padding: 6px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 39, 32, 0.08);
+  margin-bottom: 48px;
+  gap: 6px;
+}
+
+.region-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 10px 24px;
+  border-radius: 9999px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-forest);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.region-tab-btn:hover {
+  color: var(--color-clay);
+}
+
+.region-tab-btn.active {
+  background: var(--color-forest);
+  color: #FCF9F3;
+  box-shadow: 0 4px 15px rgba(0, 39, 32, 0.2);
+}
+
+/* Region Showcase Grid */
+.region-showcase-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 48px;
+  align-items: center;
+}
+
+@media (max-width: 992px) {
+  .region-showcase-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+}
+
+/* Interactive Visual Stage */
+.region-visual-stage {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px -15px rgba(0, 39, 32, 0.25);
+  border: 1px solid rgba(230, 216, 197, 0.8);
+  aspect-ratio: 4 / 3;
+  perspective: 1000px;
+}
+
+.region-stage-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.region-visual-stage:hover .region-stage-img {
+  transform: scale(1.06);
+}
+
+.region-stage-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 39, 32, 0.1) 0%, rgba(0, 39, 32, 0.85) 100%);
+  pointer-events: none;
+}
+
+/* Floating Pins */
+.region-stage-pin {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(252, 249, 243, 0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px rgba(0, 39, 32, 0.25);
+  border: 1px solid rgba(255, 219, 207, 0.6);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-forest);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 3;
+}
+
+.region-stage-pin:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(152, 70, 40, 0.35);
+  background: #FFFFFF;
+}
+
+.region-stage-pin-radar {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-clay);
+  position: relative;
+}
+
+.region-stage-pin-radar::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid var(--color-clay);
+  animation: radarPing 2s infinite ease-out;
+}
+
+@keyframes radarPing {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+/* Region Content Details */
+.region-details-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.region-tagline {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-forest);
+  line-height: 1.3;
+}
+
+.region-desc {
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.8;
+  color: #4A5652;
+}
+
+.region-highlights-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.region-highlight-box {
+  padding: 16px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  border: 1px solid rgba(230, 216, 197, 0.8);
+  box-shadow: 0 4px 15px rgba(0, 39, 32, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.region-highlight-value {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-clay);
+}
+
+.region-highlight-label {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+/* ==============================================================================
+   2. DIGITAL HERITAGE CERTIFICATE (3D Holographic Card)
+   ============================================================================== */
+.certificate-section {
+  background: radial-gradient(circle at 50% 30%, #08372D 0%, #00221B 60%, #001511 100%);
+  color: #FCF9F3;
+  position: relative;
+}
+
+.certificate-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+@media (max-width: 992px) {
+  .certificate-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+/* 3D Holographic Card Viewport */
+.hologram-card-viewport {
+  perspective: 1200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hologram-card {
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 1.58 / 1;
+  background: linear-gradient(135deg, rgba(23, 61, 53, 0.95) 0%, rgba(0, 25, 20, 0.98) 100%);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 
+    0 30px 60px -15px rgba(0, 0, 0, 0.7),
+    0 0 40px rgba(194, 235, 223, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 219, 207, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s linear, box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+  cursor: grab;
+}
+
+.hologram-card:active {
+  cursor: grabbing;
+}
+
+/* Hologram Shimmer Layer */
+.hologram-shimmer {
+  position: absolute;
+  inset: -100%;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 219, 207, 0.25) 45%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(194, 235, 223, 0.3) 55%,
+    transparent 70%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* Certificate Header */
+.cert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  transform: translateZ(30px);
+}
+
+.cert-emblem {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FFDBCF 0%, #D8C3A5 100%);
+  color: var(--color-forest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.cert-type-tag {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #FFDBCF;
+  border: 1px solid rgba(255, 219, 207, 0.3);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Certificate Body Details */
+.cert-body {
+  margin-bottom: 24px;
+  transform: translateZ(25px);
+}
+
+.cert-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.2px;
+  margin-bottom: 6px;
+}
+
+.cert-subtitle {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: rgba(252, 249, 243, 0.7);
+}
+
+/* Certificate Footer & Seal */
+.cert-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  transform: translateZ(35px);
+}
+
+.cert-meta-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cert-code-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(252, 249, 243, 0.5);
+}
+
+.cert-code-val {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFDBCF;
+  letter-spacing: 1px;
+}
+
+/* Gold Authenticity Seal */
+.cert-seal {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #D8A24A 0%, #8C5B18 100%);
+  border: 2px solid #FFE4A0;
+  box-shadow: 0 0 15px rgba(216, 162, 74, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #2D1A04;
+  text-align: center;
+  line-height: 1.1;
+  padding: 4px;
+}
+
+/* ==============================================================================
+   3. AI STORYTELLER COMPACT TEASER
+   ============================================================================== */
+.ai-teaser-section {
+  background: #FCF9F3;
+  position: relative;
+}
+
+.ai-teaser-card {
+  background: #FFFFFF;
+  border-radius: 28px;
+  border: 1px solid rgba(230, 216, 197, 0.8);
+  box-shadow: 0 20px 50px -15px rgba(0, 39, 32, 0.08);
+  padding: 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+@media (max-width: 992px) {
+  .ai-teaser-card {
+    grid-template-columns: 1fr;
+    padding: 32px 24px;
+  }
+}
+
+.ai-chat-preview {
+  background: #F9F7F2;
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid rgba(0, 39, 32, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ai-bubble-user {
+  align-self: flex-end;
+  background: var(--color-forest);
+  color: #FFFFFF;
+  padding: 12px 18px;
+  border-radius: 18px 18px 4px 18px;
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  max-width: 85%;
+  line-height: 1.5;
+  box-shadow: 0 4px 12px rgba(0, 39, 32, 0.15);
+}
+
+.ai-bubble-bot {
+  align-self: flex-start;
+  background: #FFFFFF;
+  color: #1C1C18;
+  padding: 14px 18px;
+  border-radius: 18px 18px 18px 4px;
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  max-width: 90%;
+  line-height: 1.6;
+  border: 1px solid rgba(230, 216, 197, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* Prompt Chips */
+.ai-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.ai-chip-btn {
+  border: 1px dashed rgba(152, 70, 40, 0.4);
+  background: rgba(152, 70, 40, 0.04);
+  color: var(--color-clay);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-chip-btn:hover {
+  background: var(--color-clay);
+  color: #FFFFFF;
+  border-style: solid;
+}
+
+/* ==============================================================================
+   4. CINEMATIC CTA SECTION
+   ============================================================================== */
+.cinematic-cta-section {
+  background: linear-gradient(135deg, #002720 0%, #173D35 50%, #984628 100%);
+  color: #FFFFFF;
+  text-align: center;
+  position: relative;
+  padding: 130px 24px;
+}
+
+.cinematic-cta-container {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.cinematic-cta-title {
+  font-family: var(--font-heading);
+  font-size: clamp(36px, 5vw, 60px);
+  font-weight: 700;
+  color: #FCF9F3;
+  margin-bottom: 24px;
+  line-height: 1.15;
+}
+
+.cinematic-cta-desc {
+  font-family: var(--font-ui);
+  font-size: 17px;
+  color: rgba(252, 249, 243, 0.85);
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+.cinematic-cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ==============================================================================
+   5. HERITAGE MISSION SECTION (Sứ Mệnh Gìn Giữ & Kết Nối Đương Đại)
+   ============================================================================== */
+.heritage-mission-section {
+  background: #FCF9F3;
+  padding: 76px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.heritage-mission-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.12fr 0.98fr;
+  gap: 52px;
+  align-items: stretch;
+}
+
+.mission-content-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.mission-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mission-badge-line {
+  width: 28px;
+  height: 2px;
+  background: #984628;
+}
+
+.mission-badge-text {
+  color: #984628;
+  font-size: 11px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+}
+
+.mission-heading {
+  color: #002720;
+  font-size: clamp(28px, 3.2vw, 38px);
+  font-family: 'Plus Jakarta Sans', serif;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+  letter-spacing: -0.4px;
+}
+
+.mission-quote-wrap {
+  position: relative;
+  padding-left: 20px;
+}
+
+.mission-quote-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: #984628;
+  border-radius: 9999px;
+  transition: transform 0.3s ease;
+}
+
+.mission-quote-wrap:hover .mission-quote-bar {
+  transform: scaleY(1.05);
+}
+
+.mission-quote-text {
+  color: #414846;
+  font-size: 16.5px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.mission-pillars-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.mission-pillar-card {
+  background: #F6F3ED;
+  padding: 16px 18px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid rgba(0, 39, 32, 0.04);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.mission-pillar-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px -6px rgba(0, 39, 32, 0.08);
+  border-color: rgba(152, 70, 40, 0.2);
+}
+
+.mission-pillar-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(152, 70, 40, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.mission-pillar-title {
+  color: #002720;
+  font-size: 16px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.mission-pillar-desc {
+  color: #414846;
+  font-size: 12.5px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Mission Visual Stack - Balanced and Cohesive */
+.mission-visual-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  gap: 12px;
+}
+
+.mission-image-stack {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 460px;
+}
+
+.mission-main-img-card {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #F0EEE8;
+  box-shadow: 0px 20px 40px -10px rgba(0, 39, 32, 0.16);
+}
+
+.mission-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mission-main-img-card:hover .mission-main-img {
+  transform: scale(1.04);
+}
+
+.mission-img-overlay-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 65%, rgba(0, 39, 32, 0.28) 100%);
+  pointer-events: none;
+}
+
+.mission-floating-craft-card {
+  position: absolute;
+  left: -18px;
+  bottom: 24px;
+  width: 220px;
+  padding: 8px;
+  background: #FCF9F3;
+  border-radius: 14px;
+  box-shadow: 0px 16px 32px -8px rgba(0, 39, 32, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  z-index: 4;
+  animation: floatSubtle 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatSubtle {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(-6px); }
+}
+
+.mission-floating-img-frame {
+  width: 100%;
+  aspect-ratio: 1.1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #EAE6DE;
+}
+
+.mission-floating-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mission-floating-badge {
+  padding: 8px 6px 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mission-floating-tag {
+  color: #984628;
+  font-size: 9.5px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.mission-floating-label {
+  color: #002720;
+  font-size: 11.5px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
+
+.mission-visual-caption {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.caption-dot {
+  width: 6px;
+  height: 6px;
+  background: #984628;
+  border-radius: 50%;
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.caption-text {
+  color: #414846;
+  font-size: 12px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ==============================================================================
+   6. HERITAGE JOURNEY STEPS SECTION (Ba Bước Đồng Hành Cùng Di Sản)
+   ============================================================================== */
+.heritage-journey-section {
+  background: #F6F3ED;
+  padding: 76px 24px;
+  position: relative;
+}
+
+.heritage-journey-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.journey-header-block {
+  text-align: center;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.journey-pretitle {
+  color: #984628;
+  font-size: 11px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+}
+
+.journey-heading {
+  color: #002720;
+  font-size: clamp(28px, 3.2vw, 36px);
+  font-family: 'Plus Jakarta Sans', serif;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.journey-subheading {
+  color: #414846;
+  font-size: 14.5px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.journey-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  width: 100%;
+}
+
+.journey-step-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 26px 22px;
+  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 39, 32, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.journey-step-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 18px 32px -8px rgba(0, 39, 32, 0.12);
+  border-color: rgba(152, 70, 40, 0.3);
+}
+
+.journey-step-top {
+  display: flex;
+  flex-direction: column;
+}
+
+.journey-step-badge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.journey-step-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+}
+
+.journey-step-card:hover .journey-step-icon-badge {
+  transform: scale(1.08) rotate(3deg);
+}
+
+.journey-step-num {
+  font-family: 'Liberation Serif', Georgia, serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: rgba(192, 200, 197, 0.7);
+  transition: color 0.3s ease;
+}
+
+.journey-step-card:hover .journey-step-num {
+  color: #984628;
+}
+
+.journey-step-tag {
+  color: #984628;
+  font-size: 10.5px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
+}
+
+.journey-step-title {
+  color: #002720;
+  font-size: 18px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 8px;
+}
+
+.journey-step-desc {
+  color: #414846;
+  font-size: 13.5px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.55;
+  margin: 0 0 18px;
+}
+
+.journey-step-bottom {
+  padding-top: 16px;
+  border-top: 1px solid #F0EEE8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.journey-step-link {
+  color: #002720;
+  font-size: 13.5px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.journey-step-card:hover .journey-step-link {
+  color: #984628;
+}
+
+.journey-step-link-arrow {
+  display: flex;
+  align-items: center;
+  color: #002720;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.journey-step-card:hover .journey-step-link-arrow {
+  color: #984628;
+  transform: translateX(4px);
+}
+
+/* ==============================================================================
+   7. HERITAGE CORE VALUES SECTION (Giá Trị Cốt Lõi)
+   ============================================================================== */
+.heritage-values-section {
+  background: #FCF9F3;
+  padding: 76px 24px;
+  position: relative;
+}
+
+.heritage-values-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.values-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 28px;
+}
+
+.values-title-col {
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.values-pretitle {
+  color: #984628;
+  font-size: 11px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.1px;
+}
+
+.values-heading {
+  color: #002720;
+  font-size: clamp(28px, 3.2vw, 36px);
+  font-family: 'Plus Jakarta Sans', serif;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.values-desc-col {
+  max-width: 440px;
+}
+
+.values-desc-text {
+  color: #414846;
+  font-size: 14.5px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.values-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.value-card {
+  border-radius: 16px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.value-card-soft {
+  background: rgba(235, 232, 226, 0.65);
+  border: 1px solid rgba(0, 39, 32, 0.05);
+}
+
+.value-card-soft:hover {
+  transform: translateY(-5px);
+  background: rgba(235, 232, 226, 0.95);
+  box-shadow: 0px 14px 26px -8px rgba(0, 39, 32, 0.1);
+}
+
+/* Featured Green Card */
+.value-card-featured {
+  background: #002720;
+  box-shadow: 0px 18px 36px -8px rgba(0, 39, 32, 0.35);
+  border: 1px solid rgba(194, 235, 223, 0.15);
+  overflow: hidden;
+}
+
+.value-card-featured:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 22px 42px -8px rgba(0, 39, 32, 0.5);
+}
+
+.value-card-featured-glow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(194, 235, 223, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.value-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.value-card-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.featured-icon-wrap {
+  background: #173D35;
+  box-shadow: 0 0 16px rgba(194, 235, 223, 0.1);
+}
+
+.value-card-title {
+  color: #002720;
+  font-size: 18px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.featured-title {
+  color: #FCF9F3;
+}
+
+.value-card-desc {
+  color: #414846;
+  font-size: 13.5px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.featured-desc {
+  color: rgba(243, 240, 234, 0.85);
+}
+
+.value-card-footer {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.value-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+}
+
+.value-badge-clay {
+  color: #984628;
+}
+
+.value-badge-peach {
+  color: #FFDBCF;
+}
+
+.value-badge-forest {
+  color: #002720;
+}
+
+/* ==============================================================================
+   8. ARTISAN PARTNER CTA SECTION (Đồng Hành Cùng Nghệ Nhân)
+   ============================================================================== */
+.artisan-partner-section {
+  background: #F0EEE8;
+  padding: 76px 24px;
+  position: relative;
+}
+
+.artisan-partner-container {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.artisan-partner-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0px 16px 36px -10px rgba(0, 39, 32, 0.1);
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  border: 1px solid rgba(0, 39, 32, 0.05);
+}
+
+.artisan-partner-image-col {
+  position: relative;
+  background: #E8E5DD;
+  min-height: 380px;
+  max-height: 480px;
+}
+
+.artisan-partner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.artisan-partner-img-glow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 65%, rgba(0, 39, 32, 0.35) 100%);
+  pointer-events: none;
+}
+
+.artisan-partner-badge-float {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #002720;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.artisan-partner-content-col {
+  padding: 40px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.artisan-partner-pill {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 4px 12px;
+  background: #D6E8CF;
+  border-radius: 9999px;
+  color: #002720;
+  font-size: 10.5px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.artisan-partner-heading {
+  color: #002720;
+  font-size: clamp(26px, 2.8vw, 34px);
+  font-family: 'Plus Jakarta Sans', serif;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+  letter-spacing: -0.4px;
+}
+
+.artisan-partner-desc {
+  color: #414846;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.artisan-partner-features-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.artisan-partner-feat {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.artisan-partner-feat-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(152, 70, 40, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.artisan-partner-feat-text {
+  color: #1C1C18;
+  font-size: 12.5px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.artisan-partner-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 18px;
+  border-top: 1px solid #F0EEE8;
+}
+
+.artisan-partner-btn {
+  padding: 12px 28px;
+  background: #984628;
+  color: #FFFFFF;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0px 8px 18px -4px rgba(152, 70, 40, 0.35);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.artisan-partner-btn:hover {
+  background: #82381e;
+  transform: translateY(-2px);
+  box-shadow: 0px 12px 24px -4px rgba(152, 70, 40, 0.45);
+}
+
+.artisan-partner-note {
+  color: #414846;
+  font-size: 11.5px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ==============================================================================
+   RESPONSIVE BREAKPOINTS FOR NEW SECTIONS
+   ============================================================================== */
+@media (max-width: 1024px) {
+  .heritage-mission-container,
+  .artisan-partner-card {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .mission-floating-craft-card {
+    left: 16px;
+    bottom: -16px;
+    width: 220px;
+  }
+
+  .journey-cards-grid,
+  .values-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .values-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .story-section,
+  .heritage-mission-section,
+  .heritage-journey-section,
+  .heritage-values-section,
+  .artisan-partner-section {
+    padding: 56px 16px;
+  }
+
+  .mission-pillars-grid,
+  .journey-cards-grid,
+  .values-cards-grid,
+  .artisan-partner-features-row {
+    grid-template-columns: 1fr;
+  }
+
+  .desktop-br {
+    display: none;
+  }
+
+  .artisan-partner-content-col {
+    padding: 28px 20px;
+  }
+
+  .mission-floating-craft-card {
+    position: static;
+    width: 100%;
+    margin-top: 14px;
+    animation: none;
+  }
+}
+
+

@@ -15,9 +15,17 @@ class Workshop(models.Model):
         HIDDEN = 'HIDDEN', 'Ẩn'
 
     workshop_id = models.BigAutoField(primary_key=True)
+    village = models.ForeignKey(
+        'villages.CraftVillage',
+        on_delete=models.CASCADE,
+        related_name='workshops',
+        db_column='village_id',
+    )
     artisan = models.ForeignKey(
         'artisans.ArtisanProfile',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='workshops',
         db_column='artisan_id',
     )
@@ -49,6 +57,20 @@ class Workshop(models.Model):
         db_table = 'workshops'
         verbose_name = 'Workshop'
         verbose_name_plural = 'Workshop'
+        indexes = [
+            models.Index(fields=['village'], name='idx_workshops_village'),
+            models.Index(fields=['artisan'], name='idx_workshops_artisan'),
+            models.Index(fields=['status'], name='idx_workshops_status'),
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.artisan and self.village:
+            if self.artisan.village_id != self.village_id:
+                from django.core.exceptions import ValidationError
+                raise ValidationError({
+                    'artisan': 'Nghệ nhân hướng dẫn phải thuộc về làng nghề tổ chức workshop.'
+                })
 
     def __str__(self):
         return self.workshop_name

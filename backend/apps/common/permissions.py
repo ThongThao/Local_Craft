@@ -27,11 +27,11 @@ class IsTourist(BasePermission):
         return user_has_role(request.user, 'TOURIST') or user_has_role(request.user, 'ADMIN')
 
 
-class IsArtisan(BasePermission):
-    """Requires user to be authenticated with ARTISAN role."""
+class IsCraftVillage(BasePermission):
+    """Requires user to be authenticated with CRAFT_VILLAGE role."""
 
     def has_permission(self, request, view):
-        return user_has_role(request.user, 'ARTISAN') or user_has_role(request.user, 'ADMIN')
+        return user_has_role(request.user, 'CRAFT_VILLAGE') or user_has_role(request.user, 'ADMIN')
 
 
 class IsAdmin(BasePermission):
@@ -39,6 +39,44 @@ class IsAdmin(BasePermission):
 
     def has_permission(self, request, view):
         return user_has_role(request.user, 'ADMIN')
+
+
+class IsVillageManager(BasePermission):
+    """
+    Ensures the user manages the craft village owning the resource.
+    Admins are granted full access.
+    """
+
+    def has_permission(self, request, view):
+        if not (request.user and request.user.is_authenticated):
+            return False
+        if user_has_role(request.user, 'ADMIN'):
+            return True
+        if not user_has_role(request.user, 'CRAFT_VILLAGE'):
+            return False
+        return hasattr(request.user, 'managed_village') and request.user.managed_village is not None
+
+    def has_object_permission(self, request, view, obj):
+        if user_has_role(request.user, 'ADMIN'):
+            return True
+        if not hasattr(request.user, 'managed_village') or not request.user.managed_village:
+            return False
+
+        managed_village_id = request.user.managed_village.village_id
+
+        # If obj is CraftVillage itself
+        if hasattr(obj, 'village_id') and type(obj).__name__ == 'CraftVillage':
+            return obj.village_id == managed_village_id
+
+        # If obj has village_id attribute
+        if hasattr(obj, 'village_id'):
+            return obj.village_id == managed_village_id
+
+        # If obj has village foreign key
+        if hasattr(obj, 'village') and obj.village:
+            return obj.village.village_id == managed_village_id
+
+        return False
 
 
 class IsReadOnly(BasePermission):

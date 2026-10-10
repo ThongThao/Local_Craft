@@ -1,5 +1,6 @@
 """
 Management command to seed initial roles, craft villages, artisans, products, workshops, stories, and RAG knowledge.
+Updated for 3-role business model: TOURIST, CRAFT_VILLAGE, ADMIN.
 Usage: python manage.py seed_data
 """
 
@@ -7,12 +8,19 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta
+# pyrefly: ignore [missing-import]
 from apps.accounts.models import Role, User, UserRole
+# pyrefly: ignore [missing-import]
 from apps.villages.models import CraftVillage
+# pyrefly: ignore [missing-import]
 from apps.artisans.models import ArtisanProfile
+# pyrefly: ignore [missing-import]
 from apps.stories.models import CraftStory
+# pyrefly: ignore [missing-import]
 from apps.products.models import Category, Product, ProductImage, ProductVariant, Inventory
+# pyrefly: ignore [missing-import]
 from apps.workshops.models import Workshop, WorkshopSession
+# pyrefly: ignore [missing-import]
 from apps.chatbot.models import KnowledgeSource, KnowledgeChunk
 
 
@@ -23,7 +31,7 @@ class Command(BaseCommand):
         self.stdout.write("1. Seeding roles...")
         roles_data = [
             ('TOURIST', 'Du khách', 'Khách du lịch trải nghiệm di sản văn hóa và đặt workshop.'),
-            ('ARTISAN', 'Nghệ nhân', 'Nghệ nhân làng nghề truyền thống và chủ workshop.'),
+            ('CRAFT_VILLAGE', 'Làng nghề', 'Tài khoản quản lý làng nghề thủ công truyền thống.'),
             ('ADMIN', 'Quản trị viên', 'Quản trị viên toàn quyền hệ thống LocalCraft.'),
         ]
         roles = {}
@@ -34,7 +42,7 @@ class Command(BaseCommand):
             )
             roles[code] = role
 
-        self.stdout.write("2. Seeding users & artisan...")
+        self.stdout.write("2. Seeding users & village managers...")
         # Admin
         admin_user, created = User.objects.get_or_create(
             email='admin@localcraft.vn',
@@ -51,22 +59,44 @@ class Command(BaseCommand):
             admin_user.save()
             UserRole.objects.get_or_create(user=admin_user, role=roles['ADMIN'])
 
-        # Master Artisan Tran Van Do
-        artisan_user, created = User.objects.get_or_create(
-            email='tranvando.bat-trang@localcraft.vn',
+        # Village Manager for Bat Trang
+        bat_trang_manager = User.objects.filter(email='manager.bat-trang@localcraft.vn').first()
+        if not bat_trang_manager:
+            bat_trang_manager = User.objects.filter(email='tranvando.bat-trang@localcraft.vn').first()
+            if bat_trang_manager:
+                bat_trang_manager.email = 'manager.bat-trang@localcraft.vn'
+                bat_trang_manager.full_name = 'Ban Quản Lý Làng Gốm Bát Tràng'
+                bat_trang_manager.set_password('Manager@123456')
+                bat_trang_manager.save()
+            else:
+                bat_trang_manager = User.objects.create(
+                    email='manager.bat-trang@localcraft.vn',
+                    full_name='Ban Quản Lý Làng Gốm Bát Tràng',
+                    phone='0912345679',
+                    gender='OTHER',
+                    status=User.UserStatus.ACTIVE,
+                    avatar_url='https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+                    email_verified_at=timezone.now(),
+                )
+                bat_trang_manager.set_password('Manager@123456')
+                bat_trang_manager.save()
+        UserRole.objects.update_or_create(user=bat_trang_manager, defaults={'role': roles['CRAFT_VILLAGE']})
+
+        # Demo Tourist User
+        tourist_user, created = User.objects.get_or_create(
+            email='tourist@localcraft.vn',
             defaults={
-                'full_name': 'Trần Văn Độ',
-                'phone': '0912345678',
+                'full_name': 'Nguyễn Hà Tourist',
+                'phone': '0987654321',
                 'gender': 'MALE',
                 'status': User.UserStatus.ACTIVE,
-                'avatar_url': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
                 'email_verified_at': timezone.now(),
             }
         )
         if created:
-            artisan_user.set_password('Artisan@123456')
-            artisan_user.save()
-            UserRole.objects.get_or_create(user=artisan_user, role=roles['ARTISAN'])
+            tourist_user.set_password('Tourist@123456')
+            tourist_user.save()
+        UserRole.objects.update_or_create(user=tourist_user, defaults={'role': roles['TOURIST']})
 
         self.stdout.write("3. Seeding craft villages...")
         villages_info = [
@@ -78,6 +108,7 @@ class Command(BaseCommand):
                 'address': 'Xã Bát Tràng, Huyện Gia Lâm, Hà Nội',
                 'description': 'Nghệ thuật đất nung và men ngọc ngàn năm. Nơi từng khối đất sét thô sơ hoá thành báu vật dưới lòng bàn tay nghệ nhân.',
                 'cover_image_url': 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1200&q=80',
+                'manager': bat_trang_manager,
             },
             {
                 'name': 'Làng Hương Thủy Xuân',
@@ -87,6 +118,7 @@ class Command(BaseCommand):
                 'address': 'Đường Huyền Trân Công Chúa, Phường Thủy Xuân, TP. Huế',
                 'description': 'Những bó hương xòe hoa ngát hương trầm tự nhiên bên dòng sông Hương thơ mộng của xứ Cố Đô.',
                 'cover_image_url': 'https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1000&q=80',
+                'manager': None,
             },
             {
                 'name': 'Làng Lụa Vạn Phúc',
@@ -96,6 +128,7 @@ class Command(BaseCommand):
                 'address': 'Phường Vạn Phúc, Quận Hà Đông, Hà Nội',
                 'description': 'Khung cửi cổ truyền lưu giữ tấm the, tấm lụa mềm mại dâng vua triều Nguyễn và xuất khẩu bốn phương.',
                 'cover_image_url': 'https://images.unsplash.com/photo-1617050318658-a9a3175e34cb?auto=format&fit=crop&w=1000&q=80',
+                'manager': None,
             },
             {
                 'name': 'Làng Đá Non Nước',
@@ -105,6 +138,7 @@ class Command(BaseCommand):
                 'address': 'Phường Hòa Hải, Quận Ngũ Hành Sơn, Đà Nẵng',
                 'description': 'Tiếng đục đẽo vang vọng bên chân núi Ngũ Hành, thổi sinh khí vào từng phiến đá trầm tích ngàn năm tuổi.',
                 'cover_image_url': 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1000&q=80',
+                'manager': None,
             },
             {
                 'name': 'Làng Chiếu Định Yên',
@@ -114,6 +148,7 @@ class Command(BaseCommand):
                 'address': 'Xã Định Yên, Huyện Lấp Vò, Tỉnh Đồng Tháp',
                 'description': 'Huyền thoại "chợ ma" họp giữa đêm thanh vắng, rực rỡ sắc cói nhuộm thắm đượm tình đất phương Nam.',
                 'cover_image_url': 'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?auto=format&fit=crop&w=1000&q=80',
+                'manager': None,
             },
             {
                 'name': 'Làng Sơn Mài Tương Bình Hiệp',
@@ -123,6 +158,7 @@ class Command(BaseCommand):
                 'address': 'Phường Tương Bình Hiệp, TP. Thủ Dầu Một, Bình Dương',
                 'description': 'Nghệ thuật sơn ta đa tầng, mài nước kỳ công kết hợp cẩn ốc xà cừ tinh xảo lưu dấu qua bao thế hệ.',
                 'cover_image_url': 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1000&q=80',
+                'manager': None,
             },
         ]
 
@@ -132,6 +168,7 @@ class Command(BaseCommand):
                 slug=v['slug'],
                 defaults={
                     'village_name': v['name'],
+                    'manager_user': v['manager'],
                     'province': v['province'],
                     'district': v['district'],
                     'address': v['address'],
@@ -140,14 +177,17 @@ class Command(BaseCommand):
                     'status': CraftVillage.VillageStatus.ACTIVE,
                 }
             )
+            if v['manager'] and village_obj.manager_user != v['manager']:
+                village_obj.manager_user = v['manager']
+                village_obj.save(update_fields=['manager_user'])
             villages[v['slug']] = village_obj
 
-        # Artisan Profile for Tran Van Do
+        # Artisan Profile for Tran Van Do (informational profile, no user account)
         artisan_profile, _ = ArtisanProfile.objects.get_or_create(
-            user=artisan_user,
+            display_name='Nghệ nhân ưu tú Trần Văn Độ',
             defaults={
                 'village': villages['bat-trang'],
-                'display_name': 'Nghệ nhân ưu tú Trần Văn Độ',
+                'avatar_url': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
                 'bio': 'Người phục chế thành công các dòng men cổ Đại Việt từ thời Lý, Trần, Lê. Hơn 40 năm gắn bó với lò nung củi truyền thống Bát Tràng.',
                 'experience_years': 42,
                 'verification_status': ArtisanProfile.VerificationStatus.APPROVED,
@@ -174,6 +214,8 @@ class Command(BaseCommand):
             {
                 'title': 'Bình Gốm Men Ngọc Thăng Long',
                 'slug': 'binh-gom-men-ngoc-thang-long',
+                'village': villages['bat-trang'],
+                'artisan': artisan_profile,
                 'category': categories['pottery'],
                 'price': Decimal('2850000.00'),
                 'image': 'https://images.unsplash.com/photo-1615486511484-92e172cc4fe0?auto=format&fit=crop&w=800&q=80',
@@ -183,6 +225,8 @@ class Command(BaseCommand):
             {
                 'title': 'Khăn Lụa Vạn Phúc Họa Tiết Mây',
                 'slug': 'khan-lua-van-phuc-hoa-tiet-may',
+                'village': villages['van-phuc'],
+                'artisan': None,
                 'category': categories['silk'],
                 'price': Decimal('650000.00'),
                 'image': 'https://images.unsplash.com/photo-1607344645866-009c320b5ab8?auto=format&fit=crop&w=800&q=80',
@@ -192,6 +236,8 @@ class Command(BaseCommand):
             {
                 'title': 'Khay Trà Sơn Mài Khảm Trai Chu Đậu',
                 'slug': 'khay-tra-son-mai-kham-trai',
+                'village': villages['tuong-binh-hiep'],
+                'artisan': None,
                 'category': categories['lacquer'],
                 'price': Decimal('1200000.00'),
                 'image': 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
@@ -201,6 +247,8 @@ class Command(BaseCommand):
             {
                 'title': 'Hộp Hương Trầm Thủy Xuân Cung Đình',
                 'slug': 'hop-huong-tram-thuy-xuan',
+                'village': villages['thuy-xuan'],
+                'artisan': None,
                 'category': categories['craft'],
                 'price': Decimal('420000.00'),
                 'image': 'https://images.unsplash.com/photo-1506806732259-39c2d0268443?auto=format&fit=crop&w=800&q=80',
@@ -213,7 +261,8 @@ class Command(BaseCommand):
             prod, _ = Product.objects.get_or_create(
                 slug=p['slug'],
                 defaults={
-                    'artisan': artisan_profile,
+                    'village': p['village'],
+                    'artisan': p['artisan'],
                     'category': p['category'],
                     'product_name': p['title'],
                     'description': p['desc'],
@@ -247,6 +296,8 @@ class Command(BaseCommand):
             {
                 'title': 'Vuốt gốm và nung men hỏa biến trên bàn xoay cổ',
                 'slug': 'vuot-gom-nung-men-hoa-bien',
+                'village': villages['bat-trang'],
+                'artisan': artisan_profile,
                 'category': categories['pottery'],
                 'duration': 150,
                 'price': Decimal('380000.00'),
@@ -257,6 +308,8 @@ class Command(BaseCommand):
             {
                 'title': 'Se hương trầm hoàng cung và phối hương thảo mộc',
                 'slug': 'se-huong-tram-hoang-cung',
+                'village': villages['thuy-xuan'],
+                'artisan': None,
                 'category': categories['craft'],
                 'duration': 90,
                 'price': Decimal('260000.00'),
@@ -267,6 +320,8 @@ class Command(BaseCommand):
             {
                 'title': 'Dệt lụa tơ tằm cổ truyền & Nhuộm lá tự nhiên',
                 'slug': 'det-lua-to-tam-co-truyen',
+                'village': villages['van-phuc'],
+                'artisan': None,
                 'category': categories['silk'],
                 'duration': 180,
                 'price': Decimal('450000.00'),
@@ -277,6 +332,8 @@ class Command(BaseCommand):
             {
                 'title': 'Kỹ thuật mài nước sơn ta và khảm xà cừ',
                 'slug': 'ky-thuat-mai-nuoc-son-ta',
+                'village': villages['tuong-binh-hiep'],
+                'artisan': None,
                 'category': categories['lacquer'],
                 'duration': 120,
                 'price': Decimal('320000.00'),
@@ -291,7 +348,8 @@ class Command(BaseCommand):
             wk_obj, _ = Workshop.objects.get_or_create(
                 slug=w['slug'],
                 defaults={
-                    'artisan': artisan_profile,
+                    'village': w['village'],
+                    'artisan': w['artisan'],
                     'category': w['category'],
                     'workshop_name': w['title'],
                     'description': w['desc'],

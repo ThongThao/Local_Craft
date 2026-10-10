@@ -21,17 +21,18 @@ class WorkshopSessionSerializer(serializers.ModelSerializer):
 
 
 class WorkshopSerializer(serializers.ModelSerializer):
-    artisan_name = serializers.CharField(source='artisan.display_name', read_only=True)
-    village_name = serializers.CharField(source='artisan.village.village_name', read_only=True, default='')
+    village_name = serializers.CharField(source='village.village_name', read_only=True)
+    artisan_name = serializers.SerializerMethodField()
     category_name = serializers.CharField(source='category.category_name', read_only=True, default='')
 
     class Meta:
         model = Workshop
         fields = [
             'workshop_id',
+            'village',
+            'village_name',
             'artisan',
             'artisan_name',
-            'village_name',
             'category',
             'category_name',
             'workshop_name',
@@ -45,6 +46,19 @@ class WorkshopSerializer(serializers.ModelSerializer):
             'status',
             'created_at',
         ]
+        read_only_fields = ['created_at']
+
+    def get_artisan_name(self, obj):
+        return obj.artisan.display_name if obj.artisan else ''
+
+    def validate(self, attrs):
+        village = attrs.get('village') or (self.instance.village if self.instance else None)
+        artisan = attrs.get('artisan') or (self.instance.artisan if self.instance else None)
+        if artisan and village and artisan.village_id != village.village_id:
+            raise serializers.ValidationError({
+                'artisan': 'Nghệ nhân hướng dẫn phải thuộc về làng nghề tổ chức workshop.'
+            })
+        return attrs
 
 
 class WorkshopDetailSerializer(WorkshopSerializer):

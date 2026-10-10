@@ -53,9 +53,17 @@ class Product(models.Model):
         HIDDEN = 'HIDDEN', 'Ẩn'
 
     product_id = models.BigAutoField(primary_key=True)
+    village = models.ForeignKey(
+        'villages.CraftVillage',
+        on_delete=models.CASCADE,
+        related_name='products',
+        db_column='village_id',
+    )
     artisan = models.ForeignKey(
         'artisans.ArtisanProfile',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='products',
         db_column='artisan_id',
     )
@@ -86,11 +94,21 @@ class Product(models.Model):
         verbose_name = 'Sản phẩm'
         verbose_name_plural = 'Sản phẩm'
         indexes = [
+            models.Index(fields=['village'], name='idx_products_village'),
             models.Index(fields=['artisan'], name='idx_products_artisan'),
             models.Index(fields=['category'], name='idx_products_category'),
             models.Index(fields=['status'], name='idx_products_status'),
             models.Index(fields=['published_at'], name='idx_products_published_at'),
         ]
+
+    def clean(self):
+        super().clean()
+        if self.artisan and self.village:
+            if self.artisan.village_id != self.village_id:
+                from django.core.exceptions import ValidationError
+                raise ValidationError({
+                    'artisan': 'Nghệ nhân được gán phải thuộc về làng nghề sở hữu sản phẩm.'
+                })
 
     def __str__(self):
         return self.product_name

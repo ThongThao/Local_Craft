@@ -49,17 +49,18 @@ class ProductVariantSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.category_name', read_only=True)
-    artisan_name = serializers.CharField(source='artisan.display_name', read_only=True)
-    village_name = serializers.CharField(source='artisan.village.village_name', read_only=True, default='')
+    village_name = serializers.CharField(source='village.village_name', read_only=True)
+    artisan_name = serializers.SerializerMethodField()
     images = ProductImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Product
         fields = [
             'product_id',
+            'village',
+            'village_name',
             'artisan',
             'artisan_name',
-            'village_name',
             'category',
             'category_name',
             'product_name',
@@ -72,6 +73,19 @@ class ProductSerializer(serializers.ModelSerializer):
             'published_at',
             'created_at',
         ]
+        read_only_fields = ['created_at']
+
+    def get_artisan_name(self, obj):
+        return obj.artisan.display_name if obj.artisan else ''
+
+    def validate(self, attrs):
+        village = attrs.get('village') or (self.instance.village if self.instance else None)
+        artisan = attrs.get('artisan') or (self.instance.artisan if self.instance else None)
+        if artisan and village and artisan.village_id != village.village_id:
+            raise serializers.ValidationError({
+                'artisan': 'Nghệ nhân được chỉ định phải thuộc về làng nghề này.'
+            })
+        return attrs
 
 
 class ProductDetailSerializer(ProductSerializer):

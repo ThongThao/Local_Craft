@@ -3,6 +3,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import {
   authApi,
+  uploadApi,
   bookingsApi,
   ordersApi,
   recommendationsApi,
@@ -50,6 +51,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   const [favoritesList, setFavoritesList] = useState<FavoriteItemDto[]>([]);
 
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -80,13 +82,34 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       .catch(() => {});
   }, []);
 
-  // Handle avatar upload preview
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle avatar upload to Cloudinary
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const tempUrl = URL.createObjectURL(file);
-      setAvatarUrl(tempUrl);
-      showToast('Đã chọn ảnh đại diện. Vui lòng bấm "Lưu thay đổi" để cập nhật.');
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Kích thước ảnh vượt quá 10MB. Vui lòng chọn ảnh nhỏ hơn.');
+      return;
+    }
+
+    // Instant local preview
+    const tempUrl = URL.createObjectURL(file);
+    setAvatarUrl(tempUrl);
+    setIsUploadingAvatar(true);
+    showToast('Đang tải ảnh lên Cloudinary...');
+
+    try {
+      const res = await uploadApi.uploadImage(file, 'localcraft/avatars');
+      if (res.success && res.data?.secure_url) {
+        setAvatarUrl(res.data.secure_url);
+        showToast('Tải ảnh lên Cloudinary thành công! Bấm "Lưu thay đổi" để cập nhật tài khoản.');
+      } else {
+        showToast(res.message || 'Tải ảnh thất bại. Vui lòng thử lại.');
+      }
+    } catch (err: any) {
+      showToast(err.message || 'Lỗi khi tải ảnh lên Cloudinary.');
+    } finally {
+      setIsUploadingAvatar(false);
     }
   };
 
@@ -317,9 +340,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingAvatar}
                 className="profile-avatar-change-btn"
+                style={{ opacity: isUploadingAvatar ? 0.7 : 1, cursor: isUploadingAvatar ? 'wait' : 'pointer' }}
               >
-                Thay đổi ảnh đại diện
+                {isUploadingAvatar ? 'Đang tải lên Cloudinary...' : 'Thay đổi ảnh đại diện'}
               </button>
 
               <h2 className="profile-identity-name">{fullName || 'Người dùng'}</h2>
@@ -330,8 +355,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
                 <span className="profile-role-badge-text">
                   {roles.includes('ADMIN')
                     ? 'Quản trị viên hệ thống'
-                    : roles.includes('ARTISAN')
-                    ? 'Nghệ nhân di sản'
+                    : roles.includes('CRAFT_VILLAGE')
+                    ? 'Quản lý làng nghề'
                     : 'Khách du lịch trải nghiệm'}
                 </span>
               </div>

@@ -2,8 +2,7 @@ import uuid
 from decimal import Decimal
 from django.db import transaction
 from rest_framework import serializers
-from .models import Cart, CartItem, Order, OrderItem
-from apps.products.models import ProductVariant, Inventory
+from .models import Cart, CartItem, Order, OrderItem, VendorOrder
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -58,6 +57,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = [
             'order_item_id',
+            'order',
+            'vendor_order',
             'variant',
             'product_name_snapshot',
             'variant_name_snapshot',
@@ -68,8 +69,40 @@ class OrderItemSerializer(serializers.ModelSerializer):
         ]
 
 
+class VendorOrderSerializer(serializers.ModelSerializer):
+    village_name = serializers.CharField(source='village.village_name', read_only=True)
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = VendorOrder
+        fields = [
+            'vendor_order_id',
+            'vendor_order_code',
+            'order',
+            'village',
+            'village_name',
+            'subtotal',
+            'shipping_fee',
+            'discount_amount',
+            'total_amount',
+            'status',
+            'payment_status',
+            'recipient_name',
+            'recipient_phone',
+            'shipping_address',
+            'shipping_note',
+            'tracking_code',
+            'shipped_at',
+            'delivered_at',
+            'items',
+            'created_at',
+            'updated_at',
+        ]
+
+
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    vendor_orders = VendorOrderSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
@@ -87,6 +120,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'status',
             'payment_status',
             'items',
+            'vendor_orders',
             'created_at',
         ]
 
@@ -99,7 +133,7 @@ class CreateOrderSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         user = self.context['request'].user
-        cart = Cart.objects.filter(user=user).prefetch_related('items__variant__inventory').first()
+        cart = Cart.objects.filter(user=user).prefetch_related('items__variant__inventory', 'items__variant__product__village').first()
         if not cart or not cart.items.exists():
             raise serializers.ValidationError("Giỏ hàng của bạn đang trống.")
 
@@ -116,21 +150,27 @@ class CreateOrderSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = self.context['request'].user
         cart = validated_data['cart']
-        cart_items = list(cart.items.all())
+        cart_items = list(cart.items.select_related('variant__product__village', 'variant__inventory'))
 
-        subtotal = sum(item.variant.price * item.quantity for item in cart_items)
-        shipping_fee = Decimal('30000.00')  # 30,000 VND standard
-        total_amount = subtotal + shipping_fee
-        order_code = f"ORD-{uuid.uuid4().hex[:8].upper()}"
+        # Group items by village
+        items_by_village = {}
+        for item in cart_items:
+            village = item.variant.product.village
+            if village not in items_by_village:
+                items_by_village[village] = []
+            items_by_village[village].append(item)
+
+        standard_shipping_per_vendor = Decimal('30000.00')
 
         with transaction.atomic():
-            order = Order.objects.create(
+            order_code = f"ORD-{uuid.uuid4().hex[:8].upper()}"
+            parent_order = Order.objects.create(
                 order_code=order_code,
                 user=user,
-                subtotal=subtotal,
-                shipping_fee=shipping_fee,
+                subtotal=Decimal('0.00'),
+                shipping_fee=Decimal('0.00'),
                 discount_amount=Decimal('0.00'),
-                total_amount=total_amount,
+                total_amount=Decimal('0.00'),
                 recipient_name=validated_data['recipient_name'],
                 recipient_phone=validated_data['recipient_phone'],
                 shipping_address=validated_data['shipping_address'],
@@ -139,24 +179,62 @@ class CreateOrderSerializer(serializers.Serializer):
                 payment_status=Order.PaymentStatus.UNPAID,
             )
 
-            for item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    variant=item.variant,
-                    product_name_snapshot=item.variant.product.product_name,
-                    variant_name_snapshot=item.variant.variant_name,
-                    sku_snapshot=item.variant.sku,
-                    unit_price=item.variant.price,
-                    quantity=item.quantity,
-                    line_total=item.variant.price * item.quantity,
+            parent_subtotal = Decimal('0.00')
+            parent_shipping = Decimal('0.00')
+            parent_discount = Decimal('0.00')
+
+            for village, v_items in items_by_village.items():
+                v_subtotal = sum(it.variant.price * it.quantity for it in v_items)
+                v_shipping = standard_shipping_per_vendor
+                v_discount = Decimal('0.00')
+                v_total = v_subtotal + v_shipping - v_discount
+
+                vendor_order_code = f"VORD-{village.village_id}-{uuid.uuid4().hex[:6].upper()}"
+                vendor_order = VendorOrder.objects.create(
+                    vendor_order_code=vendor_order_code,
+                    order=parent_order,
+                    village=village,
+                    subtotal=v_subtotal,
+                    shipping_fee=v_shipping,
+                    discount_amount=v_discount,
+                    total_amount=v_total,
+                    status=VendorOrder.VendorOrderStatus.PENDING,
+                    payment_status=Order.PaymentStatus.UNPAID,
+                    recipient_name=validated_data['recipient_name'],
+                    recipient_phone=validated_data['recipient_phone'],
+                    shipping_address=validated_data['shipping_address'],
+                    shipping_note=validated_data.get('shipping_note', ''),
                 )
 
-                # Deduct inventory
-                inv = item.variant.inventory
-                inv.quantity = max(0, inv.quantity - item.quantity)
-                inv.save(update_fields=['quantity', 'updated_at'])
+                for item in v_items:
+                    OrderItem.objects.create(
+                        order=parent_order,
+                        vendor_order=vendor_order,
+                        variant=item.variant,
+                        product_name_snapshot=item.variant.product.product_name,
+                        variant_name_snapshot=item.variant.variant_name,
+                        sku_snapshot=item.variant.sku,
+                        unit_price=item.variant.price,
+                        quantity=item.quantity,
+                        line_total=item.variant.price * item.quantity,
+                    )
+
+                    # Deduct inventory atomically
+                    inv = item.variant.inventory
+                    inv.quantity = max(0, inv.quantity - item.quantity)
+                    inv.save(update_fields=['quantity', 'updated_at'])
+
+                parent_subtotal += v_subtotal
+                parent_shipping += v_shipping
+                parent_discount += v_discount
+
+            parent_order.subtotal = parent_subtotal
+            parent_order.shipping_fee = parent_shipping
+            parent_order.discount_amount = parent_discount
+            parent_order.total_amount = parent_subtotal + parent_shipping - parent_discount
+            parent_order.save(update_fields=['subtotal', 'shipping_fee', 'discount_amount', 'total_amount', 'updated_at'])
 
             # Clear cart items
             cart.items.all().delete()
 
-        return order
+        return parent_order

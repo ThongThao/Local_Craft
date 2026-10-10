@@ -93,12 +93,12 @@ class User(AbstractBaseUser):
 class Role(models.Model):
     """
     Table 2: roles
-    System roles (e.g. TOURIST, ARTISAN, ADMIN).
+    System roles (TOURIST, CRAFT_VILLAGE, ADMIN).
     """
 
     class RoleCode(models.TextChoices):
         TOURIST = 'TOURIST', 'Du khách'
-        ARTISAN = 'ARTISAN', 'Nghệ nhân'
+        CRAFT_VILLAGE = 'CRAFT_VILLAGE', 'Làng nghề'
         ADMIN = 'ADMIN', 'Quản trị viên'
 
     role_id = models.BigAutoField(primary_key=True)
@@ -120,6 +120,7 @@ class UserRole(models.Model):
     """
     Table 3: user_roles
     Mapping table between users and roles.
+    Enforces exactly one role per user.
     """
 
     user_role_id = models.BigAutoField(primary_key=True)
@@ -143,8 +144,8 @@ class UserRole(models.Model):
         verbose_name_plural = 'Phân quyền người dùng'
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'role'],
-                name='uq_user_roles_user_role',
+                fields=['user'],
+                name='uq_user_roles_user_unique',
             )
         ]
 

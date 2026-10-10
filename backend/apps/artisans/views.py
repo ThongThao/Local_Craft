@@ -1,29 +1,44 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+# pyrefly: ignore [missing-import]
 from apps.common.responses import api_success, api_error
-from apps.common.permissions import IsArtisan
+# pyrefly: ignore [missing-import]
+from apps.common.permissions import IsVillageManager, IsCraftVillage, user_has_role
 from .models import ArtisanProfile
 from .serializers import ArtisanProfileSerializer, ArtisanProfileDetailSerializer
 
 
-class ArtisanListView(generics.ListAPIView):
+class ArtisanListView(generics.ListCreateAPIView):
     """
-    GET /api/v1/artisans/
-    List approved artisans with village/experience filters.
+    GET /api/v1/artisans/ - List approved artisans with village/experience filters.
+    POST /api/v1/artisans/ - Create an artisan profile for the village (Village Manager or Admin).
     """
-    permission_classes = [permissions.AllowAny]
     serializer_class = ArtisanProfileSerializer
 
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [permissions.IsAuthenticated(), IsCraftVillage()]
+        return [permissions.AllowAny()]
+
     def get_queryset(self):
-        qs = ArtisanProfile.objects.filter(
-            verification_status=ArtisanProfile.VerificationStatus.APPROVED
-        ).select_related('user', 'village').prefetch_related('products', 'workshops')
+        qs = ArtisanProfile.objects.select_related('village').prefetch_related('products', 'workshops')
+
+        # If tourist or anonymous, only show APPROVED
+        user = self.request.user
+        is_manager_or_admin = (
+            user and user.is_authenticated and
+            (user_has_role(user, 'ADMIN') or user_has_role(user, 'CRAFT_VILLAGE'))
+        )
+        if not is_manager_or_admin:
+            qs = qs.filter(verification_status=ArtisanProfile.VerificationStatus.APPROVED)
 
         village_id = self.request.query_params.get('village_id')
         if village_id:
             qs = qs.filter(village_id=village_id)
+
         search = self.request.query_params.get('search')
         if search:
             qs = qs.filter(display_name__icontains=search)
+
         return qs.order_by('-experience_years')
 
     def list(self, request, *args, **kwargs):
@@ -34,16 +49,39 @@ class ArtisanListView(generics.ListAPIView):
             message="Lấy danh sách nghệ nhân thành công"
         )
 
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        data = request.data.copy()
 
-class ArtisanDetailView(generics.RetrieveAPIView):
+        # Enforce village ownership: village managers can only create for their own village
+        if not user_has_role(user, 'ADMIN'):
+            if not hasattr(user, 'managed_village') or not user.managed_village:
+                return api_error(message="Tài khoản chưa quản lý làng nghề nào.", status_code=403)
+            data['village'] = user.managed_village.village_id
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        artisan = serializer.save()
+        return api_success(
+            data=serializer.data,
+            message="Thêm hồ sơ nghệ nhân thành công!",
+            status_code=status.HTTP_201_CREATED
+        )
+
+
+class ArtisanDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
-    GET /api/v1/artisans/<id>/
+    GET /api/v1/artisans/<id>/ - Public view
+    PUT/PATCH /api/v1/artisans/<id>/ - Update artisan (Village Manager of this village or Admin)
+    DELETE /api/v1/artisans/<id>/ - Delete artisan (Village Manager of this village or Admin)
     """
-    permission_classes = [permissions.AllowAny]
+    queryset = ArtisanProfile.objects.select_related('village')
     serializer_class = ArtisanProfileDetailSerializer
-    queryset = ArtisanProfile.objects.filter(
-        verification_status=ArtisanProfile.VerificationStatus.APPROVED
-    ).select_related('user', 'village')
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated(), IsVillageManager()]
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -53,38 +91,29 @@ class ArtisanDetailView(generics.RetrieveAPIView):
             message="Lấy thông tin nghệ nhân thành công"
         )
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        self.check_object_permissions(request, instance)
 
-class ArtisanMeView(generics.GenericAPIView):
-    """
-    GET, PUT /api/v1/artisans/me/
-    Manage the logged-in user's artisan profile.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = ArtisanProfileSerializer
+        # Prevent changing village to another village for village managers
+        data = request.data.copy()
+        if not user_has_role(request.user, 'ADMIN') and 'village' in data:
+            data['village'] = instance.village_id
 
-    def get(self, request):
-        try:
-            profile = request.user.artisan_profile
-            serializer = self.get_serializer(profile)
-            return api_success(data=serializer.data, message="Lấy hồ sơ nghệ nhân thành công")
-        except ArtisanProfile.DoesNotExist:
-            return api_error(message="Tài khoản chưa có hồ sơ nghệ nhân", status_code=404)
-
-    def put(self, request):
-        try:
-            profile = request.user.artisan_profile
-        except ArtisanProfile.DoesNotExist:
-            # Create a pending artisan profile application
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            profile = serializer.save(user=request.user, verification_status=ArtisanProfile.VerificationStatus.PENDING)
-            return api_success(
-                data=self.get_serializer(profile).data,
-                message="Đã nộp đơn đăng ký nghệ nhân, đang chờ duyệt",
-                status_code=201
-            )
-
-        serializer = self.get_serializer(profile, data=request.data, partial=True)
+        serializer = ArtisanProfileSerializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        updated = serializer.save()
-        return api_success(data=self.get_serializer(updated).data, message="Cập nhật hồ sơ nghệ nhân thành công")
+        self.perform_update(serializer)
+        return api_success(
+            data=serializer.data,
+            message="Cập nhật hồ sơ nghệ nhân thành công!"
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.check_object_permissions(request, instance)
+        self.perform_destroy(instance)
+        return api_success(
+            data=None,
+            message="Xóa hồ sơ nghệ nhân thành công!"
+        )

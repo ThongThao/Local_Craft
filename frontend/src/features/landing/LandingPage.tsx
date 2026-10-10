@@ -3,19 +3,16 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import {
   HeroSection,
-  HeritageVillagesSection,
-  CuratedProductsSection,
-  WorkshopsSection,
-  AIAssistantSection,
-  ArtisanStorySection,
-  CtaBannerSection,
+  HeritageRegionsSection,
+  HeritageMissionSection,
+  HeritageJourneyStepsSection,
+  HeritageCoreValuesSection,
+  ArtisanPartnerCtaSection,
 } from '@/components/sections/landing';
 import Modal from '@/components/ui/Modal';
 import AppIcon from '@/components/ui/AppIcon';
-import { VillageItem, ProductItem, WorkshopItem } from '@/types/landing';
-import { WORKSHOPS_DATA, PRODUCTS_DATA, VILLAGES_DATA, ARTISAN_MASTER_DATA } from '@/data/landing';
-
-import { bookingsApi } from '@/services/api';
+import FloatingActionBubbles from '@/components/ui/FloatingActionBubbles';
+import { VILLAGES_DATA, PRODUCTS_DATA } from '@/data/landing';
 
 interface LandingPageProps {
   onNavigateToLogin?: () => void;
@@ -39,21 +36,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   currentUser = null,
 }) => {
   // Modal states
-  const [selectedVillage, setSelectedVillage] = useState<VillageItem | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
-  const [selectedWorkshop, setSelectedWorkshop] = useState<WorkshopItem | null>(null);
   const [videoModalOpen, setVideoModalOpen] = useState<boolean>(false);
-  const [artisanStoryOpen, setArtisanStoryOpen] = useState<boolean>(false);
   const [searchModalOpen, setSearchModalOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedPinInfo, setSelectedPinInfo] = useState<{ name: string; craft: string } | null>(null);
+  const [artisanModalOpen, setArtisanModalOpen] = useState<boolean>(false);
 
-  // Booking form state
-  const [guestCount, setGuestCount] = useState<number>(1);
-  const [bookingDate, setBookingDate] = useState<string>('Cuối tuần này');
-  const [customerName, setCustomerName] = useState<string>('');
-  const [customerPhone, setCustomerPhone] = useState<string>('');
-  const [bookingSuccess, setBookingSuccess] = useState<boolean>(false);
-  const [confirmedBookingCode, setConfirmedBookingCode] = useState<string>('');
+  // Artisan form states
+  const [artisanForm, setArtisanForm] = useState({
+    name: '',
+    phone: '',
+    craft: '',
+    location: '',
+  });
 
   // Toast notification
   const [toastMsg, setToastMsg] = useState<string | null>(null);
@@ -63,43 +58,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     setTimeout(() => setToastMsg(null), 3500);
   };
 
-  const handleBookingSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isLoggedIn) {
-      showToast('Vui lòng đăng nhập để hoàn tất đặt chỗ trải nghiệm.');
-      onNavigateToLogin?.();
-      return;
-    }
+  // Scroll Reveal Intersection Observer (reveals elements once and preserves state until page reload)
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target); // Giữ nguyên cho đến khi load lại trang
+          }
+        });
+      },
+      {
+        threshold: 0.12,
+        rootMargin: '0px 0px -40px 0px',
+      }
+    );
 
-    try {
-      const res = await bookingsApi.createBooking({
-        workshop_id: 1,
-        participant_count: guestCount,
-        special_request: `Khách hàng: ${customerName} (${customerPhone}). Ngày: ${bookingDate}`,
-      });
-      setConfirmedBookingCode(res.data.booking_code);
-      setBookingSuccess(true);
-      setTimeout(() => {
-        setBookingSuccess(false);
-        setSelectedWorkshop(null);
-        setCustomerName('');
-        setCustomerPhone('');
-        showToast(`Đặt chỗ thành công! Mã đơn: ${res.data.booking_code}`);
-      }, 2200);
-    } catch (err: any) {
-      showToast(err.message || 'Không thể tạo đơn đặt chỗ. Vui lòng thử lại.');
-    }
-  };
+    const elements = document.querySelectorAll('.reveal-on-scroll');
+    elements.forEach((el) => observer.observe(el));
 
-  const handleOpenBooking = (workshop: WorkshopItem) => {
-    setSelectedWorkshop(workshop);
-    setGuestCount(1);
-    setBookingSuccess(false);
-  };
+    return () => observer.disconnect();
+  }, []);
 
   const handleOpenExplore = () => {
-    const el = document.getElementById('lang-nghe');
+    const el = document.getElementById('hanh-trinh-3-mien');
     el?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleArtisanSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!artisanForm.name || !artisanForm.phone) {
+      showToast('Vui lòng điền đầy đủ họ tên và số điện thoại.');
+      return;
+    }
+    setArtisanModalOpen(false);
+    setArtisanForm({ name: '', phone: '', craft: '', location: '' });
+    showToast('Cảm ơn nghệ nhân! Ban bảo trợ di sản LocalCraft sẽ liên hệ trong 24 giờ.');
   };
 
   return (
@@ -112,11 +107,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       )}
 
-      {/* Navigation Bar */}
+      {/* Shared Navigation Bar */}
       <Navbar
+        isLanding={true}
         onBackToHome={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         onOpenSearch={() => setSearchModalOpen(true)}
-        onOpenLogin={onNavigateToLogin || (() => showToast('Cổng đăng nhập khách hàng & nghệ nhân đang được đồng bộ.'))}
+        onOpenLogin={onNavigateToLogin || (() => showToast('Cổng đăng nhập tài khoản đang sẵn sàng.'))}
         onOpenProfile={onNavigateToProfile}
         onLogout={onLogout}
         isLoggedIn={isLoggedIn}
@@ -124,224 +120,83 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         onOpenExplore={handleOpenExplore}
       />
 
-      {/* Main Content Sections */}
+      {/* Main Visual Storytelling Flow */}
       <main className="landing-main-content">
-        {/* 1. Hero Section */}
+        {/* 1. Hero Section: Parallax & 3D Interactive Bàn Xoay Nghệ Nhân */}
         <HeroSection
           onExploreClick={handleOpenExplore}
           onWatchVideoClick={() => setVideoModalOpen(true)}
         />
 
-        {/* 2. Bản đồ di sản (Heritage Villages Bento Grid) */}
-        <HeritageVillagesSection
-          onSelectVillage={(v) => setSelectedVillage(v)}
-          onViewAll={() => showToast('Đang hiển thị 120+ làng nghề trên khắp 3 miền Việt Nam.')}
-        />
+        {/* 2. Sứ Mệnh Gìn Giữ & Kết Nối Đương Đại */}
+        <HeritageMissionSection />
 
-        {/* 3. Tác phẩm chọn lọc (Curated Masterpieces) */}
-        <CuratedProductsSection
-          onSelectProduct={(p) => setSelectedProduct(p)}
-        />
+        {/* 3. Hành Trình Di Sản 3 Miền (Heritage Regions Parallax Showcase) */}
+        <div id="hanh-trinh-3-mien">
+          <HeritageRegionsSection
+            onSelectPin={(pinName, craft) => {
+              setSelectedPinInfo({ name: pinName, craft });
+            }}
+          />
+        </div>
 
-        {/* 4. Chương trình trải nghiệm (Workshops) */}
-        <WorkshopsSection
-          onBookWorkshop={handleOpenBooking}
-        />
-
-        {/* 5. Trợ lý hành trình LocalCraft AI */}
-        <AIAssistantSection
-          onBookMatch={(title) => {
-            const matched = WORKSHOPS_DATA[0];
-            setSelectedWorkshop(matched);
-            showToast(`Đã chọn trải nghiệm phù hợp: ${title}`);
+        {/* 4. Hành Trình Trải Nghiệm — Ba Bước Đồng Hành Cùng Di Sản */}
+        <HeritageJourneyStepsSection
+          onStepClick={(step) => {
+            if (step === 1) {
+              const el = document.getElementById('hanh-trinh-3-mien');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            } else if (step === 2) {
+              showToast('Khám phá tạo tác và đăng ký trải nghiệm workshop cùng nghệ nhân.');
+            } else {
+              showToast('Lưu giữ ký ức bản sắc tại không gian di sản.');
+            }
           }}
         />
 
-        {/* 6. Ký sự chân dung (Master Artisan Trần Văn Độ) */}
-        <ArtisanStorySection
-          onReadFullStory={() => setArtisanStoryOpen(true)}
-        />
+        {/* 5. Giá Trị Cốt Lõi — Tại Sao LocalCraft Tạo Nên Sự Khác Biệt? */}
+        <HeritageCoreValuesSection />
 
-        {/* 7. Khởi đầu hành trình (CTA Banner) */}
-        <CtaBannerSection
-          onJoinCommunity={() => showToast('Chào mừng bạn đến với cộng đồng người yêu di sản Việt!')}
-          onArtisanPortal={() => showToast('Cổng kết nối nghệ nhân: Liên hệ hotline di sản 1900 8888')}
+        {/* 6. Đồng Hành Cùng Nghệ Nhân */}
+        <ArtisanPartnerCtaSection
+          onJoinArtisanClick={() => setArtisanModalOpen(true)}
         />
       </main>
 
-      {/* Footer */}
+      {/* Shared Footer */}
       <Footer onBackToHome={() => window.scrollTo({ top: 0, behavior: 'smooth' })} />
 
       {/* ---------------- MODALS ---------------- */}
 
-      {/* Workshop Booking Modal */}
-      <Modal
-        isOpen={!!selectedWorkshop}
-        onClose={() => setSelectedWorkshop(null)}
-        title={selectedWorkshop?.title || 'Đặt chỗ trải nghiệm'}
-        subtitle={`Hướng dẫn bởi: ${selectedWorkshop?.artisanGuide || 'Nghệ nhân bản địa'} · ${selectedWorkshop?.location}`}
-      >
-        {selectedWorkshop && (
-          <div>
-            {bookingSuccess ? (
-              <div className="booking-success-box">
-                <div className="booking-success-emoji">🎉</div>
-                <h4 className="booking-success-title">
-                  Xác nhận đặt chỗ thành công!
-                </h4>
-                <p className="booking-success-desc">
-                  Mã giữ chỗ: <strong>{confirmedBookingCode || `LC-${Math.floor(100000 + Math.random() * 900000)}`}</strong>. Đang kết nối với nghệ nhân...
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleBookingSubmit} className="booking-form">
-                {/* Workshop Summary Card */}
-                <div className="booking-summary-card">
-                  <img
-                    src={selectedWorkshop.image}
-                    alt={selectedWorkshop.title}
-                    className="booking-summary-img"
-                  />
-                  <div>
-                    <div className="booking-summary-tag">
-                      {selectedWorkshop.tag} • {selectedWorkshop.duration}
-                    </div>
-                    <div className="booking-summary-price">
-                      {selectedWorkshop.formattedPrice} / khách
-                    </div>
-                  </div>
-                </div>
-
-                {/* Form fields */}
-                <div className="booking-fields-grid">
-                  <div className="booking-field-group">
-                    <label className="booking-label">
-                      Số lượng khách:
-                    </label>
-                    <div className="guest-counter-wrap">
-                      <button
-                        type="button"
-                        onClick={() => setGuestCount(Math.max(1, guestCount - 1))}
-                        className="guest-counter-btn"
-                      >
-                        -
-                      </button>
-                      <span className="guest-counter-value">
-                        {guestCount}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setGuestCount(guestCount + 1)}
-                        className="guest-counter-btn"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="booking-field-group">
-                    <label className="booking-label">
-                      Thời gian dự kiến:
-                    </label>
-                    <select
-                      value={bookingDate}
-                      onChange={(e) => setBookingDate(e.target.value)}
-                      className="booking-select"
-                    >
-                      <option value="Hôm nay">Hôm nay (14:30)</option>
-                      <option value="Ngày mai">Ngày mai (09:00)</option>
-                      <option value="Cuối tuần này">Thứ Bảy cuối tuần</option>
-                      <option value="Chủ nhật này">Chủ nhật cuối tuần</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="booking-field-group">
-                  <label className="booking-label">
-                    Họ và tên của bạn:
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Nguyễn Văn A"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="booking-input"
-                  />
-                </div>
-
-                <div className="booking-field-group">
-                  <label className="booking-label">
-                    Số điện thoại / Zalo:
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="0912 345 678"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="booking-input"
-                  />
-                </div>
-
-                {/* Total Price & Submit */}
-                <div className="booking-footer-row">
-                  <div>
-                    <div className="booking-total-label">Tổng thanh toán tạm tính:</div>
-                    <div className="booking-total-price">
-                      {(selectedWorkshop.pricePerGuest * guestCount).toLocaleString('vi-VN')}₫
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="booking-submit-btn"
-                  >
-                    Xác nhận đặt chỗ
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        )}
-      </Modal>
-
-      {/* Video Experience Preview Modal */}
+      {/* Video Documentary Modal */}
       <Modal
         isOpen={videoModalOpen}
         onClose={() => setVideoModalOpen(false)}
-        title="Trải nghiệm Thực tế Di sản LocalCraft"
-        subtitle="Hành trình khám phá các lò nung gốm Bát Tràng và xưởng trầm hương Thủy Xuân xứ Huế"
+        title="Ký Sự Thị Giác: Hồn Cốt Bách Nghệ"
+        subtitle="Phim tư liệu 4K ghi hình trực tiếp tại các lò nung Bát Tràng và xưởng trầm Thủy Xuân"
         maxWidth="760px"
       >
         <div className="video-modal-wrap">
-          {/* Mockup Video Player Frame */}
           <div className="video-frame">
             <img
               src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1200&q=80"
               alt="Video preview"
               className="video-preview-img"
             />
-            {/* Play Button Overlay */}
             <div
               className="video-play-btn"
               onClick={() => showToast('Đang phát phim tư liệu di sản sống độ phân giải 4K...')}
             >
               <AppIcon name="play" size={28} />
             </div>
-
-            {/* Video overlay bar */}
             <div className="video-overlay-bar">
               <span>Phim tư liệu: 4K UltraHD • Thời lượng 08:45</span>
               <span>Âm thanh tự nhiên không lời</span>
             </div>
           </div>
 
-          {/* Chapters row */}
           <div>
-            <div className="video-chapters-title">
-              Các chương tiêu biểu:
-            </div>
+            <div className="video-chapters-title">Các chương hành trình:</div>
             <div className="video-chapters-grid">
               {[
                 { title: 'Chương 1: Lửa lò Bát Tràng', time: '02:15' },
@@ -362,147 +217,171 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </Modal>
 
-      {/* Product Detail Modal */}
+      {/* Interactive Pin Craft Insight Modal */}
       <Modal
-        isOpen={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        title={selectedProduct?.title}
-        subtitle={`${selectedProduct?.artisan} · ${selectedProduct?.village}`}
-        maxWidth="680px"
+        isOpen={!!selectedPinInfo}
+        onClose={() => setSelectedPinInfo(null)}
+        title={selectedPinInfo?.name || 'Điểm Di Sản'}
+        subtitle={`Dòng kỹ nghệ: ${selectedPinInfo?.craft || 'Thủ công truyền thống'}`}
+        maxWidth="580px"
       >
-        {selectedProduct && (
-          <div className="product-modal-wrap">
-            <div className="product-modal-hero">
+        {selectedPinInfo && (
+          <div style={{ padding: '8px 0' }}>
+            <div
+              style={{
+                borderRadius: '16px',
+                overflow: 'hidden',
+                marginBottom: '20px',
+                height: '200px',
+              }}
+            >
               <img
-                src={selectedProduct.image}
-                alt={selectedProduct.title}
-                className="product-modal-img"
+                src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=800&q=80"
+                alt={selectedPinInfo.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </div>
 
-            <div>
-              <div className="product-modal-badge">
-                {selectedProduct.badge}
-              </div>
-              <p className="product-modal-desc">
-                {selectedProduct.description}
-              </p>
-              {selectedProduct.story && (
-                <div className="product-modal-story">
-                  “{selectedProduct.story}”
-                </div>
-              )}
-            </div>
-
-            <div className="product-modal-footer">
-              <div>
-                <div className="product-modal-price-label">Giá tác phẩm độc bản:</div>
-                <div className="product-modal-price">
-                  {selectedProduct.formattedPrice}
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setSelectedProduct(null);
-                  showToast(`Đã thêm tác phẩm "${selectedProduct.title}" vào danh sách mong muốn.`);
-                }}
-                className="product-modal-order-btn"
-              >
-                Đặt chế tác độc bản
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      {/* Village Detail Modal */}
-      <Modal
-        isOpen={!!selectedVillage}
-        onClose={() => setSelectedVillage(null)}
-        title={selectedVillage?.name}
-        subtitle={`${selectedVillage?.location} · ${selectedVillage?.period}`}
-        maxWidth="680px"
-      >
-        {selectedVillage && (
-          <div className="village-modal-wrap">
-            <div className="village-modal-hero">
-              <img
-                src={selectedVillage.image}
-                alt={selectedVillage.name}
-                className="village-modal-img"
-              />
-            </div>
-
-            <p className="village-modal-desc">
-              {selectedVillage.description}
+            <p style={{ color: '#4A5652', lineHeight: '1.7', fontSize: '14.5px', marginBottom: '20px' }}>
+              Điểm đến di sản <strong>{selectedPinInfo.name}</strong> lưu giữ kỹ thuật <strong>{selectedPinInfo.craft}</strong> độc bản được trao truyền qua nhiều thế hệ. Du khách có thể trực tiếp gặp gỡ nghệ nhân, tham quan lò nung hoặc xưởng chế tác thủ công để cảm nhận trọn vẹn hồn cốt làng nghề.
             </p>
 
-            <div className="village-modal-tags">
-              {selectedVillage.tags.map((t) => (
-                <span
-                  key={t}
-                  className="village-modal-tag"
-                >
-                  #{t}
-                </span>
-              ))}
-            </div>
-
-            <div className="village-modal-footer">
-              <button
-                onClick={() => {
-                  setSelectedVillage(null);
-                  handleOpenExplore();
-                }}
-                className="village-modal-explore-btn"
-              >
-                Xem các xưởng tại làng nghề
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setSelectedPinInfo(null);
+                showToast(`Đã lưu ${selectedPinInfo.name} vào danh sách điểm đến.`);
+              }}
+              className="product-modal-order-btn"
+              style={{ width: '100%' }}
+            >
+              Lưu vào hành trình trải nghiệm
+            </button>
           </div>
         )}
       </Modal>
 
-      {/* Artisan Biography Modal */}
+      {/* Artisan Partner Onboarding Modal */}
       <Modal
-        isOpen={artisanStoryOpen}
-        onClose={() => setArtisanStoryOpen(false)}
-        title={ARTISAN_MASTER_DATA.name}
-        subtitle={`${ARTISAN_MASTER_DATA.title} · ${ARTISAN_MASTER_DATA.medal}`}
-        maxWidth="720px"
+        isOpen={artisanModalOpen}
+        onClose={() => setArtisanModalOpen(false)}
+        title="Đồng Hành Cùng Mạng Lưới LocalCraft"
+        subtitle="Cổng kết nối dành riêng cho gia đình nghệ nhân, xưởng thủ công và làng nghề cổ truyền"
+        maxWidth="580px"
       >
-        <div className="artisan-modal-wrap">
-          <div className="artisan-modal-hero">
-            <img
-              src={ARTISAN_MASTER_DATA.image}
-              alt={ARTISAN_MASTER_DATA.name}
-              className="artisan-modal-img"
+        <form onSubmit={handleArtisanSubmit} style={{ padding: '8px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#002720', marginBottom: '6px' }}>
+              Họ tên nghệ nhân / Đại diện xưởng *
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="Ví dụ: Nghệ nhân Nguyễn Văn An"
+              value={artisanForm.name}
+              onChange={(e) => setArtisanForm({ ...artisanForm, name: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                borderRadius: '10px',
+                border: '1px solid #D1D5DB',
+                fontSize: '14px',
+                fontFamily: 'Inter, sans-serif',
+              }}
             />
           </div>
 
-          <blockquote className="artisan-modal-quote">
-            {ARTISAN_MASTER_DATA.quote}
-          </blockquote>
-
-          <p className="artisan-modal-p">
-            {ARTISAN_MASTER_DATA.storyParagraph1}
-          </p>
-          <p className="artisan-modal-p">
-            {ARTISAN_MASTER_DATA.storyParagraph2}
-          </p>
-
-          <div className="artisan-modal-stats-grid">
-            <div className="artisan-modal-stat-card">
-              <div className="artisan-modal-stat-num">120+</div>
-              <div className="artisan-modal-stat-label">Mẫu men cổ phục chế thời Lý - Trần - Lê</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#002720', marginBottom: '6px' }}>
+                Số điện thoại liên hệ *
+              </label>
+              <input
+                type="tel"
+                required
+                placeholder="0912 345 678"
+                value={artisanForm.phone}
+                onChange={(e) => setArtisanForm({ ...artisanForm, phone: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid #D1D5DB',
+                  fontSize: '14px',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+              />
             </div>
-            <div className="artisan-modal-stat-card">
-              <div className="artisan-modal-stat-num">2,500+</div>
-              <div className="artisan-modal-stat-label">Học viên thế hệ trẻ đã tham gia truyền nghề</div>
+            <div>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#002720', marginBottom: '6px' }}>
+                Dòng kỹ nghệ / Lĩnh vực
+              </label>
+              <input
+                type="text"
+                placeholder="Gốm sứ, Trầm hương, Lụa..."
+                value={artisanForm.craft}
+                onChange={(e) => setArtisanForm({ ...artisanForm, craft: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid #D1D5DB',
+                  fontSize: '14px',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+              />
             </div>
           </div>
-        </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#002720', marginBottom: '6px' }}>
+              Địa chỉ xưởng / Làng nghề
+            </label>
+            <input
+              type="text"
+              placeholder="Ví dụ: Làng gốm Bát Tràng, Gia Lâm, Hà Nội"
+              value={artisanForm.location}
+              onChange={(e) => setArtisanForm({ ...artisanForm, location: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                borderRadius: '10px',
+                border: '1px solid #D1D5DB',
+                fontSize: '14px',
+                fontFamily: 'Inter, sans-serif',
+              }}
+            />
+          </div>
+
+          <div style={{ background: '#F6F3ED', padding: '12px 14px', borderRadius: '10px', fontSize: '12px', color: '#414846', lineHeight: 1.5 }}>
+            🛡️ <strong>Chính sách cam kết:</strong> LocalCraft không thu phí đăng ký, tôn trọng quyền sở hữu trí tuệ và hỗ trợ quảng bá câu chuyện di sản đến cộng đồng du khách trong nước &amp; quốc tế.
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+            <button
+              type="button"
+              onClick={() => setArtisanModalOpen(false)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                borderRadius: '10px',
+                border: '1px solid #E0DCD3',
+                background: '#FFFFFF',
+                color: '#414846',
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="artisan-partner-btn"
+              style={{ flex: 2, justifyContent: 'center', margin: 0 }}
+            >
+              Gửi yêu cầu đồng hành
+            </button>
+          </div>
+        </form>
       </Modal>
 
       {/* Global Quick Search Modal */}
@@ -510,13 +389,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         isOpen={searchModalOpen}
         onClose={() => setSearchModalOpen(false)}
         title="Tìm kiếm di sản LocalCraft"
-        subtitle="Tìm làng nghề, sản phẩm độc bản hoặc chương trình workshop"
+        subtitle="Tìm nhanh thông tin làng nghề hoặc dòng kỹ nghệ cổ truyền"
         maxWidth="600px"
       >
         <div className="search-modal-wrap">
           <input
             type="text"
-            placeholder="Nhập tên làng nghề, nghệ nhân hoặc sản phẩm (ví dụ: Bát Tràng, lụa, gốm)..."
+            placeholder="Nhập tên di sản (ví dụ: Bát Tràng, men rạn, tơ lụa, trầm hương)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             autoFocus
@@ -524,9 +403,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           />
 
           <div className="search-modal-suggestions">
-            <div className="search-modal-suggestions-label">
-              Gợi ý kết quả:
-            </div>
+            <div className="search-modal-suggestions-label">Gợi ý di sản nổi bật:</div>
             {[...VILLAGES_DATA, ...PRODUCTS_DATA.slice(0, 2)]
               .filter((item) => {
                 const title = 'name' in item ? item.name : item.title;
@@ -549,13 +426,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       <div className="search-suggestion-title">{title}</div>
                       <div className="search-suggestion-sub">{sub}</div>
                     </div>
-                    <span className="search-suggestion-arrow">Xem →</span>
+                    <span className="search-suggestion-arrow">Khám phá →</span>
                   </div>
                 );
               })}
           </div>
         </div>
       </Modal>
+
+      {/* Floating Action Bubbles (Scroll to Top, Heritage Chat, Craft Cart) */}
+      <FloatingActionBubbles />
     </div>
   );
 };

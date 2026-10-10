@@ -10,10 +10,11 @@ from apps.workshops.models import WorkshopSession
 class WorkshopBookingSerializer(serializers.ModelSerializer):
     workshop_name = serializers.CharField(source='session.workshop.workshop_name', read_only=True)
     workshop_image = serializers.CharField(source='session.workshop.cover_image_url', read_only=True)
+    village_name = serializers.CharField(source='session.workshop.village.village_name', read_only=True, default='')
+    artisan_name = serializers.SerializerMethodField()
     start_at = serializers.DateTimeField(source='session.start_at', read_only=True)
     end_at = serializers.DateTimeField(source='session.end_at', read_only=True)
     location_address = serializers.CharField(source='session.workshop.location_address', read_only=True)
-    artisan_name = serializers.CharField(source='session.workshop.artisan.display_name', read_only=True)
 
     class Meta:
         model = WorkshopBooking
@@ -23,6 +24,7 @@ class WorkshopBookingSerializer(serializers.ModelSerializer):
             'session',
             'workshop_name',
             'workshop_image',
+            'village_name',
             'artisan_name',
             'start_at',
             'end_at',
@@ -36,6 +38,12 @@ class WorkshopBookingSerializer(serializers.ModelSerializer):
             'created_at',
         ]
         read_only_fields = ['booking_code', 'unit_price', 'total_amount', 'status', 'cancelled_at', 'created_at']
+
+    def get_artisan_name(self, obj):
+        workshop = getattr(obj.session, 'workshop', None)
+        if workshop and workshop.artisan:
+            return workshop.artisan.display_name
+        return ''
 
 
 class CreateBookingSerializer(serializers.Serializer):

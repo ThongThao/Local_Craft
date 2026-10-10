@@ -5,3 +5,8 @@ export * from './WorkshopsSection';
 export * from './AIAssistantSection';
 export * from './ArtisanStorySection';
 export * from './CtaBannerSection';
+export * from './HeritageRegionsSection';
+export * from './HeritageMissionSection';
+export * from './HeritageJourneyStepsSection';
+export * from './HeritageCoreValuesSection';
+export * from './ArtisanPartnerCtaSection';

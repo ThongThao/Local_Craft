@@ -2,8 +2,11 @@ import uuid
 from django.utils import timezone
 from django.db import transaction
 from rest_framework import generics, permissions, status
+# pyrefly: ignore [missing-import]
 from apps.common.responses import api_success, api_error
-from apps.orders.models import Order
+# pyrefly: ignore [missing-import]
+from apps.orders.models import Order, VendorOrder
+# pyrefly: ignore [missing-import]
 from apps.bookings.models import WorkshopBooking
 from .models import Payment
 from .serializers import PaymentSerializer, CreatePaymentSerializer
@@ -57,6 +60,13 @@ class PaymentVerifyView(generics.GenericAPIView):
                 payment.order.payment_status = Order.PaymentStatus.PAID
                 payment.order.status = Order.OrderStatus.CONFIRMED
                 payment.order.save(update_fields=['payment_status', 'status', 'updated_at'])
+
+                # Update child vendor orders
+                payment.order.vendor_orders.update(
+                    payment_status=Order.PaymentStatus.PAID,
+                    status=VendorOrder.VendorOrderStatus.CONFIRMED,
+                    updated_at=timezone.now(),
+                )
 
             if payment.booking:
                 payment.booking.status = WorkshopBooking.BookingStatus.CONFIRMED

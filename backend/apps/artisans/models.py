@@ -1,11 +1,11 @@
-from django.conf import settings
 from django.db import models
 
 
 class ArtisanProfile(models.Model):
     """
     Table 4: artisan_profiles
-    Artisan profiles and verification status.
+    Informational artisan profiles belonging to a craft village.
+    Artisans are cultural profiles, not independent login accounts.
     """
 
     class VerificationStatus(models.TextChoices):
@@ -14,27 +14,20 @@ class ArtisanProfile(models.Model):
         REJECTED = 'REJECTED', 'Từ chối'
 
     artisan_id = models.BigAutoField(primary_key=True)
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='artisan_profile',
-        db_column='user_id',
-    )
     village = models.ForeignKey(
         'villages.CraftVillage',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        on_delete=models.CASCADE,
         related_name='artisans',
         db_column='village_id',
     )
     display_name = models.CharField(max_length=150)
+    avatar_url = models.CharField(max_length=500, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
     experience_years = models.SmallIntegerField(default=0)
     verification_status = models.CharField(
         max_length=20,
         choices=VerificationStatus.choices,
-        default=VerificationStatus.PENDING,
+        default=VerificationStatus.APPROVED,
         db_index=True,
     )
     verification_note = models.TextField(null=True, blank=True)
@@ -51,4 +44,4 @@ class ArtisanProfile(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.display_name} ({self.verification_status})'
+        return f'{self.display_name} ({self.village.village_name if self.village else "Chưa gán"})'

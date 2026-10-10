@@ -67,15 +67,19 @@ class RegisterView(APIView):
             user.set_password(password)
             user.save()
 
-            # Assign default TOURIST role
-            tourist_role, _ = Role.objects.get_or_create(
-                role_code='TOURIST',
+            # Assign role (default TOURIST or requested CRAFT_VILLAGE, never ADMIN)
+            role_code = data.get('role', 'TOURIST')
+            if role_code not in ['TOURIST', 'CRAFT_VILLAGE']:
+                role_code = 'TOURIST'
+
+            role_obj, _ = Role.objects.get_or_create(
+                role_code=role_code,
                 defaults={
-                    'role_name': 'Du khách',
-                    'description': 'Khách du lịch trải nghiệm di sản văn hóa và đặt workshop.'
+                    'role_name': 'Du khách' if role_code == 'TOURIST' else 'Làng nghề',
+                    'description': 'Khách du lịch trải nghiệm' if role_code == 'TOURIST' else 'Tài khoản quản lý làng nghề',
                 }
             )
-            UserRole.objects.create(user=user, role=tourist_role)
+            UserRole.objects.create(user=user, role=role_obj)
 
         # Generate & send OTP
         success, msg = OTPService.create_and_send_otp(email, OTPService.PURPOSE_VERIFY_EMAIL, full_name)
