@@ -1,0 +1,598 @@
+/* ==========================================================================
+   Landing Page Layout & Modal Sub-Components
+   LocalCraft Vietnamese Heritage Platform
+   ========================================================================== */
+
+/* Page Shell & Main Container */
+.localcraft-landing-page {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--color-cream);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-main-content {
+  flex: 1;
+  width: 100%;
+}
+
+/* ==========================================================================
+   1. Workshop Booking Modal Styles
+   ========================================================================== */
+
+.booking-success-box {
+  text-align: center;
+  padding: 36px 12px;
+}
+
+.booking-success-emoji {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.booking-success-title {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  color: var(--color-forest);
+  margin: 0 0 8px 0;
+}
+
+.booking-success-desc {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.booking-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: #f0eee8;
+  border-radius: 12px;
+}
+
+.booking-summary-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.booking-summary-tag {
+  font-size: 12px;
+  color: var(--color-clay);
+  font-weight: 700;
+  font-family: var(--font-ui);
+}
+
+.booking-summary-price {
+  font-size: 16px;
+  color: var(--color-forest);
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+
+.booking-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.booking-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.booking-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-forest);
+}
+
+.guest-counter-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guest-counter-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.guest-counter-btn:hover {
+  background: #f5f3ee;
+  border-color: var(--color-forest);
+}
+
+.guest-counter-value {
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 24px;
+  text-align: center;
+}
+
+.booking-select {
+  width: 100%;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 0 8px;
+  background: #ffffff;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--color-text-dark);
+  outline: none;
+}
+
+.booking-select:focus {
+  border-color: var(--color-forest);
+}
+
+.booking-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #ffffff;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--color-text-dark);
+  outline: none;
+}
+
+.booking-input:focus {
+  border-color: var(--color-forest);
+}
+
+.booking-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 39, 32, 0.1);
+}
+
+.booking-total-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.booking-total-price {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-clay);
+}
+
+.booking-submit-btn {
+  padding: 12px 28px;
+  background: var(--color-clay);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(152, 70, 40, 0.35);
+  transition: all 0.2s ease;
+}
+
+.booking-submit-btn:hover {
+  background: #843a20;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   2. Video Experience Preview Modal Styles
+   ========================================================================== */
+
+.video-modal-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.video-frame {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #002720;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.7;
+}
+
+.video-play-btn {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(152, 70, 40, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(152, 70, 40, 0.6);
+  cursor: pointer;
+  animation: pulseGlow 2s infinite;
+  transition: transform 0.2s;
+}
+
+.video-play-btn:hover {
+  transform: scale(1.08);
+}
+
+.video-overlay-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px;
+  background: linear-gradient(0deg, rgba(0, 39, 32, 0.9) 0%, transparent 100%);
+  color: var(--color-cream);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-ui);
+  font-size: 13px;
+}
+
+.video-chapters-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-forest);
+  margin-bottom: 8px;
+  font-family: var(--font-ui);
+}
+
+.video-chapters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.video-chapter-card {
+  padding: 10px;
+  border-radius: 10px;
+  background: #f0eee8;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: var(--font-ui);
+  transition: all 0.2s ease;
+}
+
+.video-chapter-card:hover {
+  background: #e7e4dc;
+  transform: translateY(-1px);
+}
+
+.video-chapter-title {
+  font-weight: 700;
+  color: var(--color-forest);
+}
+
+.video-chapter-time {
+  color: var(--color-clay);
+}
+
+/* ==========================================================================
+   3. Curated Product Detail Modal Styles
+   ========================================================================== */
+
+.product-modal-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.product-modal-hero {
+  height: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f0eee8;
+}
+
+.product-modal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-modal-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--color-clay);
+  color: #ffffff;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.product-modal-desc {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+}
+
+.product-modal-story {
+  padding: 14px;
+  background: #f6f3ed;
+  border-radius: 10px;
+  border-left: 3px solid var(--color-clay);
+  font-size: 13px;
+  color: var(--color-forest);
+  font-style: italic;
+}
+
+.product-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 39, 32, 0.1);
+}
+
+.product-modal-price-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.product-modal-price {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-clay);
+}
+
+.product-modal-order-btn {
+  padding: 12px 28px;
+  background: var(--color-forest);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.product-modal-order-btn:hover {
+  background: var(--color-clay);
+}
+
+/* ==========================================================================
+   4. Heritage Village Detail Modal Styles
+   ========================================================================== */
+
+.village-modal-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.village-modal-hero {
+  height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f0eee8;
+}
+
+.village-modal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.village-modal-desc {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.village-modal-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.village-modal-tag {
+  padding: 6px 14px;
+  background: #f0eee8;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-forest);
+}
+
+.village-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 39, 32, 0.1);
+}
+
+.village-modal-explore-btn {
+  padding: 12px 24px;
+  background: var(--color-clay);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.village-modal-explore-btn:hover {
+  background: #843a20;
+}
+
+/* ==========================================================================
+   5. Artisan Biography Modal Styles
+   ========================================================================== */
+
+.artisan-modal-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.artisan-modal-hero {
+  height: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.artisan-modal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.artisan-modal-quote {
+  margin: 0;
+  padding: 16px;
+  background: #f6f3ed;
+  border-radius: 12px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--color-forest);
+  line-height: 1.5;
+  border-left: 4px solid var(--color-clay);
+}
+
+.artisan-modal-p {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.artisan-modal-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid #e0ded9;
+}
+
+.artisan-modal-stat-card {
+  padding: 16px;
+  background: #f0eee8;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.artisan-modal-stat-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-forest);
+}
+
+.artisan-modal-stat-label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   6. Global Quick Search Modal Styles
+   ========================================================================== */
+
+.search-modal-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.search-modal-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid var(--color-forest);
+  font-size: 15px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-modal-input:focus {
+  border-color: var(--color-clay);
+}
+
+.search-modal-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-modal-suggestions-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+}
+
+.search-suggestion-item {
+  padding: 12px;
+  border-radius: 10px;
+  background: #f0eee8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.2s ease;
+}
+
+.search-suggestion-item:hover {
+  background: #e7e4dc;
+}
+
+.search-suggestion-title {
+  font-weight: 700;
+  color: var(--color-forest);
+  font-size: 14px;
+}
+
+.search-suggestion-sub {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.search-suggestion-arrow {
+  font-size: 12px;
+  color: var(--color-clay);
+  font-weight: 600;
+}

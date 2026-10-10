@@ -59,6 +59,7 @@
 | `email` | VARCHAR(255) | NN, UQ; normalize to lowercase |
 | `password_hash` | VARCHAR(255) | NN; password hash only |
 | `full_name` | VARCHAR(150) | NN |
+| `gender` | VARCHAR(10) | Nullable; choices: `MALE`, `FEMALE`, `OTHER` |
 | `phone` | VARCHAR(20) | Nullable; unique when provided |
 | `avatar_url` | VARCHAR(500) | Nullable |
 | `status` | VARCHAR(20) | NN, default `ACTIVE`: `ACTIVE`, `INACTIVE`, `SUSPENDED` |

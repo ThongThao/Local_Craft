@@ -16,5 +16,6 @@ cryptography>=42.0.5
 # Environment & Configuration
 python-dotenv>=1.0.1
 
-# Utilities & Media
+# Utilities & Media & Cache
 Pillow>=10.3.0
+redis>=5.0.0

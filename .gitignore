@@ -26,11 +26,12 @@ ENV/
 env.bak/
 venv.bak/
 
-# Django media & static collected
+# Django media & static collected & cache
 media/
 staticfiles/
 *.sqlite3
 *.log
+.cache/
 
 # Node.js & Frontend
 node_modules/

@@ -48,6 +48,7 @@ ALLOWED_HOSTS = [
 DJANGO_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sessions',
     'django.contrib.staticfiles',
 ]
 
@@ -55,7 +56,10 @@ DJANGO_APPS = [
 MIGRATION_MODULES = {
     'auth': None,
     'contenttypes': None,
+    'sessions': None,
 }
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 THIRD_PARTY_APPS = [
     'rest_framework',
@@ -88,6 +92,7 @@ AUTH_USER_MODEL = 'accounts.User'
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -170,7 +175,39 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    'EXCEPTION_HANDLER': 'apps.common.exceptions.custom_exception_handler',
 }
+
+# Cache Configuration (Redis Cache via Docker Desktop on 127.0.0.1:6379, fallback to FileBasedCache)
+CACHE_BACKEND = os.getenv('CACHE_BACKEND', 'django.core.cache.backends.redis.RedisCache')
+REDIS_URL = os.getenv('REDIS_URL', 'redis://127.0.0.1:6379/1')
+
+CACHES = {
+    'default': {
+        'BACKEND': CACHE_BACKEND,
+        'LOCATION': REDIS_URL if 'redis' in CACHE_BACKEND.lower() else str(BASE_DIR / '.cache'),
+    }
+}
+
+# Email Configuration (SMTP with Gmail or custom SMTP, console fallback)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '').strip()
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '').strip()
+_backend_from_env = os.getenv('EMAIL_BACKEND', '').strip()
+
+if _backend_from_env:
+    EMAIL_BACKEND = _backend_from_env
+elif EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+DEFAULT_FROM_EMAIL = os.getenv(
+    'DEFAULT_FROM_EMAIL',
+    f'LocalCraft <{EMAIL_HOST_USER}>' if EMAIL_HOST_USER else 'LocalCraft <no-reply@localcraft.vn>'
+)
 
 # Simple JWT Configuration
 from datetime import timedelta

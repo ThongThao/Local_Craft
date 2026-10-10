@@ -1,0 +1,112 @@
+/* CTA Banner Section Styles */
+.cta-section {
+  position: relative;
+  width: 100%;
+  padding: 100px 32px;
+  background: var(--color-forest);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cta-bg-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(171deg, var(--color-forest-light) 0%, var(--color-forest) 50%, var(--color-forest) 100%);
+  opacity: 0.95;
+}
+
+.cta-ember-orb {
+  position: absolute;
+  right: 5%;
+  bottom: 10%;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(152, 70, 40, 0.35) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+.cta-container {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 28px;
+}
+
+.cta-badge-pill {
+  padding: 6px 18px;
+  background: rgba(252, 249, 243, 0.12);
+  border-radius: 9999px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 219, 207, 0.25);
+}
+
+.cta-badge-text {
+  color: var(--color-peach);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.cta-heading {
+  margin: 0;
+  color: var(--color-cream);
+  font-size: clamp(32px, 5vw, 52px);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  max-width: 780px;
+  text-align: center;
+}
+
+.cta-subtitle {
+  margin: 0;
+  color: rgba(252, 249, 243, 0.85);
+  font-size: 17px;
+  font-family: var(--font-body);
+  line-height: 1.65;
+  max-width: 680px;
+  text-align: center;
+}
+
+.cta-buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+}
+
+.cta-trust-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  flex-wrap: wrap;
+  padding-top: 20px;
+}
+
+.cta-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cta-trust-text {
+  color: rgba(252, 249, 243, 0.8);
+  font-size: 13px;
+  font-family: var(--font-body);
+}

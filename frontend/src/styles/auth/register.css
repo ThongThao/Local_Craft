@@ -1,0 +1,137 @@
+/* ==========================================================================
+   Register Page Specific Styles (Spacious & No-Scroll 2-Column Grid)
+   LocalCraft Vietnamese Heritage Platform
+   ========================================================================== */
+
+/* Wider, Spacious Card for Register Form - High Legibility & No-Scroll */
+.auth-card-container.register-card {
+  max-width: 760px;
+  padding: 28px 42px 22px;
+  gap: 13px;
+}
+
+/* Two columns inputs row for spacious, ergonomic register layout */
+.auth-two-col-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  width: 100%;
+}
+
+/* Custom Role Select Dropdown matching LocalCraft Design */
+.auth-center-select {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px 0 44px;
+  background: #ffffff;
+  border: 1px solid #ded8cc;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--color-text-dark);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23002720' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.auth-center-select:focus {
+  border-color: var(--color-forest);
+  box-shadow: 0 0 0 2.5px rgba(0, 39, 32, 0.08);
+}
+
+.auth-center-select:has(option[value=""]:checked) {
+  color: #a69f94;
+}
+
+.auth-center-select option {
+  color: var(--color-text-dark);
+}
+
+/* Side-by-side row for Password Strength & Terms Agreement */
+.auth-register-extra-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 3px 0;
+  width: 100%;
+}
+
+.auth-register-extra-row .auth-strength-container {
+  flex: 1;
+}
+
+.auth-register-extra-row .auth-center-remember-row {
+  flex: 1.1;
+  margin-top: 0;
+  justify-content: flex-end;
+}
+
+/* Password strength row */
+.auth-strength-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-top: 1px;
+}
+
+.auth-strength-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-family: var(--font-ui);
+}
+
+.auth-strength-label {
+  color: var(--color-text-muted);
+}
+
+.auth-strength-value {
+  font-weight: 700;
+  color: var(--color-forest);
+}
+
+.auth-strength-bars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.auth-strength-bar {
+  flex: 1;
+  height: 4.5px;
+  border-radius: 9999px;
+  background: #e2ddd3;
+  transition: all 0.3s ease;
+}
+
+.auth-strength-bar.weak {
+  background: var(--color-clay);
+}
+
+.auth-strength-bar.medium {
+  background: #d8833b;
+}
+
+.auth-strength-bar.strong {
+  background: var(--color-forest);
+}
+
+@media (max-width: 600px) {
+  .auth-card-container.register-card {
+    padding: 20px 20px 16px;
+  }
+  .auth-two-col-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}

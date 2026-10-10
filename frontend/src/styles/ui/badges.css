@@ -1,0 +1,65 @@
+.app-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 9999px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+}
+
+.app-badge-sm {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.app-badge-md {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.app-badge-terracotta {
+  background: var(--color-clay);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(152, 70, 40, 0.25);
+}
+
+.app-badge-forest {
+  background: var(--color-forest);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 39, 32, 0.25);
+}
+
+.app-badge-sage {
+  background: var(--color-sage);
+  color: var(--color-forest);
+  font-weight: 600;
+}
+
+.app-badge-gold {
+  background: rgba(255, 219, 207, 0.25);
+  color: var(--color-peach);
+  border: 1px solid rgba(255, 219, 207, 0.3);
+}
+
+.app-badge-glass {
+  background: rgba(252, 249, 243, 0.15);
+  color: var(--color-cream);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(252, 249, 243, 0.2);
+}
+
+.app-badge-parchment {
+  background: var(--color-parchment);
+  color: var(--color-text-dark);
+}
+
+.badge-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  display: inline-block;
+  animation: pulseGlow 2s infinite;
+}

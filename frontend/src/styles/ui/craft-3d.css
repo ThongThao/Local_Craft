@@ -1,0 +1,89 @@
+.craft-3d-turntable {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: linear-gradient(145deg, rgba(23, 61, 53, 0.45) 0%, rgba(0, 39, 32, 0.85) 100%);
+  border-radius: 24px;
+  padding: 24px;
+  border: 1px solid rgba(255, 219, 207, 0.15);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  user-select: none;
+}
+
+.craft-3d-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.craft-3d-stage {
+  position: relative;
+  height: 270px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 800px;
+}
+
+.craft-3d-ambient-glow {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  filter: blur(30px);
+  pointer-events: none;
+}
+
+.craft-3d-vase-wrapper {
+  position: relative;
+  width: 160px;
+  height: 220px;
+  transform-style: preserve-3d;
+}
+
+.craft-3d-lathe-base {
+  position: absolute;
+  bottom: -16px;
+  left: -20px;
+  width: 200px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, #5c3826 0%, #2b170c 70%, #150904 100%);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 219, 207, 0.2);
+}
+
+.craft-3d-tooltip-right {
+  position: absolute;
+  right: 8px;
+  top: 25%;
+  background: rgba(0, 39, 32, 0.85);
+  border: 1px solid rgba(255, 219, 207, 0.25);
+  padding: 6px 12px;
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+.craft-3d-tooltip-left {
+  position: absolute;
+  left: 8px;
+  bottom: 25%;
+  background: rgba(0, 39, 32, 0.85);
+  border: 1px solid rgba(194, 235, 223, 0.25);
+  padding: 6px 12px;
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: floatSlow 4s ease-in-out infinite 2s;
+}
+
+.craft-3d-glaze-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}

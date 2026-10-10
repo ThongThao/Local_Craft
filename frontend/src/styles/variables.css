@@ -1,0 +1,22 @@
+:root {
+  --color-forest: #002720;
+  --color-forest-deep: #001e18;
+  --color-forest-light: #173d35;
+  --color-clay: #984628;
+  --color-clay-hover: #b05330;
+  --color-cream: #fcf9f3;
+  --color-sand: #f6f3ed;
+  --color-parchment: #f0eee8;
+  --color-muted-stone: #ebe8e2;
+  --color-peach: #ffdbcf;
+  --color-sage: #c2ebdf;
+  --color-sage-deep: #40655c;
+  --color-text-main: #002720;
+  --color-text-muted: #414846;
+  --color-text-dark: #1c1c18;
+
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-ui: 'Manrope', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+}

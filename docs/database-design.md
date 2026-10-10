@@ -16,7 +16,7 @@ Tài liệu này phác thảo các miền dữ liệu (Domains) và các bảng 
 ## 2. Các miền dữ liệu chính (Data Domains)
 
 ### 2.1. Quản lý người dùng & phân quyền (`accounts`)
-- `users`: Tài khoản người dùng (họ tên, email, số điện thoại, mật khẩu mã hóa, vai trò: `tourist`, `artisan`, `admin`, trạng thái kích hoạt).
+- `users`: Tài khoản người dùng (họ tên, email, số điện thoại, mật khẩu mã hóa, giới tính: `MALE`, `FEMALE`, `OTHER`, vai trò: `tourist`, `artisan`, `admin`, trạng thái kích hoạt).
 - `user_profiles`: Thông tin hồ sơ cá nhân mở rộng (avatar, tiểu sử, ngôn ngữ ưa thích, vị trí).
 
 ### 2.2. Nghệ nhân & Làng nghề (`artisans`, `villages`, `stories`)

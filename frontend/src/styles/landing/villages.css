@@ -1,0 +1,248 @@
+/* Heritage Villages Section Styles */
+.villages-section {
+  width: 100%;
+  padding: 80px 0;
+  background: var(--color-cream);
+  position: relative;
+}
+
+.villages-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.villages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.villages-header-texts {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.villages-eyebrow {
+  color: var(--color-clay);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.villages-title {
+  margin: 0;
+  color: var(--color-forest);
+  font-size: clamp(32px, 4vw, 44px);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.villages-description {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 16px;
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+.villages-view-all-btn {
+  background: none;
+  border: none;
+  padding: 8px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--color-clay);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 700;
+  transition: transform 0.2s;
+}
+
+.villages-view-all-btn:hover {
+  transform: translateX(4px);
+}
+
+.villages-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+
+.bento-col-7 {
+  grid-column: span 7;
+}
+
+.bento-col-5 {
+  grid-column: span 5;
+}
+
+.bento-col-6 {
+  grid-column: span 6;
+}
+
+.bento-card-tall {
+  height: 460px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 36px;
+  box-shadow: 0 10px 30px -10px rgba(0, 39, 32, 0.25);
+  cursor: pointer;
+}
+
+.bento-card-standard {
+  height: 380px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 32px;
+  box-shadow: 0 10px 30px -10px rgba(0, 39, 32, 0.2);
+  cursor: pointer;
+}
+
+.bento-bg-zoom {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tilt-card-wrapper:hover .bento-bg-zoom {
+  transform: scale(1.06);
+}
+
+.bento-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, #002720 0%, rgba(0, 39, 32, 0.65) 55%, rgba(0, 39, 32, 0.1) 100%);
+}
+
+.bento-card-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bento-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bento-badge-tag {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+.bento-badge-tag.clay {
+  background: var(--color-clay);
+  color: #ffffff;
+}
+
+.bento-badge-tag.sage {
+  background: var(--color-sage-deep);
+  color: var(--color-cream);
+}
+
+.bento-badge-tag.forest-light {
+  background: var(--color-forest-light);
+  color: var(--color-sage);
+}
+
+.bento-badge-tag.olive {
+  background: #2c3b29;
+  color: #d6e8cf;
+}
+
+.bento-badge-loc {
+  padding: 4px 12px;
+  background: rgba(252, 249, 243, 0.2);
+  backdrop-filter: blur(6px);
+  border-radius: 9999px;
+  color: var(--color-cream);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+.bento-card-title-lg {
+  margin: 0;
+  color: var(--color-cream);
+  font-size: 32px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.bento-card-title-md {
+  margin: 0;
+  color: var(--color-cream);
+  font-size: 26px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+.bento-card-desc {
+  margin: 0;
+  color: rgba(252, 249, 243, 0.85);
+  font-size: 15px;
+  font-family: var(--font-body);
+  line-height: 1.5;
+  max-width: 520px;
+}
+
+.bento-metrics-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-top: 10px;
+}
+
+.bento-metric-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(252, 249, 243, 0.95);
+  font-size: 13px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .villages-bento-grid {
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
+
+  .bento-col-7,
+  .bento-col-5,
+  .bento-col-6 {
+    grid-column: span 1 !important;
+  }
+}

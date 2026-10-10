@@ -1,0 +1,251 @@
+/* ==========================================================================
+   Recovery / Forgot Password (S04) & Reset Password (S05) Styles
+   LocalCraft Vietnamese Heritage Platform
+   ========================================================================== */
+
+/* Step Indicator Pills */
+.auth-step-indicators {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.auth-step-dot {
+  width: 28px;
+  height: 5px;
+  border-radius: 9999px;
+  background: #e2ddd3;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auth-step-dot.active {
+  background: var(--color-forest);
+  width: 42px;
+}
+
+.auth-step-dot.completed {
+  background: var(--color-clay);
+}
+
+/* Email sent notification banner in S04 Step 2 */
+.auth-email-sent-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(194, 235, 223, 0.5);
+  border: 1px solid rgba(0, 39, 32, 0.14);
+  border-radius: 9999px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-forest);
+  margin-top: 2px;
+}
+
+.auth-email-sent-badge strong {
+  color: var(--color-forest);
+  text-decoration: underline;
+}
+
+/* 6-Digit OTP Input Grid */
+.auth-otp-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 6px 0;
+}
+
+.auth-otp-cell {
+  width: 52px;
+  height: 56px;
+  border: 1.5px solid #ded8cc;
+  border-radius: 12px;
+  background: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-forest);
+  text-align: center;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(0, 39, 32, 0.04);
+}
+
+.auth-otp-cell:focus {
+  border-color: var(--color-forest);
+  box-shadow: 0 0 0 3px rgba(0, 39, 32, 0.12), 0 4px 12px rgba(0, 39, 32, 0.08);
+  transform: translateY(-2px);
+  background: #fcfdfd;
+}
+
+.auth-otp-cell.filled {
+  border-color: var(--color-forest-light);
+  background: #fbf9f5;
+}
+
+.auth-otp-cell.has-error {
+  border-color: var(--color-clay);
+  animation: otpShake 0.35s ease-in-out;
+}
+
+@keyframes otpShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+/* OTP Resend Row with Countdown */
+.auth-otp-resend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 2px;
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+
+.auth-otp-timer-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+}
+
+.auth-otp-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  padding: 2px 7px;
+  background: rgba(152, 70, 40, 0.1);
+  color: var(--color-clay);
+  border-radius: 6px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 12.5px;
+}
+
+.auth-otp-resend-btn {
+  background: none;
+  border: none;
+  color: var(--color-forest);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: all 0.2s ease;
+}
+
+.auth-otp-resend-btn:hover:not(:disabled) {
+  color: var(--color-clay);
+}
+
+.auth-otp-resend-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   S05: Reset Password Criteria Checklist
+   ========================================================================== */
+
+.auth-criteria-container {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: rgba(0, 39, 32, 0.03);
+  border: 1px solid rgba(0, 39, 32, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.auth-criteria-title {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auth-criteria-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+}
+
+.auth-criteria-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  transition: all 0.2s ease;
+}
+
+.auth-criteria-item.valid {
+  color: var(--color-forest);
+  font-weight: 600;
+}
+
+.auth-criteria-icon {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #ded8cc;
+  transition: all 0.25s ease;
+}
+
+.auth-criteria-item.valid .auth-criteria-icon {
+  background: var(--color-forest);
+  box-shadow: 0 0 6px rgba(0, 39, 32, 0.35);
+}
+
+/* Password Match Success Badge */
+.auth-pw-match-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  padding: 4px 0 2px;
+}
+
+.auth-pw-match-badge.matched {
+  color: var(--color-forest);
+}
+
+.auth-pw-match-badge.unmatched {
+  color: var(--color-clay);
+}
+
+/* Responsive adjustment for small screens */
+@media (max-width: 480px) {
+  .auth-otp-grid {
+    gap: 6px;
+  }
+  .auth-otp-cell {
+    width: 42px;
+    height: 48px;
+    font-size: 20px;
+  }
+  .auth-criteria-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -18,12 +18,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, full_name, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('status', User.UserStatus.ACTIVE)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser phải có is_staff=True')
-
         return self.create_user(email, full_name, password, **extra_fields)
 
 
@@ -38,11 +33,26 @@ class User(AbstractBaseUser):
         INACTIVE = 'INACTIVE', 'Không hoạt động'
         SUSPENDED = 'SUSPENDED', 'Bị khóa'
 
+    class Gender(models.TextChoices):
+        MALE = 'MALE', 'Nam'
+        FEMALE = 'FEMALE', 'Nữ'
+        OTHER = 'OTHER', 'Khác'
+
     user_id = models.BigAutoField(primary_key=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     password = models.CharField(max_length=255, db_column='password_hash')
     full_name = models.CharField(max_length=150)
+    gender = models.CharField(
+        max_length=10,
+        choices=Gender.choices,
+        default=Gender.OTHER,
+        null=True,
+        blank=True,
+        verbose_name='Giới tính',
+    )
+    birth_date = models.DateField(null=True, blank=True, verbose_name='Ngày sinh')
     phone = models.CharField(max_length=20, null=True, blank=True, unique=True)
+    address = models.CharField(max_length=255, null=True, blank=True, verbose_name='Địa chỉ')
     avatar_url = models.CharField(max_length=500, null=True, blank=True)
     status = models.CharField(
         max_length=20,
@@ -54,8 +64,6 @@ class User(AbstractBaseUser):
     last_login = models.DateTimeField(null=True, blank=True, db_column='last_login_at')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
 
