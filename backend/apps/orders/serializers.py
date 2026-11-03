@@ -2,6 +2,7 @@ import uuid
 from decimal import Decimal
 from django.db import transaction
 from rest_framework import serializers
+from apps.products.models import Inventory
 from .models import Cart, CartItem, Order, OrderItem, VendorOrder
 
 
@@ -219,9 +220,17 @@ class CreateOrderSerializer(serializers.Serializer):
                         line_total=item.variant.price * item.quantity,
                     )
 
-                    # Deduct inventory atomically
-                    inv = item.variant.inventory
-                    inv.quantity = max(0, inv.quantity - item.quantity)
+                    # Lock and deduct inventory atomically to prevent race conditions & overselling
+                    inv, _ = Inventory.objects.select_for_update().get_or_create(
+                        variant=item.variant,
+                        defaults={'quantity': 0, 'reserved_quantity': 0}
+                    )
+                    if inv.sellable_quantity < item.quantity:
+                        raise serializers.ValidationError(
+                            f"Sản phẩm {item.variant.variant_name} không đủ số lượng tồn kho khả dụng ({inv.sellable_quantity} còn lại)."
+                        )
+
+                    inv.quantity = inv.quantity - item.quantity
                     inv.save(update_fields=['quantity', 'updated_at'])
 
                 parent_subtotal += v_subtotal

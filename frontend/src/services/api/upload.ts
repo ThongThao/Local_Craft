@@ -8,7 +8,7 @@ export interface UploadResponseDto {
   width?: number;
   height?: number;
   bytes?: number;
-  storage: 'cloudinary' | 'local_fallback';
+  storage: 'cloudinary';
 }
 
 export const uploadApi = {

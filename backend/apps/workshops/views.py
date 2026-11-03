@@ -41,6 +41,8 @@ class WorkshopListView(generics.ListCreateAPIView):
         village_id = self.request.query_params.get('village_id')
         if village_id:
             qs = qs.filter(village_id=village_id)
+        elif user and user.is_authenticated and hasattr(user, 'managed_village') and user.managed_village and not user_has_role(user, 'ADMIN'):
+            qs = qs.filter(village=user.managed_village)
 
         min_price = self.request.query_params.get('min_price')
         if min_price:

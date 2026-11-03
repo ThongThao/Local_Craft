@@ -9,7 +9,7 @@ interface LoginPageProps {
   onBackToHome?: () => void;
   onSwitchToRegister?: () => void;
   onForgotPassword?: () => void;
-  onLoginSuccess?: (data: { email: string; fullName?: string }) => void;
+  onLoginSuccess?: (data: { email: string; fullName?: string; role_id?: number; roles?: string[] }) => void;
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({
@@ -47,6 +47,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({
           onLoginSuccess({
             email: res.data.user.email,
             fullName: res.data.user.full_name,
+            role_id: res.data.user.role_id,
+            roles: res.data.user.roles,
           });
         } else {
           onBackToHome?.();

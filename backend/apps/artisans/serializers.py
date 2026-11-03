@@ -36,6 +36,27 @@ class ArtisanProfileSerializer(serializers.ModelSerializer):
     def get_workshop_count(self, obj):
         return obj.workshops.filter(status='APPROVED').count()
 
+    def validate_experience_years(self, value):
+        if value is not None and value < 0:
+            raise serializers.ValidationError("Số năm kinh nghiệm không được âm (>= 0).")
+        return value
+
+    def validate_display_name(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("Tên nghệ nhân không được để trống.")
+        val = value.strip()
+        if len(val) > 150:
+            raise serializers.ValidationError("Tên nghệ nhân không được vượt quá 150 ký tự.")
+        return val
+
+    def validate_verification_status(self, value):
+        valid_statuses = [choice[0] for choice in ArtisanProfile.VerificationStatus.choices]
+        if value not in valid_statuses:
+            raise serializers.ValidationError(
+                f"Trạng thái không hợp lệ. Chỉ chấp nhận: {', '.join(valid_statuses)}."
+            )
+        return value
+
 
 class ArtisanProfileDetailSerializer(ArtisanProfileSerializer):
     village = CraftVillageSerializer(read_only=True)

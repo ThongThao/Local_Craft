@@ -46,20 +46,20 @@ class HealthCheckView(APIView):
         return api_error(message='Hệ thống gặp sự cố kết nối cơ sở dữ liệu.', errors=health_data, status_code=503)
 
 
-import os
-import uuid
+import logging
 import cloudinary
 import cloudinary.uploader
 from django.conf import settings
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
 from rest_framework.parsers import MultiPartParser, FormParser
+
+logger = logging.getLogger(__name__)
 
 
 class CloudinaryUploadView(APIView):
     """
     POST /api/v1/upload/
-    Uploads image to Cloudinary (or fallback local media storage) and returns secure URL.
+    Uploads image exclusively to Cloudinary and returns secure URL.
+    Physical image storage is Cloudinary-only. No local filesystem storage.
     """
     permission_classes = [AllowAny]
     parser_classes = [MultiPartParser, FormParser]
@@ -96,46 +96,49 @@ class CloudinaryUploadView(APIView):
         api_key = getattr(settings, 'CLOUDINARY_API_KEY', None)
         api_secret = getattr(settings, 'CLOUDINARY_API_SECRET', None)
 
-        if cloud_name and api_key and api_secret:
-            try:
-                upload_result = cloudinary.uploader.upload(
-                    file_obj,
-                    folder=folder,
-                    resource_type='image',
-                    overwrite=True,
+        if not (cloud_name and api_key and api_secret):
+            logger.error("Cloudinary chưa được cấu hình (thiếu CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY hoặc CLOUDINARY_API_SECRET).")
+            return api_error(
+                message="Dịch vụ lưu trữ ảnh Cloudinary chưa được cấu hình trên hệ thống.",
+                status_code=503
+            )
+
+        # Ensure file pointer is at beginning before upload
+        file_obj.seek(0)
+
+        try:
+            upload_result = cloudinary.uploader.upload(
+                file_obj,
+                folder=folder,
+                resource_type='image',
+                overwrite=True,
+            )
+
+            secure_url = upload_result.get('secure_url') or upload_result.get('url')
+            if not secure_url or not isinstance(secure_url, str) or not secure_url.startswith(('http://', 'https://')):
+                logger.error(f"Cloudinary upload result missing valid secure_url: {upload_result}")
+                return api_error(
+                    message="Không thể lấy đường dẫn ảnh an toàn từ Cloudinary. Vui lòng thử lại.",
+                    status_code=502
                 )
 
-                response_data = {
-                    'url': upload_result.get('secure_url') or upload_result.get('url'),
-                    'secure_url': upload_result.get('secure_url'),
-                    'public_id': upload_result.get('public_id'),
-                    'format': upload_result.get('format'),
-                    'width': upload_result.get('width'),
-                    'height': upload_result.get('height'),
-                    'bytes': upload_result.get('bytes'),
-                    'storage': 'cloudinary',
-                }
-                return api_success(
-                    data=response_data,
-                    message='Tải ảnh lên Cloudinary thành công!'
-                )
-            except Exception as e:
-                # Log and fallback to local media storage
-                pass
-
-        # Fallback local media storage
-        ext = os.path.splitext(file_obj.name)[1] or '.jpg'
-        unique_filename = f"{uuid.uuid4().hex}{ext}"
-        relative_path = os.path.join(folder, unique_filename).replace('\\', '/')
-        saved_path = default_storage.save(relative_path, ContentFile(file_obj.read()))
-        local_url = request.build_absolute_uri(settings.MEDIA_URL + saved_path)
-
-        return api_success(
-            data={
-                'url': local_url,
-                'secure_url': local_url,
-                'public_id': saved_path,
-                'storage': 'local_fallback',
-            },
-            message='Tải ảnh lên thành công (lưu trữ cục bộ). Cấu hình CLOUDINARY_CLOUD_NAME trong .env để đồng bộ Cloudinary CDN.'
-        )
+            response_data = {
+                'url': secure_url,
+                'secure_url': secure_url,
+                'public_id': upload_result.get('public_id'),
+                'format': upload_result.get('format'),
+                'width': upload_result.get('width'),
+                'height': upload_result.get('height'),
+                'bytes': upload_result.get('bytes'),
+                'storage': 'cloudinary',
+            }
+            return api_success(
+                data=response_data,
+                message='Tải ảnh lên Cloudinary thành công!'
+            )
+        except Exception as e:
+            logger.exception("Cloudinary upload failed")
+            return api_error(
+                message="Không thể tải ảnh lên Cloudinary. Vui lòng kiểm tra kết nối mạng và thử lại sau.",
+                status_code=502
+            )

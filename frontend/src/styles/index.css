@@ -32,3 +32,6 @@
 
 /* User Profile Styles */
 @import './profile/profile.css';
+
+/* Artisan & Craft Village Portal Styles */
+@import './artisans/artisan-dashboard.css';

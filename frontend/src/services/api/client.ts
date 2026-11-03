@@ -64,8 +64,14 @@ export async function apiClient<T = any>(
 
   if (requiresAuth) {
     const token = getAccessToken();
+    const refreshToken = getRefreshToken();
     if (token) {
       requestHeaders['Authorization'] = `Bearer ${token}`;
+    } else if (!refreshToken) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+      }
+      throw new ApiError('Chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.', 401);
     }
   }
 
@@ -95,9 +101,20 @@ export async function apiClient<T = any>(
             });
           } else {
             clearTokens();
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+            }
           }
         } catch {
           clearTokens();
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+          }
+        }
+      } else {
+        clearTokens();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('auth:unauthorized'));
         }
       }
     }

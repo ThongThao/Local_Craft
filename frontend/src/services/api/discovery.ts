@@ -8,6 +8,8 @@ export interface VillageDto {
   province: string;
   district?: string;
   address?: string;
+  latitude?: number | string | null;
+  longitude?: number | string | null;
   cover_image_url?: string;
   status: string;
   artisan_count?: number;

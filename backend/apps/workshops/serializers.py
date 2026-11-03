@@ -58,6 +58,11 @@ class WorkshopSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'artisan': 'Nghệ nhân hướng dẫn phải thuộc về làng nghề tổ chức workshop.'
             })
+        workshop_status = attrs.get('status') or (self.instance.status if self.instance else None)
+        if artisan and workshop_status == 'APPROVED' and artisan.verification_status != 'APPROVED':
+            raise serializers.ValidationError({
+                'artisan': 'Chỉ nghệ nhân có hồ sơ đã được duyệt (APPROVED) mới được phép hướng dẫn workshop công khai.'
+            })
         return attrs
 
 

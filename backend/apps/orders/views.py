@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from rest_framework import generics, permissions, status
 # pyrefly: ignore [missing-import]
@@ -14,7 +15,7 @@ from .serializers import (
     CreateOrderSerializer,
     VendorOrderSerializer,
 )
-from .services import sync_parent_order_status
+from .services import sync_parent_order_status, cancel_vendor_order, cancel_parent_order
 
 
 class CartView(generics.GenericAPIView):
@@ -161,6 +162,22 @@ class OrderDetailView(generics.RetrieveAPIView):
         serializer = self.get_serializer(instance)
         return api_success(data=serializer.data, message="Lấy chi tiết đơn hàng thành công")
 
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_object()
+        new_status = request.data.get('status')
+        if new_status == Order.OrderStatus.CANCELLED:
+            try:
+                cancelled_order = cancel_parent_order(instance, user=request.user)
+                return api_success(
+                    data=self.get_serializer(cancelled_order).data,
+                    message="Hủy đơn hàng và hoàn trả tồn kho thành công!"
+                )
+            except ValidationError as err:
+                msg = err.message if hasattr(err, 'message') else str(err)
+                return api_error(message=msg, status_code=400)
+
+        return api_error(message="Cập nhật trạng thái không được hỗ trợ", status_code=400)
+
 
 class VendorOrderListView(generics.ListAPIView):
     """
@@ -259,6 +276,18 @@ class VendorOrderStatusUpdateView(generics.GenericAPIView):
                     status_code=400
                 )
 
+        if new_status == VendorOrder.VendorOrderStatus.CANCELLED:
+            # Handle cancellation with atomic inventory rollback and idempotency
+            try:
+                cancelled_vo = cancel_vendor_order(vendor_order)
+                return api_success(
+                    data=VendorOrderSerializer(cancelled_vo).data,
+                    message="Hủy đơn hàng làng nghề và hoàn trả tồn kho thành công!"
+                )
+            except ValidationError as err:
+                msg = err.message if hasattr(err, 'message') else str(err)
+                return api_error(message=msg, status_code=400)
+
         vendor_order.status = new_status
 
         # Timestamps and tracking snapshots
@@ -280,4 +309,33 @@ class VendorOrderStatusUpdateView(generics.GenericAPIView):
         return api_success(
             data=VendorOrderSerializer(vendor_order).data,
             message="Cập nhật trạng thái đơn hàng làng nghề thành công!"
+        )
+
+
+class OrderCancelView(generics.GenericAPIView):
+    """
+    POST /api/v1/orders/<int:pk>/cancel/
+    Cancel parent order and rollback inventories of all child vendor orders.
+    Can be cancelled by the tourist owning the order or an Admin.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            order = Order.objects.prefetch_related('vendor_orders__items__variant', 'items__variant').get(pk=pk)
+        except Order.DoesNotExist:
+            return api_error(message="Đơn hàng không tồn tại", status_code=404)
+
+        if not user_has_role(request.user, 'ADMIN') and order.user_id != request.user.user_id:
+            return api_error(message="Bạn không có quyền hủy đơn hàng này", status_code=403)
+
+        try:
+            cancelled_order = cancel_parent_order(order, user=request.user)
+        except ValidationError as err:
+            msg = err.message if hasattr(err, 'message') else str(err)
+            return api_error(message=msg, status_code=400)
+
+        return api_success(
+            data=OrderSerializer(cancelled_order).data,
+            message="Hủy đơn hàng và hoàn trả tồn kho thành công!"
         )

@@ -11,6 +11,7 @@ export interface UserProfile {
   address?: string;
   status: string;
   roles: string[];
+  role_id?: number;
   created_at?: string;
 }
 

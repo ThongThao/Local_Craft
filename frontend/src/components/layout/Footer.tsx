@@ -106,7 +106,7 @@ export const Footer: React.FC<FooterProps> = ({ onBackToHome }) => {
           <div className="footer-nav-col">
             <h4 className="footer-nav-title">Về LocalCraft</h4>
             <div className="footer-nav-links">
-              {['Sứ mệnh bảo tồn', 'Liên hệ cộng tác', 'Cổng Nghệ nhân'].map((link) => (
+              {['Sứ mệnh bảo tồn', 'Liên hệ cộng tác', 'Không gian văn hóa'].map((link) => (
                 <a key={link} href="#gioi-thieu" className="footer-nav-link">
                   {link}
                 </a>

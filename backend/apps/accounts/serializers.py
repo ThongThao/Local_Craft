@@ -11,6 +11,7 @@ from .models import User, Role, UserRole
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for displaying User details and roles."""
     roles = serializers.SerializerMethodField()
+    role_id = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -25,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
             'avatar_url',
             'status',
             'roles',
+            'role_id',
             'email_verified_at',
             'created_at',
         ]
@@ -32,6 +34,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_roles(self, obj):
         return list(obj.user_roles.values_list('role__role_code', flat=True))
+
+    def get_role_id(self, obj):
+        first_role = obj.user_roles.select_related('role').first()
+        return first_role.role.role_id if first_role and first_role.role else None
 
 
 class RegisterSerializer(serializers.Serializer):

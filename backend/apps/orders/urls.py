@@ -5,6 +5,7 @@ from .views import (
     CartItemUpdateDeleteView,
     OrderListCreateView,
     OrderDetailView,
+    OrderCancelView,
     VendorOrderListView,
     VendorOrderDetailView,
     VendorOrderStatusUpdateView,
@@ -19,6 +20,7 @@ urlpatterns = [
     # Orders (Customer / Admin)
     path('orders/', OrderListCreateView.as_view(), name='order-list-create'),
     path('orders/<int:pk>/', OrderDetailView.as_view(), name='order-detail'),
+    path('orders/<int:pk>/cancel/', OrderCancelView.as_view(), name='order-cancel'),
 
     # Vendor Orders (Craft Village Manager / Admin)
     path('vendor-orders/', VendorOrderListView.as_view(), name='vendor-order-list'),

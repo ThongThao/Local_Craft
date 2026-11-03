@@ -1,21 +1,30 @@
 from django.utils import timezone
 from rest_framework import generics, permissions, status
 from apps.common.responses import api_success, api_error
+from apps.common.permissions import user_has_role
 from .models import WorkshopBooking
 from .serializers import WorkshopBookingSerializer, CreateBookingSerializer
 
 
 class BookingListCreateView(generics.GenericAPIView):
     """
-    GET /api/v1/bookings/ - List user's bookings
+    GET /api/v1/bookings/ - List user's bookings (or village's bookings for CRAFT_VILLAGE manager)
     POST /api/v1/bookings/ - Book a workshop session
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        bookings = WorkshopBooking.objects.filter(user=request.user).select_related(
-            'session', 'session__workshop', 'session__workshop__artisan'
-        ).order_by('-created_at')
+        user = request.user
+        if user_has_role(user, 'CRAFT_VILLAGE') and hasattr(user, 'managed_village') and user.managed_village:
+            bookings = WorkshopBooking.objects.filter(
+                session__workshop__village=user.managed_village
+            ).select_related(
+                'session', 'session__workshop', 'session__workshop__artisan'
+            ).order_by('-created_at')
+        else:
+            bookings = WorkshopBooking.objects.filter(user=request.user).select_related(
+                'session', 'session__workshop', 'session__workshop__artisan'
+            ).order_by('-created_at')
         serializer = WorkshopBookingSerializer(bookings, many=True)
         return api_success(data=serializer.data, message="Lấy danh sách đăng ký workshop thành công")
 

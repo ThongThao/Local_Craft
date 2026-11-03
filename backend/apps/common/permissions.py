@@ -54,12 +54,17 @@ class IsVillageManager(BasePermission):
             return True
         if not user_has_role(request.user, 'CRAFT_VILLAGE'):
             return False
-        return hasattr(request.user, 'managed_village') and request.user.managed_village is not None
+        if not hasattr(request.user, 'managed_village') or not request.user.managed_village:
+            return False
+        # Village must be in active status ('ACTIVE')
+        return getattr(request.user.managed_village, 'status', None) == 'ACTIVE'
 
     def has_object_permission(self, request, view, obj):
         if user_has_role(request.user, 'ADMIN'):
             return True
         if not hasattr(request.user, 'managed_village') or not request.user.managed_village:
+            return False
+        if getattr(request.user.managed_village, 'status', None) != 'ACTIVE':
             return False
 
         managed_village_id = request.user.managed_village.village_id
@@ -68,13 +73,21 @@ class IsVillageManager(BasePermission):
         if hasattr(obj, 'village_id') and type(obj).__name__ == 'CraftVillage':
             return obj.village_id == managed_village_id
 
-        # If obj has village_id attribute
-        if hasattr(obj, 'village_id'):
-            return obj.village_id == managed_village_id
+        # If obj is ProductVariant
+        if hasattr(obj, 'product') and obj.product and hasattr(obj.product, 'village_id'):
+            return obj.product.village_id == managed_village_id
+
+        # If obj is Inventory
+        if hasattr(obj, 'variant') and obj.variant and hasattr(obj.variant, 'product') and obj.variant.product:
+            return obj.variant.product.village_id == managed_village_id
 
         # If obj has village foreign key
         if hasattr(obj, 'village') and obj.village:
             return obj.village.village_id == managed_village_id
+
+        # If obj has village_id attribute
+        if hasattr(obj, 'village_id'):
+            return obj.village_id == managed_village_id
 
         return False
 
