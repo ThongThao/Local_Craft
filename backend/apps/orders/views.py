@@ -1,3 +1,5 @@
+from decimal import Decimal
+from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from rest_framework import generics, permissions, status
@@ -185,22 +187,65 @@ class VendorOrderListView(generics.ListAPIView):
     List vendor orders partitioned by craft village.
     Village managers can only see their own village's orders.
     Admin can see all vendor orders.
+    Supports search, status, payment_status, date range filters.
     """
     permission_classes = [permissions.IsAuthenticated, IsCraftVillage]
     serializer_class = VendorOrderSerializer
 
     def get_queryset(self):
         user = self.request.user
-        qs = VendorOrder.objects.select_related('village', 'order').prefetch_related('items')
+        qs = VendorOrder.objects.select_related(
+            'village', 'order', 'order__user'
+        ).prefetch_related(
+            'items__variant__product',
+            'order__payments',
+            'refunds',
+        )
 
         if not user_has_role(user, 'ADMIN'):
             if not hasattr(user, 'managed_village') or not user.managed_village:
                 return VendorOrder.objects.none()
             qs = qs.filter(village=user.managed_village)
 
+        # Status filter
         status_param = self.request.query_params.get('status')
-        if status_param:
+        if status_param and status_param != 'ALL':
             qs = qs.filter(status=status_param)
+
+        # Payment status filter
+        payment_status_param = self.request.query_params.get('payment_status')
+        if payment_status_param and payment_status_param != 'ALL':
+            qs = qs.filter(payment_status=payment_status_param)
+
+        # Search by order code, vendor order code, recipient name, phone, customer email/name
+        search_param = (self.request.query_params.get('search') or self.request.query_params.get('q') or '').strip()
+        if search_param:
+            qs = qs.filter(
+                models.Q(vendor_order_code__icontains=search_param) |
+                models.Q(order__order_code__icontains=search_param) |
+                models.Q(recipient_name__icontains=search_param) |
+                models.Q(recipient_phone__icontains=search_param) |
+                models.Q(order__user__first_name__icontains=search_param) |
+                models.Q(order__user__last_name__icontains=search_param) |
+                models.Q(order__user__email__icontains=search_param)
+            )
+
+        # Order code exact or partial
+        order_code_param = (self.request.query_params.get('order_code') or '').strip()
+        if order_code_param:
+            qs = qs.filter(
+                models.Q(order__order_code__icontains=order_code_param) |
+                models.Q(vendor_order_code__icontains=order_code_param)
+            )
+
+        # Date range filtering
+        from_date = self.request.query_params.get('from_date') or self.request.query_params.get('start_date')
+        if from_date:
+            qs = qs.filter(created_at__date__gte=from_date)
+
+        to_date = self.request.query_params.get('to_date') or self.request.query_params.get('end_date')
+        if to_date:
+            qs = qs.filter(created_at__date__lte=to_date)
 
         return qs.order_by('-created_at')
 
@@ -209,14 +254,129 @@ class VendorOrderListView(generics.ListAPIView):
         return api_success(data=serializer.data, message="Lấy danh sách đơn hàng làng nghề thành công")
 
 
+class VendorOrderSummaryView(generics.GenericAPIView):
+    """
+    GET /api/v1/vendor-orders/summary/
+    Return accurate database-level KPI aggregations for craft village orders.
+    Counts distinct parent orders (does not double-count items).
+    """
+    permission_classes = [permissions.IsAuthenticated, IsCraftVillage]
+
+    def get(self, request):
+        user = request.user
+        base_qs = VendorOrder.objects.all()
+
+        if not user_has_role(user, 'ADMIN'):
+            if not hasattr(user, 'managed_village') or not user.managed_village:
+                return api_success(data={
+                    'total_orders': 0,
+                    'total_vendor_orders': 0,
+                    'total_parent_orders': 0,
+                    'total_items_quantity': 0,
+                    'pending_orders': 0,
+                    'confirmed_orders': 0,
+                    'processing_orders': 0,
+                    'shipped_orders': 0,
+                    'delivered_orders': 0,
+                    'completed_orders': 0,
+                    'cancelled_orders': 0,
+                    'total_subtotal': 0.0,
+                    'total_shipping_fee': 0.0,
+                    'total_discount_amount': 0.0,
+                    'total_order_amount': 0.0,
+                    'total_paid_amount': 0.0,
+                    'total_refunded_amount': 0.0,
+                    'net_realized_revenue': 0.0,
+                    'total_village_revenue': 0.0,
+                }, message="Thống kê đơn hàng")
+            base_qs = base_qs.filter(village=user.managed_village)
+
+        # Distinct VendorOrder counts (matching V13 list)
+        total_vendor_orders = base_qs.values('vendor_order_id').distinct().count()
+        total_parent_orders = base_qs.values('order_id').distinct().count()
+
+        pending_orders = base_qs.filter(status=VendorOrder.VendorOrderStatus.PENDING).values('vendor_order_id').distinct().count()
+        confirmed_orders = base_qs.filter(status=VendorOrder.VendorOrderStatus.CONFIRMED).values('vendor_order_id').distinct().count()
+        processing_orders = base_qs.filter(status=VendorOrder.VendorOrderStatus.PROCESSING).values('vendor_order_id').distinct().count()
+        shipped_orders = base_qs.filter(status=VendorOrder.VendorOrderStatus.SHIPPED).values('vendor_order_id').distinct().count()
+        delivered_orders = base_qs.filter(status=VendorOrder.VendorOrderStatus.DELIVERED).values('vendor_order_id').distinct().count()
+        completed_orders = base_qs.filter(status=VendorOrder.VendorOrderStatus.COMPLETED).values('vendor_order_id').distinct().count()
+        cancelled_orders = base_qs.filter(status=VendorOrder.VendorOrderStatus.CANCELLED).values('vendor_order_id').distinct().count()
+
+        # Item quantities
+        from .models import OrderItem
+        items_qs = OrderItem.objects.filter(vendor_order__in=base_qs)
+        total_items_quantity = items_qs.aggregate(total_qty=models.Sum('quantity'))['total_qty'] or 0
+
+        # Financial metrics (strictly separated)
+        from apps.payments.models import Refund
+        active_vos = base_qs.exclude(status=VendorOrder.VendorOrderStatus.CANCELLED)
+        total_subtotal = float(active_vos.aggregate(t=models.Sum('subtotal'))['t'] or 0)
+        total_shipping_fee = float(active_vos.aggregate(t=models.Sum('shipping_fee'))['t'] or 0)
+        total_discount_amount = float(active_vos.aggregate(t=models.Sum('discount_amount'))['t'] or 0)
+        total_order_amount = float(active_vos.aggregate(t=models.Sum('total_amount'))['t'] or 0)
+
+        # Realized revenue from paid orders
+        paid_vos = active_vos.filter(payment_status=Order.PaymentStatus.PAID)
+        total_paid_amount = float(paid_vos.aggregate(t=models.Sum('total_amount'))['t'] or 0)
+
+        # Completed refunds for this village
+        refunds_agg = Refund.objects.filter(
+            vendor_order__in=base_qs,
+            status=Refund.RefundStatus.COMPLETED
+        ).aggregate(t=models.Sum('amount_approved'))['t'] or 0
+        total_refunded_amount = float(refunds_agg)
+
+        net_realized_revenue = max(0.0, total_paid_amount - total_refunded_amount)
+
+        data = {
+            'total_orders': total_vendor_orders,  # Primary count for V13 list
+            'total_vendor_orders': total_vendor_orders,
+            'total_parent_orders': total_parent_orders,
+            'total_items_quantity': total_items_quantity,
+            'pending_orders': pending_orders,
+            'confirmed_orders': confirmed_orders,
+            'processing_orders': processing_orders,
+            'shipped_orders': shipped_orders,
+            'delivered_orders': delivered_orders,
+            'completed_orders': completed_orders,
+            'cancelled_orders': cancelled_orders,
+            # Financial breakdown
+            'total_subtotal': total_subtotal,
+            'total_shipping_fee': total_shipping_fee,
+            'total_discount_amount': total_discount_amount,
+            'total_order_amount': total_order_amount,
+            'total_paid_amount': total_paid_amount,
+            'total_refunded_amount': total_refunded_amount,
+            'net_realized_revenue': net_realized_revenue,
+            'total_village_revenue': total_subtotal,  # Backward compatible
+        }
+        return api_success(data=data, message="Lấy thống kê đơn hàng làng nghề thành công")
+
+
 class VendorOrderDetailView(generics.RetrieveAPIView):
     """
     GET /api/v1/vendor-orders/<id>/
     Retrieve vendor order details.
+    Strictly scoped to the manager's village for non-admins.
     """
     permission_classes = [permissions.IsAuthenticated, IsVillageManager]
     serializer_class = VendorOrderSerializer
-    queryset = VendorOrder.objects.select_related('village', 'order').prefetch_related('items')
+
+    def get_queryset(self):
+        user = self.request.user
+        qs = VendorOrder.objects.select_related(
+            'village', 'order', 'order__user'
+        ).prefetch_related(
+            'items__variant__product',
+            'order__payments',
+            'refunds',
+        )
+        if not user_has_role(user, 'ADMIN'):
+            if not hasattr(user, 'managed_village') or not user.managed_village:
+                return VendorOrder.objects.none()
+            qs = qs.filter(village=user.managed_village)
+        return qs
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()

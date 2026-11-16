@@ -1,4 +1,5 @@
 import { apiClient, ApiResponse } from './client';
+export { type ArtisanDto } from './discovery';
 import { ArtisanDto } from './discovery';
 
 export interface CreateArtisanPayload {

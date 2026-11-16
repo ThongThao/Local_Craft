@@ -42,10 +42,17 @@ def cancel_vendor_order(vendor_order: VendorOrder) -> VendorOrder:
         raise ValidationError("Không thể hủy đơn hàng đang giao hoặc đã hoàn tất.")
 
     with transaction.atomic():
-        # Lock vendor_order row
+        # Lock vendor_order row to guarantee concurrency isolation
         vo = VendorOrder.objects.select_for_update().get(pk=vendor_order.pk)
         if vo.status == VendorOrder.VendorOrderStatus.CANCELLED:
             raise ValidationError("Đơn hàng làng nghề này đã ở trạng thái đã hủy trước đó.")
+
+        if vo.status in [
+            VendorOrder.VendorOrderStatus.SHIPPED,
+            VendorOrder.VendorOrderStatus.DELIVERED,
+            VendorOrder.VendorOrderStatus.COMPLETED,
+        ]:
+            raise ValidationError("Không thể hủy đơn hàng đang giao hoặc đã hoàn tất.")
 
         rollback_vendor_order_inventory(vo)
         vo.status = VendorOrder.VendorOrderStatus.CANCELLED
@@ -76,8 +83,15 @@ def cancel_parent_order(order: Order, user=None) -> Order:
         if parent.status == Order.OrderStatus.CANCELLED:
             raise ValidationError("Đơn hàng này đã ở trạng thái đã hủy trước đó.")
 
+        if parent.status in [
+            Order.OrderStatus.SHIPPED,
+            Order.OrderStatus.DELIVERED,
+            Order.OrderStatus.COMPLETED,
+        ]:
+            raise ValidationError("Không thể hủy đơn hàng đang giao hoặc đã hoàn tất.")
+
         # Cancel child vendor orders that are not already cancelled
-        child_vendor_orders = parent.vendor_orders.select_for_update().all()
+        child_vendor_orders = parent.vendor_orders.select_for_update().order_by('vendor_order_id')
         for vo in child_vendor_orders:
             if vo.status != VendorOrder.VendorOrderStatus.CANCELLED:
                 rollback_vendor_order_inventory(vo)
@@ -100,6 +114,7 @@ def cancel_parent_order(order: Order, user=None) -> Order:
 def sync_parent_order_status(order: Order) -> Order:
     """
     Derive and update parent Order status from its child VendorOrders.
+    Guaranteed atomic with select_for_update on the parent Order.
     Rules:
     - If ALL child orders are CANCELLED: parent order becomes CANCELLED.
     - If ALL non-cancelled child orders are COMPLETED: parent order becomes COMPLETED.
@@ -109,34 +124,44 @@ def sync_parent_order_status(order: Order) -> Order:
     - If ALL non-cancelled child orders are CONFIRMED: parent becomes CONFIRMED.
     - Otherwise: parent remains PENDING.
     """
-    vendor_orders = list(order.vendor_orders.all())
-    if not vendor_orders:
-        return order
+    with transaction.atomic():
+        parent = Order.objects.select_for_update().get(pk=order.pk)
+        vendor_orders = list(parent.vendor_orders.select_for_update().order_by('vendor_order_id'))
+        if not vendor_orders:
+            return parent
 
-    statuses = [vo.status for vo in vendor_orders]
+        statuses = [vo.status for vo in vendor_orders]
 
-    # All cancelled
-    if all(s == VendorOrder.VendorOrderStatus.CANCELLED for s in statuses):
-        order.status = Order.OrderStatus.CANCELLED
-    else:
-        active_statuses = [s for s in statuses if s != VendorOrder.VendorOrderStatus.CANCELLED]
-        if all(s == VendorOrder.VendorOrderStatus.COMPLETED for s in active_statuses):
-            order.status = Order.OrderStatus.COMPLETED
-        elif all(s in [VendorOrder.VendorOrderStatus.DELIVERED, VendorOrder.VendorOrderStatus.COMPLETED] for s in active_statuses):
-            order.status = Order.OrderStatus.DELIVERED
-        elif all(s in [VendorOrder.VendorOrderStatus.SHIPPED, VendorOrder.VendorOrderStatus.DELIVERED, VendorOrder.VendorOrderStatus.COMPLETED] for s in active_statuses):
-            order.status = Order.OrderStatus.SHIPPED
-        elif any(s in [VendorOrder.VendorOrderStatus.PROCESSING, VendorOrder.VendorOrderStatus.SHIPPED, VendorOrder.VendorOrderStatus.DELIVERED] for s in active_statuses):
-            order.status = Order.OrderStatus.PROCESSING
-        elif all(s == VendorOrder.VendorOrderStatus.CONFIRMED for s in active_statuses):
-            order.status = Order.OrderStatus.CONFIRMED
+        # All cancelled
+        if all(s == VendorOrder.VendorOrderStatus.CANCELLED for s in statuses):
+            parent.status = Order.OrderStatus.CANCELLED
         else:
-            order.status = Order.OrderStatus.PENDING
+            active_statuses = [s for s in statuses if s != VendorOrder.VendorOrderStatus.CANCELLED]
+            if all(s == VendorOrder.VendorOrderStatus.COMPLETED for s in active_statuses):
+                parent.status = Order.OrderStatus.COMPLETED
+            elif all(s in [VendorOrder.VendorOrderStatus.DELIVERED, VendorOrder.VendorOrderStatus.COMPLETED] for s in active_statuses):
+                parent.status = Order.OrderStatus.DELIVERED
+            elif all(s in [VendorOrder.VendorOrderStatus.SHIPPED, VendorOrder.VendorOrderStatus.DELIVERED, VendorOrder.VendorOrderStatus.COMPLETED] for s in active_statuses):
+                parent.status = Order.OrderStatus.SHIPPED
+            elif any(s in [VendorOrder.VendorOrderStatus.PROCESSING, VendorOrder.VendorOrderStatus.SHIPPED, VendorOrder.VendorOrderStatus.DELIVERED] for s in active_statuses):
+                parent.status = Order.OrderStatus.PROCESSING
+            elif all(s == VendorOrder.VendorOrderStatus.CONFIRMED for s in active_statuses):
+                parent.status = Order.OrderStatus.CONFIRMED
+            else:
+                parent.status = Order.OrderStatus.PENDING
 
-    # Check payment status consistency
-    payment_statuses = [vo.payment_status for vo in vendor_orders if vo.status != VendorOrder.VendorOrderStatus.CANCELLED]
-    if payment_statuses and all(ps == Order.PaymentStatus.PAID for ps in payment_statuses):
-        order.payment_status = Order.PaymentStatus.PAID
+        # Check payment status consistency across non-cancelled child vendor orders
+        active_vos = [vo for vo in vendor_orders if vo.status != VendorOrder.VendorOrderStatus.CANCELLED]
+        if active_vos:
+            p_statuses = [vo.payment_status for vo in active_vos]
+            if all(ps == Order.PaymentStatus.REFUNDED for ps in p_statuses):
+                parent.payment_status = Order.PaymentStatus.REFUNDED
+            elif any(ps in [Order.PaymentStatus.PARTIALLY_REFUNDED, Order.PaymentStatus.REFUNDED] for ps in p_statuses):
+                parent.payment_status = Order.PaymentStatus.PARTIALLY_REFUNDED
+            elif all(ps == Order.PaymentStatus.PAID for ps in p_statuses):
+                parent.payment_status = Order.PaymentStatus.PAID
+            elif any(ps == Order.PaymentStatus.FAILED for ps in p_statuses):
+                parent.payment_status = Order.PaymentStatus.FAILED
 
-    order.save(update_fields=['status', 'payment_status', 'updated_at'])
-    return order
+        parent.save(update_fields=['status', 'payment_status', 'updated_at'])
+        return parent

@@ -85,14 +85,25 @@ export const OrdersBookingsTab: React.FC<OrdersBookingsTabProps> = ({
             className={`subtab-switch-btn ${activeSubTab === 'orders' ? 'active' : ''}`}
             onClick={() => handleSubTabChange('orders')}
           >
-            🏺 Đơn Đặt Tác Phẩm Thủ Công ({orders.length})
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+              <path d="M8 3h8l1 4H7l1-4z" />
+              <path d="M7 7c-2.5 3-3 8 0 12h10c3-4 2.5-9 0-12" />
+              <path d="M10 21v1h4v-1" />
+            </svg>
+            Đơn Đặt Tác Phẩm Thủ Công ({orders.length})
           </button>
           <button
             type="button"
             className={`subtab-switch-btn ${activeSubTab === 'bookings' ? 'active' : ''}`}
             onClick={() => handleSubTabChange('bookings')}
           >
-            🎫 Vé Trải Nghiệm Workshop ({bookings.length})
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+              <rect x="2" y="6" width="20" height="12" rx="2" />
+              <line x1="6" y1="12" x2="6.01" y2="12" />
+              <line x1="10" y1="12" x2="14" y2="12" />
+              <line x1="18" y1="12" x2="18.01" y2="12" />
+            </svg>
+            Vé Trải Nghiệm Workshop ({bookings.length})
           </button>
         </div>
 
@@ -172,7 +183,12 @@ export const OrdersBookingsTab: React.FC<OrdersBookingsTabProps> = ({
                     <div className="table-order-code">{o.orderId}</div>
                     <div className="table-order-date">{o.orderDate}</div>
                     {o.isCustomOrder && (
-                      <span className="table-custom-tag">⭐ Đặt riêng</span>
+                      <span className="table-custom-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        Đặt riêng
+                      </span>
                     )}
                   </td>
                   <td>
@@ -221,7 +237,12 @@ export const OrdersBookingsTab: React.FC<OrdersBookingsTabProps> = ({
                         </button>
                       )}
                       {o.status === 'COMPLETED' && (
-                        <span className="table-completed-label">✓ Đã giao</span>
+                        <span className="table-completed-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          Đã giao
+                        </span>
                       )}
                     </div>
                   </td>
@@ -266,12 +287,26 @@ export const OrdersBookingsTab: React.FC<OrdersBookingsTabProps> = ({
                     <div className="table-customer-name">{b.guestName}</div>
                     <div className="table-customer-phone">{b.guestPhone}</div>
                     {b.specialNote && (
-                      <div className="table-booking-note">📝 {b.specialNote}</div>
+                      <div className="table-booking-note" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                        <span>{b.specialNote}</span>
+                      </div>
                     )}
                   </td>
                   <td>
                     <div className="table-product-title">{b.workshopTitle}</div>
-                    <div className="table-booking-time">⏰ {b.sessionTime}</div>
+                    <div className="table-booking-time" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                      <span>{b.sessionTime}</span>
+                    </div>
                   </td>
                   <td>
                     <div className="table-guest-count">
@@ -295,11 +330,20 @@ export const OrdersBookingsTab: React.FC<OrdersBookingsTabProps> = ({
                         type="button"
                         className="table-btn-action checkin"
                         onClick={() => onCheckInBooking(b.bookingId)}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                       >
-                        ✓ Quét QR Check-in
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span>Quét QR Check-in</span>
                       </button>
                     ) : (
-                      <span className="table-completed-label">✓ Đã Check-in</span>
+                      <span className="table-completed-label" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span>Đã Check-in</span>
+                      </span>
                     )}
                   </td>
                 </tr>

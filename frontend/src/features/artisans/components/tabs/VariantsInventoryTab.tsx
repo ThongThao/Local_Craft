@@ -279,7 +279,8 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
     });
   };
 
-  // Toggle active status directly
+  // Toggle active status directly (available for inline toggle if enabled)
+  /*
   const handleToggleActive = async (v: ProductVariantDto) => {
     try {
       const nextStatus = !v.is_active;
@@ -290,7 +291,7 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
         );
         showToast?.(
           nextStatus
-            ? `✓ Đã kích hoạt hoạt động cho biến thể: ${v.sku}`
+            ? `Đã kích hoạt hoạt động cho biến thể: ${v.sku}`
             : `Đã ngừng kinh doanh biến thể: ${v.sku}`
         );
       } else {
@@ -300,6 +301,7 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
       showToast?.(err?.message || 'Có lỗi xảy ra khi cập nhật trạng thái biến thể.');
     }
   };
+  */
 
   // Delete Variant (calls DELETE /api/v1/products/variants/<id>/)
   const handleDeleteVariant = async (v: ProductVariantDto) => {
@@ -318,7 +320,7 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
           showToast?.(res.message || 'Biến thể đã có trong lịch sử đơn hàng nên được chuyển sang trạng thái Ngừng kinh doanh.');
         } else {
           setVariants((prev) => prev.filter((item) => item.variant_id !== v.variant_id));
-          showToast?.(`✓ Đã xóa biến thể "${v.sku}" thành công!`);
+          showToast?.(`Đã xóa biến thể "${v.sku}" thành công!`);
         }
       } else {
         showToast?.(res.message || 'Không thể xóa biến thể.');
@@ -356,7 +358,7 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
         setVariants((prev) =>
           prev.map((item) => (item.variant_id === updated.variant_id ? updated : item))
         );
-        showToast?.(`✓ Đã cập nhật tồn kho thành công cho biến thể "${updated.sku}": ${qty} sản phẩm.`);
+        showToast?.(`Đã cập nhật tồn kho thành công cho biến thể "${updated.sku}": ${qty} sản phẩm.`);
         setInventoryModal({ isOpen: false, variant: null, quantity: '', isSaving: false, error: null });
       } else {
         setInventoryModal((prev) => ({
@@ -437,7 +439,7 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
         if (res.success && res.data) {
           const created = res.data;
           setVariants((prev) => [...prev, created]);
-          showToast?.(`✓ Đã thêm mới thành công biến thể "${created.sku}".`);
+          showToast?.(`Đã thêm mới thành công biến thể "${created.sku}".`);
           setVariantFormModal((prev) => ({ ...prev, isOpen: false, isSaving: false }));
         } else {
           setVariantFormModal((prev) => ({
@@ -464,7 +466,7 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
           setVariants((prev) =>
             prev.map((item) => (item.variant_id === updated.variant_id ? updated : item))
           );
-          showToast?.(`✓ Đã cập nhật thành công biến thể "${updated.sku}".`);
+          showToast?.(`Đã cập nhật thành công biến thể "${updated.sku}".`);
           setVariantFormModal((prev) => ({ ...prev, isOpen: false, isSaving: false }));
         } else {
           setVariantFormModal((prev) => ({
@@ -774,7 +776,10 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
               onClick={() => setSearchTerm('')}
               title="Xóa tìm kiếm"
             >
-              ✕
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           )}
         </div>
@@ -900,12 +905,12 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
             <table className="v03-artisans-table v07-table">
               <thead>
                 <tr>
-                  <th style={{ minWidth: '150px' }}>SKU</th>
-                  <th style={{ minWidth: '180px' }}>BIẾN THỂ</th>
-                  <th style={{ minWidth: '170px' }}>THUỘC TÍNH</th>
-                  <th style={{ minWidth: '130px' }}>GIÁ BÁN</th>
-                  <th style={{ minWidth: '130px' }}>TỒN KHO</th>
-                  <th style={{ minWidth: '130px' }}>CÓ THỂ BÁN</th>
+                  <th style={{ minWidth: '120px' }}>SKU</th>
+                  <th style={{ minWidth: '170px' }}>BIẾN THỂ</th>
+                  <th style={{ minWidth: '160px' }}>THUỘC TÍNH</th>
+                  <th style={{ minWidth: '110px' }}>GIÁ BÁN</th>
+                  <th style={{ minWidth: '110px' }}>TỒN KHO</th>
+                  <th style={{ minWidth: '100px' }}>CÓ THỂ BÁN</th>
                   <th style={{ minWidth: '150px' }}>TRẠNG THÁI</th>
                   <th style={{ minWidth: '150px', textAlign: 'center' }}>THAO TÁC</th>
                 </tr>
@@ -1018,7 +1023,7 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
                             type="button"
                             className="v05-action-btn variant"
                             onClick={() => handleOpenInventoryModal(v)}
-                            title="Điều chỉnh số lượng tồn kho (Inventory)"
+                            title="Điều chỉnh số lượng tồn kho"
                             aria-label="Quản lý tồn kho"
                           >
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1028,7 +1033,7 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
                           </button>
 
                           {/* Kích hoạt / Ngừng kinh doanh */}
-                          <button
+                          {/* <button
                             type="button"
                             className={`v05-action-btn ${v.is_active ? 'hide' : 'unhide'}`}
                             onClick={() => handleToggleActive(v)}
@@ -1045,7 +1050,7 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
                                 <polyline points="20 6 9 17 4 12" />
                               </svg>
                             )}
-                          </button>
+                          </button> */}
 
                           {/* Xóa biến thể */}
                           <button
@@ -1333,7 +1338,11 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
                   {/* Error Banner */}
                   {inventoryModal.error && (
                     <div className="v06-rejection-banner" role="alert" style={{ marginBottom: '16px' }}>
-                      <span className="v06-rejection-banner-icon">⚠️</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="v06-rejection-banner-icon" style={{ flexShrink: 0 }}>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
                       <div className="v06-rejection-content">
                         <strong className="v06-rejection-title">Số lượng chưa hợp lệ:</strong>
                         <div className="v06-rejection-note">{inventoryModal.error}</div>
@@ -1495,7 +1504,11 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
                   {/* Error Banner */}
                   {variantFormModal.error && (
                     <div className="v06-rejection-banner" role="alert" style={{ marginBottom: '16px' }}>
-                      <span className="v06-rejection-banner-icon">⚠️</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="v06-rejection-banner-icon" style={{ flexShrink: 0 }}>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
                       <div className="v06-rejection-content">
                         <strong className="v06-rejection-title">Thông tin chưa hợp lệ:</strong>
                         <div className="v06-rejection-note">{variantFormModal.error}</div>

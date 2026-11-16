@@ -94,6 +94,26 @@ export const ProductsManagerTab: React.FC<ProductsManagerTabProps> = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
+const IconLayoutGrid: React.FC<{ size?: number }> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" />
+    <rect x="14" y="3" width="7" height="7" />
+    <rect x="14" y="14" width="7" height="7" />
+    <rect x="3" y="14" width="7" height="7" />
+  </svg>
+);
+
+const IconList: React.FC<{ size?: number }> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="8" y1="6" x2="21" y2="6" />
+    <line x1="8" y1="12" x2="21" y2="12" />
+    <line x1="8" y1="18" x2="21" y2="18" />
+    <line x1="3" y1="6" x2="3.01" y2="6" />
+    <line x1="3" y1="12" x2="3.01" y2="12" />
+    <line x1="3" y1="18" x2="3.01" y2="18" />
+  </svg>
+);
+
   // Load auxiliary data on mount (categories & village artisans)
   useEffect(() => {
     let isMounted = true;
@@ -461,7 +481,10 @@ export const ProductsManagerTab: React.FC<ProductsManagerTabProps> = ({
               onClick={() => setSearchTerm('')}
               title="Xóa từ khóa tìm kiếm"
             >
-              ✕
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           )}
         </div>
@@ -574,14 +597,7 @@ export const ProductsManagerTab: React.FC<ProductsManagerTabProps> = ({
               onClick={() => setViewMode('table')}
               title="Xem danh sách dạng bảng chi tiết"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="8" y1="6" x2="21" y2="6" />
-                <line x1="8" y1="12" x2="21" y2="12" />
-                <line x1="8" y1="18" x2="21" y2="18" />
-                <line x1="3" y1="6" x2="3.01" y2="6" />
-                <line x1="3" y1="12" x2="3.01" y2="12" />
-                <line x1="3" y1="18" x2="3.01" y2="18" />
-              </svg>
+              <IconList size={15} />
             </button>
             <button
               type="button"
@@ -589,12 +605,7 @@ export const ProductsManagerTab: React.FC<ProductsManagerTabProps> = ({
               onClick={() => setViewMode('card')}
               title="Xem danh sách dạng lưới thẻ"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="7" height="7" />
-                <rect x="14" y="3" width="7" height="7" />
-                <rect x="14" y="14" width="7" height="7" />
-                <rect x="3" y="14" width="7" height="7" />
-              </svg>
+              <IconLayoutGrid size={15} />
             </button>
           </div>
         </div>
@@ -689,7 +700,7 @@ export const ProductsManagerTab: React.FC<ProductsManagerTabProps> = ({
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-                <span>+ Thêm sản phẩm</span>
+                <span>Thêm sản phẩm</span>
               </button>
             </>
           )}
@@ -845,7 +856,7 @@ export const ProductsManagerTab: React.FC<ProductsManagerTabProps> = ({
                           type="button"
                           className="v05-action-btn variant"
                           onClick={() => handleVariantManage(p)}
-                          title="Quản lý biến thể & tồn kho (V07)"
+                          title="Quản lý biến thể & tồn kho "
                           aria-label="Quản lý biến thể"
                         >
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1128,11 +1139,15 @@ export const ProductsManagerTab: React.FC<ProductsManagerTabProps> = ({
                 <h3>Chi tiết sản phẩm</h3>
                 <button
                   type="button"
-                  className="v03-modal-close"
+                  className="v06-close-btn"
                   onClick={() => setQuickViewProduct(null)}
-                  title="Đóng modal"
+                  title="Đóng (ESC)"
+                  aria-label="Đóng chi tiết"
                 >
-                  ✕
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
                 </button>
               </div>
 
@@ -1290,7 +1305,7 @@ export const ProductsManagerTab: React.FC<ProductsManagerTabProps> = ({
                     <polyline points="2 17 12 22 22 17" />
                     <polyline points="2 12 12 17 22 12" />
                   </svg>
-                  <span>Biến thể & Tồn kho (V07)</span>
+                  <span>Biến thể & Tồn kho</span>
                 </button>
                 <button
                   type="button"
@@ -1301,7 +1316,7 @@ export const ProductsManagerTab: React.FC<ProductsManagerTabProps> = ({
                     onEditProduct?.(prod);
                   }}
                 >
-                  <span>Chỉnh sửa sản phẩm</span>
+                  <span>Chỉnh sửa</span>
                 </button>
               </div>
             </div>

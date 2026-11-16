@@ -6,6 +6,7 @@ export type SidebarTabKey =
   | 'products'
   | 'variants'
   | 'workshops'
+  | 'schedules'
   | 'bookings'
   | 'orders'
   | 'revenue'
@@ -20,6 +21,7 @@ export interface SidebarNavCounts {
   workshops?: number;
   bookings?: number;
   orders?: number;
+  reviews?: number;
 }
 
 interface ArtisanSidebarProps {
@@ -144,6 +146,16 @@ export const ArtisanSidebar: React.FC<ArtisanSidebarProps> = ({
           ),
         },
         {
+          id: 'schedules',
+          label: 'Lịch tổ chức workshop',
+          icon: (
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          ),
+        },
+        {
           id: 'bookings',
           label: 'Lượt đặt workshop',
           badge: counts?.bookings !== undefined ? String(counts.bookings) : undefined,
@@ -183,6 +195,7 @@ export const ArtisanSidebar: React.FC<ArtisanSidebarProps> = ({
         {
           id: 'reviews',
           label: 'Đánh giá & phản hồi',
+          badge: counts?.reviews !== undefined ? String(counts.reviews) : undefined,
           icon: (
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />

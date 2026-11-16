@@ -68,14 +68,25 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                 className={`chart-toggle-btn ${chartMetric === 'revenue' ? 'active' : ''}`}
                 onClick={() => setChartMetric('revenue')}
               >
-                🪙 Doanh thu (Triệu ₫)
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                  <circle cx="12" cy="12" r="9" />
+                  <line x1="12" y1="6" x2="12" y2="18" />
+                  <line x1="8" y1="12" x2="16" y2="12" />
+                </svg>
+                Doanh thu (Triệu ₫)
               </button>
               <button
                 type="button"
                 className={`chart-toggle-btn ${chartMetric === 'visitors' ? 'active' : ''}`}
                 onClick={() => setChartMetric('visitors')}
               >
-                👥 Du khách (Lượt)
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Du khách (Lượt)
               </button>
             </div>
           </div>
@@ -209,28 +220,45 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
 
             <div className="preservation-checklist">
               <div className="preservation-item done">
-                <span className="check-icon">✓</span>
+                <span className="check-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
                 <div className="item-text">
                   <strong>Mã QR Truy Xuất Nguồn Gốc:</strong>
                   <span>100% tác phẩm được định danh chống hàng giả</span>
                 </div>
               </div>
               <div className="preservation-item done">
-                <span className="check-icon">✓</span>
+                <span className="check-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
                 <div className="item-text">
                   <strong>Hồ Sơ Nghệ Nhân Di Sản:</strong>
                   <span>Đã thẩm định 42 hồ sơ nghệ nhân gia tộc</span>
                 </div>
               </div>
               <div className="preservation-item done">
-                <span className="check-icon">✓</span>
+                <span className="check-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
                 <div className="item-text">
                   <strong>Video & Ký Ức Làng Nghề:</strong>
                   <span>Số hóa kỹ thuật vuốt tay & canh lửa lò củi</span>
                 </div>
               </div>
               <div className="preservation-item progress">
-                <span className="check-icon">⏳</span>
+                <span className="check-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </span>
                 <div className="item-text">
                   <strong>Bảo Tồn Bản Quyền Men Cổ:</strong>
                   <span>Đang đăng ký chỉ dẫn địa lý quốc tế</span>
@@ -314,7 +342,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               className="action-link-btn"
               onClick={() => onOpenAddModal('workshop')}
             >
-              ➕ Mở Ca Workshop Mới
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Mở Ca Workshop Mới
             </button>
           </div>
         </div>
@@ -352,7 +384,12 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                     <span className="order-qty">Số lượng: {o.quantity}</span>
                     <span className="order-method">Thanh toán: {o.paymentMethod}</span>
                     {o.isCustomOrder && (
-                      <span className="custom-order-tag">⭐ Đặt riêng theo yêu cầu</span>
+                      <span className="custom-order-tag" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        Đặt riêng theo yêu cầu
+                      </span>
                     )}
                   </div>
                 </div>
@@ -394,7 +431,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               className="action-link-btn"
               onClick={() => onOpenAddModal('product')}
             >
-              ➕ Đăng Tác Phẩm Thủ Công Mới
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Đăng Tác Phẩm Thủ Công Mới
             </button>
           </div>
         </div>

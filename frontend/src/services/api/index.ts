@@ -21,3 +21,17 @@ export {
   type ProductImageDto,
   type ProductFilterParams,
 } from './products';
+export {
+  workshopsApi,
+  type WorkshopStatus,
+  type WorkshopItemDto,
+  type WorkshopFilterParams,
+  type CreateWorkshopPayload,
+  type UpdateWorkshopPayload,
+} from './workshops';
+export * from './reviews';
+export * from './stories';
+export * from './notifications';
+
+
+

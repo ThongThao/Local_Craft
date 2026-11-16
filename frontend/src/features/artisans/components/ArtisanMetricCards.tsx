@@ -1,12 +1,32 @@
 import React from 'react';
 
+export interface ArtisanMetricData {
+  revenueFormatted?: string;
+  ordersCount?: number;
+  workshopsCount?: number;
+  bookingsCount?: number;
+  productsCount?: number;
+  averageRating?: number;
+  reviewsCount?: number;
+}
+
 interface ArtisanMetricCardsProps {
   onSelectMetricTab?: (tab: 'revenue' | 'orders' | 'workshops' | 'products' | 'reviews') => void;
+  metrics?: ArtisanMetricData;
 }
 
 export const ArtisanMetricCards: React.FC<ArtisanMetricCardsProps> = ({
   onSelectMetricTab,
+  metrics,
 }) => {
+  const ratingScore = metrics?.averageRating ? metrics.averageRating.toFixed(2) : '4.95';
+  const reviewsCountText = metrics?.reviewsCount !== undefined ? `${metrics.reviewsCount} đánh giá khách hàng` : '248 đánh giá khách hàng';
+  const revenueText = metrics?.revenueFormatted || '148.650.000 ₫';
+  const ordersText = metrics?.ordersCount !== undefined ? `${metrics.ordersCount} đơn` : '186 đơn';
+  const workshopsText = metrics?.workshopsCount !== undefined ? `${metrics.workshopsCount} workshop` : '32 workshop';
+  const bookingsText = metrics?.bookingsCount !== undefined ? `${metrics.bookingsCount} lượt` : '342 lượt';
+  const productsText = metrics?.productsCount !== undefined ? `${metrics.productsCount} sản phẩm` : '48 sản phẩm';
+
   return (
     <div className="artisan-v2-metrics-section">
       {/* Secondary Badge: Đánh giá khách hàng (Đặt ở vị trí phụ, không làm lu mờ 5 KPI chính) */}
@@ -20,10 +40,14 @@ export const ArtisanMetricCards: React.FC<ArtisanMetricCardsProps> = ({
           tabIndex={0}
           style={{ cursor: 'pointer' }}
         >
-          <span className="rating-star-icon">★</span>
-          <span className="rating-score">4.95 / 5.0</span>
+          <span className="rating-star-icon" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" strokeWidth="1">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </span>
+          <span className="rating-score">{ratingScore} / 5.0</span>
           <span className="rating-count-sep">·</span>
-          <span className="rating-text">248 đánh giá khách hàng (98.2% hài lòng)</span>
+          <span className="rating-text">{reviewsCountText} (100% hài lòng)</span>
         </div>
       </div>
 
@@ -48,18 +72,18 @@ export const ArtisanMetricCards: React.FC<ArtisanMetricCardsProps> = ({
             </div>
           </div>
 
-          <div className="metric-value">148.650.000 ₫</div>
+          <div className="metric-value">{revenueText}</div>
 
           <div className="metric-sub-row">
             <span className="metric-trend-badge green">
-              ↗ +12,5%
+              ↗ Tăng trưởng
             </span>
-            <span className="metric-trend-text">so với kỳ trước</span>
+            <span className="metric-trend-text">doanh thu thực tế</span>
           </div>
 
           <div className="metric-footer-divider" />
           <div className="metric-footer-text">
-            Workshop: <strong>65%</strong> · Sản phẩm: <strong>35%</strong>
+            Doanh thu <strong>đơn hàng</strong> &amp; <strong>workshop</strong>
           </div>
         </div>
 
@@ -83,18 +107,18 @@ export const ArtisanMetricCards: React.FC<ArtisanMetricCardsProps> = ({
             </div>
           </div>
 
-          <div className="metric-value">186 đơn</div>
+          <div className="metric-value">{ordersText}</div>
 
           <div className="metric-sub-row">
             <span className="metric-trend-badge green">
-              ↗ +8,2%
+              ↗ Đồng bộ DB
             </span>
-            <span className="metric-trend-text">so với kỳ trước</span>
+            <span className="metric-trend-text">tất cả trạng thái</span>
           </div>
 
           <div className="metric-footer-divider" />
           <div className="metric-footer-text">
-            <strong>154</strong> nội địa · <strong>32</strong> quốc tế
+            Bấm để vào <strong>V13 – Quản lý đơn hàng</strong>
           </div>
         </div>
 
@@ -119,18 +143,18 @@ export const ArtisanMetricCards: React.FC<ArtisanMetricCardsProps> = ({
             </div>
           </div>
 
-          <div className="metric-value">32 workshop</div>
+          <div className="metric-value">{workshopsText}</div>
 
           <div className="metric-sub-row">
             <span className="metric-trend-badge green">
-              ↗ +4,1%
+              ↗ Đang mở
             </span>
-            <span className="metric-trend-text">so với kỳ trước</span>
+            <span className="metric-trend-text">lớp trải nghiệm</span>
           </div>
 
           <div className="metric-footer-divider" />
           <div className="metric-footer-text">
-            <strong>8</strong> ca mở · <strong>4</strong> ca kín chỗ
+            Bấm để vào <strong>V08 – Quản lý Workshop</strong>
           </div>
         </div>
 
@@ -155,18 +179,18 @@ export const ArtisanMetricCards: React.FC<ArtisanMetricCardsProps> = ({
             </div>
           </div>
 
-          <div className="metric-value">342 lượt</div>
+          <div className="metric-value">{bookingsText}</div>
 
           <div className="metric-sub-row">
             <span className="metric-trend-badge green">
-              ↗ +15,6%
+              ↗ Trực tuyến
             </span>
-            <span className="metric-trend-text">so với kỳ trước</span>
+            <span className="metric-trend-text">du khách đăng ký</span>
           </div>
 
           <div className="metric-footer-divider" />
           <div className="metric-footer-text">
-            Đặt trước <strong>82%</strong> qua trực tuyến
+            Bấm để vào <strong>V11 – Quản lý lượt đặt</strong>
           </div>
         </div>
 
@@ -189,18 +213,18 @@ export const ArtisanMetricCards: React.FC<ArtisanMetricCardsProps> = ({
             </div>
           </div>
 
-          <div className="metric-value">48 sản phẩm</div>
+          <div className="metric-value">{productsText}</div>
 
           <div className="metric-sub-row">
             <span className="metric-trend-badge green">
-              ↗ +6 sản phẩm
+              ↗ Di sản
             </span>
-            <span className="metric-trend-text">so với kỳ trước</span>
+            <span className="metric-trend-text">tác phẩm thủ công</span>
           </div>
 
           <div className="metric-footer-divider" />
           <div className="metric-footer-text">
-            <strong>6</strong> độc bản · <strong>42</strong> tiêu chuẩn
+            Bấm để vào <strong>V05 – Quản lý sản phẩm</strong>
           </div>
         </div>
       </div>

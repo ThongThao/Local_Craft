@@ -81,6 +81,10 @@ class IsVillageManager(BasePermission):
         if hasattr(obj, 'variant') and obj.variant and hasattr(obj.variant, 'product') and obj.variant.product:
             return obj.variant.product.village_id == managed_village_id
 
+        # If obj has workshop foreign key (e.g. WorkshopSession)
+        if hasattr(obj, 'workshop') and obj.workshop and hasattr(obj.workshop, 'village_id'):
+            return obj.workshop.village_id == managed_village_id
+
         # If obj has village foreign key
         if hasattr(obj, 'village') and obj.village:
             return obj.village.village_id == managed_village_id

@@ -516,7 +516,7 @@ export const KPI_METRICS: KpiMetricCard[] = [
   {
     id: 'kpi-trust',
     title: 'Điểm Tín Nhiệm Di Sản',
-    value: '4.96 / 5.0 ⭐',
+    value: '4.96 / 5.0',
     subtext: '99.4% phản hồi hài lòng tuyệt đối',
     changePercent: '+0.12',
     changePositive: true,

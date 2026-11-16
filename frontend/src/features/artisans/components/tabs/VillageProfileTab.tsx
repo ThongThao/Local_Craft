@@ -277,11 +277,11 @@ export const VillageProfileTab: React.FC<VillageProfileTabProps> = ({
 
     // Client-side quick check: image types & max 10MB
     if (!file.type.startsWith('image/')) {
-      showToast?.('⚠️ Chỉ hỗ trợ tải lên tệp định dạng hình ảnh (JPG, PNG, WEBP, GIF, SVG).');
+      showToast?.('Chỉ hỗ trợ tải lên tệp định dạng hình ảnh (JPG, PNG, WEBP, GIF, SVG).');
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      showToast?.('⚠️ Kích thước ảnh không được vượt quá 10MB.');
+      showToast?.('Kích thước ảnh không được vượt quá 10MB.');
       return;
     }
 
@@ -311,7 +311,7 @@ export const VillageProfileTab: React.FC<VillageProfileTabProps> = ({
 
         // Update form state with the permanent Cloudinary secure URL
         handleChange('cover_image_url', cloudUrl);
-        showToast?.('✓ Tải ảnh lên Cloudinary thành công! Nhấn "Lưu" để cập nhật hồ sơ.');
+        showToast?.('Tải ảnh lên Cloudinary thành công! Nhấn "Lưu" để cập nhật hồ sơ.');
       } else {
         throw new Error(res.message || 'Cloudinary không trả về đường dẫn ảnh an toàn.');
       }
@@ -326,7 +326,7 @@ export const VillageProfileTab: React.FC<VillageProfileTabProps> = ({
       setPreviewBlobUrl(null);
 
       showToast?.(
-        `⚠️ Không thể tải ảnh lên Cloudinary: ${err?.message || 'Vui lòng kiểm tra kết nối mạng và thử lại.'}`
+        `Không thể tải ảnh lên Cloudinary: ${err?.message || 'Vui lòng kiểm tra kết nối mạng và thử lại.'}`
       );
     } finally {
       setIsUploadingCover(false);
@@ -367,12 +367,12 @@ export const VillageProfileTab: React.FC<VillageProfileTabProps> = ({
     if (e) e.preventDefault();
 
     if (isUploadingCover) {
-      showToast?.('⚠️ Ảnh đang được tải lên Cloudinary. Vui lòng đợi trong giây lát...');
+      showToast?.('Ảnh đang được tải lên Cloudinary. Vui lòng đợi trong giây lát...');
       return;
     }
 
     if (!validateForm()) {
-      showToast?.('⚠️ Vui lòng kiểm tra lại các trường thông tin bị lỗi.');
+      showToast?.('Vui lòng kiểm tra lại các trường thông tin bị lỗi.');
       return;
     }
 
@@ -393,7 +393,7 @@ export const VillageProfileTab: React.FC<VillageProfileTabProps> = ({
           coverImage: updated.cover_image_url,
         });
 
-        showToast?.('✓ Đã lưu thay đổi hồ sơ làng nghề thành công!');
+        showToast?.('Đã lưu thay đổi hồ sơ làng nghề thành công!');
       } else {
         // Fallback update if API response was partial
         setInitialData(formData);
@@ -402,7 +402,7 @@ export const VillageProfileTab: React.FC<VillageProfileTabProps> = ({
           name: formData.village_name,
           coverImage: formData.cover_image_url,
         });
-        showToast?.('✓ Đã lưu thay đổi hồ sơ làng nghề thành công!');
+        showToast?.('Đã lưu thay đổi hồ sơ làng nghề thành công!');
       }
     } catch (err: any) {
       console.error('Lỗi khi lưu hồ sơ làng nghề:', err);
@@ -469,8 +469,9 @@ export const VillageProfileTab: React.FC<VillageProfileTabProps> = ({
         <div className="header-info-left">
           <div className="header-badge-row">
             <span className="village-heritage-pill">HỒ SƠ LÀNG NGHỀ</span>
-            <span className={formData.status === 'ACTIVE' ? 'saved-status-pill' : 'unsaved-badge-pill'}>
-              {formData.status === 'ACTIVE' ? '🟢 ĐANG HOẠT ĐỘNG' : '🟡 TẠM DỪNG'}
+            <span className={formData.status === 'ACTIVE' ? 'saved-status-pill' : 'unsaved-badge-pill'} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span className={`status-dot ${formData.status === 'ACTIVE' ? 'green' : 'amber'}`} style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: formData.status === 'ACTIVE' ? '#10B981' : '#F59E0B' }} />
+              <span>{formData.status === 'ACTIVE' ? 'ĐANG HOẠT ĐỘNG' : 'TẠM DỪNG'}</span>
             </span>
           </div>
           <h2 className="village-header-title">
@@ -488,8 +489,23 @@ export const VillageProfileTab: React.FC<VillageProfileTabProps> = ({
             className="btn-cancel-luxury"
             onClick={handleRefresh}
             disabled={isSaving || isLoading}
+            title="Làm mới dữ liệu làng nghề"
           >
-            Làm mới
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+            <span>Làm mới</span>
           </button>
           <button
             type="button"

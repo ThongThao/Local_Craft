@@ -50,6 +50,19 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # Phản hồi từ đại diện Làng nghề / Admin (V15)
+    reply_content = models.TextField(null=True, blank=True)
+    replied_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='review_replies',
+        db_column='replied_by',
+    )
+    replied_at = models.DateTimeField(null=True, blank=True)
+    reply_updated_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         db_table = 'reviews'
         verbose_name = 'Đánh giá'
@@ -58,6 +71,10 @@ class Review(models.Model):
             models.Index(fields=['product', 'status'], name='idx_reviews_prod_status'),
             models.Index(fields=['booking', 'status'], name='idx_reviews_book_status'),
         ]
+
+    @property
+    def is_replied(self) -> bool:
+        return bool(self.reply_content and self.reply_content.strip())
 
     def clean(self):
         super().clean()

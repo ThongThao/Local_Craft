@@ -61,6 +61,26 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
     setCurrentPage(1);
   }, [statusFilter]);
 
+const IconLayoutGrid: React.FC<{ size?: number }> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="7" />
+    <rect x="14" y="3" width="7" height="7" />
+    <rect x="14" y="14" width="7" height="7" />
+    <rect x="3" y="14" width="7" height="7" />
+  </svg>
+);
+
+const IconList: React.FC<{ size?: number }> = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="8" y1="6" x2="21" y2="6" />
+    <line x1="8" y1="12" x2="21" y2="12" />
+    <line x1="8" y1="18" x2="21" y2="18" />
+    <line x1="3" y1="6" x2="3.01" y2="6" />
+    <line x1="3" y1="12" x2="3.01" y2="12" />
+    <line x1="3" y1="18" x2="3.01" y2="18" />
+  </svg>
+);
+
   // 1. KPI Statistics Calculations (Strictly 3 Verification Statuses)
   const stats = useMemo(() => {
     const total = artisans.length;
@@ -243,7 +263,7 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
             </svg>
           </div>
           <div className="v03-kpi-content">
-            <span className="v03-kpi-label">Bị từ chối</span>
+            <span className="v03-kpi-label">Từ chối</span>
             <div className="v03-kpi-value" style={{ color: '#dc2626' }}>{stats.rejectedCount}</div>
             <span className="v03-kpi-sub">Cần cập nhật lại thông tin</span>
           </div>
@@ -271,7 +291,10 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
               onClick={() => setSearchTerm('')}
               title="Xóa từ khóa tìm kiếm"
             >
-              ✕
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           )}
         </div>
@@ -311,14 +334,7 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
               onClick={() => setViewMode('table')}
               title="Xem danh sách dạng bảng chi tiết"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="8" y1="6" x2="21" y2="6" />
-                <line x1="8" y1="12" x2="21" y2="12" />
-                <line x1="8" y1="18" x2="21" y2="18" />
-                <line x1="3" y1="6" x2="3.01" y2="6" />
-                <line x1="3" y1="12" x2="3.01" y2="12" />
-                <line x1="3" y1="18" x2="3.01" y2="18" />
-              </svg>
+             <IconList size={15} />
             </button>
             <button
               type="button"
@@ -326,12 +342,7 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
               onClick={() => setViewMode('card')}
               title="Xem danh sách dạng thẻ nghệ nhân"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                <rect x="3" y="14" width="7" height="7" rx="1.5" />
-              </svg>
+              <IconLayoutGrid size={15} />
             </button>
           </div>
         </div>
@@ -353,7 +364,11 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span>⚠️</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
             <span>{errorMessage}</span>
           </div>
           {onRetry && (
@@ -847,10 +862,10 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
               </div>
               <button
                 type="button"
-                className="v03-detail-close-btn"
+                className="v06-close-btn"
                 onClick={() => setViewArtisanModal(null)}
                 aria-label="Đóng cửa sổ xem hồ sơ"
-                title="Đóng modal"
+                title="Đóng (ESC)"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -877,7 +892,10 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
                       />
                     ) : (
                       <div className="v04-empty-preview" style={{ height: '240px' }}>
-                        <span className="v04-empty-preview-icon">👤</span>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="v04-empty-preview-icon" style={{ marginBottom: '4px' }}>
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
                         <span>Chưa có ảnh chân dung</span>
                       </div>
                     )}
@@ -970,7 +988,7 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
             <div className="v03-detail-modal-footer">
               <button
                 type="button"
-                className="v03-detail-btn-cancel"
+                className="v06-btn-cancel"
                 onClick={() => setViewArtisanModal(null)}
               >
                 Đóng

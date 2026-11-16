@@ -419,8 +419,15 @@ export const VillageLocationMap: React.FC<VillageLocationMapProps> = ({
         </div>
       )}
 
-      <p className="map-note-text">
-        💡 <strong>Mẹo định vị:</strong> Bạn có thể bật chế độ <em>"Chọn vị trí trên bản đồ"</em> để nhấp điểm bất kỳ, hoặc kéo trực tiếp ghim vị trí màu đỏ trên bản đồ để điều chỉnh tọa độ GPS.
+      <p className="map-note-text" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
+          <path d="M9 18h6" />
+          <path d="M10 22h4" />
+          <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
+        </svg>
+        <span>
+          <strong>Mẹo định vị:</strong> Bạn có thể bật chế độ <em>"Chọn vị trí trên bản đồ"</em> để nhấp điểm bất kỳ, hoặc kéo trực tiếp ghim vị trí màu đỏ trên bản đồ để điều chỉnh tọa độ GPS.
+        </span>
       </p>
     </div>
   );

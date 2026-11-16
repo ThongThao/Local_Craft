@@ -1,18 +1,35 @@
 import React from 'react';
 
+export interface OperationBookingItem {
+  id: string;
+  customerName: string;
+  customerCountry: string;
+  customerAvatarBg?: string;
+  customerInitials?: string;
+  workshopName: string;
+  workshopNote?: string;
+  scheduleTime: string;
+  participantsCount: string;
+  totalAmountFormatted: string;
+  status: string;
+  statusLabel: string;
+}
+
 interface ArtisanOperationsTableProps {
   onViewAll?: () => void;
   onViewBookingDetail?: (bookingId: string) => void;
   onPrintReceipt?: (bookingId: string) => void;
+  bookings?: OperationBookingItem[];
 }
 
 export const ArtisanOperationsTable: React.FC<ArtisanOperationsTableProps> = ({
   onViewAll,
   onViewBookingDetail,
   onPrintReceipt,
+  bookings: dynamicBookings,
 }) => {
   // 4 lượt đặt workshop gần đây nhất (3-5 dòng cô đọng theo nghiệp vụ V01)
-  const recentBookings = [
+  const defaultBookings: OperationBookingItem[] = [
     {
       id: 'WS-20241130-01',
       customerName: 'Jean-Luc Moreau',
@@ -70,6 +87,8 @@ export const ArtisanOperationsTable: React.FC<ArtisanOperationsTableProps> = ({
       statusLabel: 'Chờ đón khách',
     },
   ];
+
+  const recentBookings = dynamicBookings && dynamicBookings.length > 0 ? dynamicBookings : defaultBookings;
 
   return (
     <div className="artisan-v2-operations-card">

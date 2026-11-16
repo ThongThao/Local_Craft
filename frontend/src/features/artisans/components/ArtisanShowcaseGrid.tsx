@@ -1,16 +1,31 @@
 import React from 'react';
 
+export interface ShowcaseProductItem {
+  id: string | number;
+  name: string;
+  artisanName: string;
+  category: string;
+  image: string;
+  price: string;
+  salesCount?: number;
+  statusLabel?: string;
+  statusClass?: string;
+  stockNote?: string;
+}
+
 interface ArtisanShowcaseGridProps {
   onManageAll?: () => void;
-  onSelectItem?: (id: string) => void;
+  onSelectItem?: (id: string | number) => void;
+  products?: ShowcaseProductItem[];
 }
 
 export const ArtisanShowcaseGrid: React.FC<ArtisanShowcaseGridProps> = ({
   onManageAll,
   onSelectItem,
+  products: dynamicProducts,
 }) => {
   // 4 Sản phẩm độc bản & nổi bật của làng nghề
-  const products = [
+  const defaultProducts: ShowcaseProductItem[] = [
     {
       id: 'prod-01',
       name: 'Bình gốm Men Rạn Hoa Sen Cổ',
@@ -60,6 +75,8 @@ export const ArtisanShowcaseGrid: React.FC<ArtisanShowcaseGridProps> = ({
       stockNote: 'Sắp hết hàng',
     },
   ];
+
+  const products = dynamicProducts && dynamicProducts.length > 0 ? dynamicProducts : defaultProducts;
 
   return (
     <div className="artisan-v2-showcase-section">

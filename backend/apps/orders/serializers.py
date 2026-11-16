@@ -53,7 +53,49 @@ class CartSerializer(serializers.ModelSerializer):
         return sum(item.quantity for item in obj.items.all())
 
 
+from apps.payments.models import Payment, Refund
+
+
+class PaymentBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = [
+            'payment_id',
+            'payment_code',
+            'payment_method',
+            'amount',
+            'currency',
+            'status',
+            'provider_transaction_id',
+            'paid_at',
+            'created_at',
+        ]
+
+
+class RefundBriefSerializer(serializers.ModelSerializer):
+    requested_by_email = serializers.CharField(source='requested_by.email', read_only=True, default='')
+
+    class Meta:
+        model = Refund
+        fields = [
+            'refund_id',
+            'refund_code',
+            'payment_id',
+            'amount_requested',
+            'amount_approved',
+            'reason',
+            'admin_note',
+            'status',
+            'requested_by_email',
+            'requested_at',
+            'processed_at',
+        ]
+
+
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_image = serializers.CharField(source='variant.product.cover_image_url', read_only=True, default='')
+    product_id = serializers.IntegerField(source='variant.product.product_id', read_only=True)
+
     class Meta:
         model = OrderItem
         fields = [
@@ -61,18 +103,35 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'order',
             'vendor_order',
             'variant',
+            'product_id',
+            'product_image',
             'product_name_snapshot',
             'variant_name_snapshot',
             'sku_snapshot',
             'unit_price',
             'quantity',
             'line_total',
+            'created_at',
         ]
 
 
 class VendorOrderSerializer(serializers.ModelSerializer):
     village_name = serializers.CharField(source='village.village_name', read_only=True)
+    order_id = serializers.IntegerField(source='order.order_id', read_only=True)
+    order_code = serializers.CharField(source='order.order_code', read_only=True)
+    parent_order_status = serializers.CharField(source='order.status', read_only=True)
+    parent_payment_status = serializers.CharField(source='order.payment_status', read_only=True)
+    parent_subtotal = serializers.DecimalField(source='order.subtotal', max_digits=12, decimal_places=2, read_only=True)
+    parent_shipping_fee = serializers.DecimalField(source='order.shipping_fee', max_digits=12, decimal_places=2, read_only=True)
+    parent_discount_amount = serializers.DecimalField(source='order.discount_amount', max_digits=12, decimal_places=2, read_only=True)
+    parent_total_amount = serializers.DecimalField(source='order.total_amount', max_digits=12, decimal_places=2, read_only=True)
+    order_placed_at = serializers.DateTimeField(source='order.placed_at', read_only=True)
+    customer_id = serializers.IntegerField(source='order.user_id', read_only=True)
+    customer_email = serializers.CharField(source='order.user.email', read_only=True, default='')
+    customer_name = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True, read_only=True)
+    payments = PaymentBriefSerializer(source='order.payments', many=True, read_only=True)
+    refunds = RefundBriefSerializer(many=True, read_only=True)
 
     class Meta:
         model = VendorOrder
@@ -80,8 +139,20 @@ class VendorOrderSerializer(serializers.ModelSerializer):
             'vendor_order_id',
             'vendor_order_code',
             'order',
+            'order_id',
+            'order_code',
             'village',
             'village_name',
+            'customer_id',
+            'customer_name',
+            'customer_email',
+            'parent_order_status',
+            'parent_payment_status',
+            'parent_subtotal',
+            'parent_shipping_fee',
+            'parent_discount_amount',
+            'parent_total_amount',
+            'order_placed_at',
             'subtotal',
             'shipping_fee',
             'discount_amount',
@@ -96,9 +167,17 @@ class VendorOrderSerializer(serializers.ModelSerializer):
             'shipped_at',
             'delivered_at',
             'items',
+            'payments',
+            'refunds',
             'created_at',
             'updated_at',
         ]
+
+    def get_customer_name(self, obj):
+        if not obj.order or not obj.order.user:
+            return obj.recipient_name
+        full_name = (getattr(obj.order.user, 'full_name', '') or '').strip()
+        return full_name if full_name else (obj.order.user.email or obj.recipient_name)
 
 
 class OrderSerializer(serializers.ModelSerializer):

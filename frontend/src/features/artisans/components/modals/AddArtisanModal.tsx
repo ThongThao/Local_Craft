@@ -195,10 +195,10 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
             <div className="v04-header-actions">
               <button
                 type="button"
-                className="v04-close-btn"
+                className="v06-close-btn"
                 onClick={onClose}
                 aria-label="Đóng form hồ sơ nghệ nhân"
-                title="Đóng modal"
+                title="Đóng (ESC)"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -213,7 +213,11 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
             {/* General Error Banner */}
             {generalError && (
               <div className="v04-alert-error" role="alert" style={{ marginBottom: '16px' }}>
-                <span>⚠️</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
                 <div>{generalError}</div>
               </div>
             )}
@@ -232,7 +236,11 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
                   alignItems: 'flex-start',
                 }}
               >
-                <span style={{ fontSize: '18px' }}>⚠️</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
                 <div>
                   <strong style={{ color: '#991b1b', fontSize: '13px', display: 'block' }}>
                     Hồ sơ bị từ chối duyệt trước đó:
@@ -264,7 +272,10 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
                     />
                   ) : (
                     <div className="v04-empty-preview">
-                      <span className="v04-empty-preview-icon">👤</span>
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="v04-empty-preview-icon" style={{ marginBottom: '4px' }}>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
                       <span>Chưa có ảnh chân dung</span>
                       <small style={{ color: '#94a3b8' }}>Khuyến nghị tỷ lệ 3:4</small>
                     </div>
@@ -294,28 +305,35 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
                   )}
                 </div>
 
-                {/* Upload Control Box (Cloudinary Only) */}
-                <div className="v04-upload-box">
-                  <div className="v04-tab-toggle">
+                {/* Upload Controls (Cloudinary Only) */}
+                <div className="v06-upload-box">
+                  <div className="v06-tab-toggle">
                     <button
                       type="button"
-                      className={`v04-tab-btn ${uploadMode === 'file' ? 'active' : ''}`}
+                      className={`v06-tab-btn ${uploadMode === 'file' ? 'active' : ''}`}
                       onClick={() => {
                         setUploadMode('file');
                         setUploadError(null);
                       }}
                     >
-                      📁 Tải ảnh lên
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                      </svg>
+                      Tải ảnh từ máy
                     </button>
                     <button
                       type="button"
-                      className={`v04-tab-btn ${uploadMode === 'url' ? 'active' : ''}`}
+                      className={`v06-tab-btn ${uploadMode === 'url' ? 'active' : ''}`}
                       onClick={() => {
                         setUploadMode('url');
                         setUploadError(null);
                       }}
                     >
-                      🔗 Nhập URL
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                      </svg>
+                      Dán liên kết ảnh
                     </button>
                   </div>
 
@@ -329,27 +347,51 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
                         onChange={handleFileChange}
                       />
                       <div
-                        className="v04-dropzone"
+                        className="v06-dropzone"
                         onClick={() => !isUploading && fileInputRef.current?.click()}
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Chọn ảnh từ máy tính"
                       >
                         {isUploading ? (
                           <>
-                            <span className="v04-spinner" style={{ borderColor: 'rgba(152, 70, 40, 0.3)', borderTopColor: '#984628' }} />
-                            <span>Đang tải lên ...</span>
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                width: '18px',
+                                height: '18px',
+                                border: '2px solid rgba(152, 70, 40, 0.3)',
+                                borderTopColor: '#984628',
+                                borderRadius: '50%',
+                                animation: 'spin 0.8s linear infinite',
+                              }}
+                            />
+                            <span style={{ fontSize: '13px', color: '#984628' }}>
+                              Đang tải lên Cloudinary...
+                            </span>
                           </>
                         ) : (
                           <>
-                            <span>📷</span>
-                            <span>Chọn ảnh (&lt; 5MB)</span>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#984628" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                              <polyline points="17 8 12 3 7 8" />
+                              <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            <div>
+                              <span style={{ fontWeight: 600, color: '#002720' }}>Bấm chọn tệp ảnh</span>
+                              <span style={{ display: 'block', fontSize: '11px', color: '#8C9691', marginTop: '2px' }}>
+                                PNG, JPG, WEBP tối đa 5MB
+                              </span>
+                            </div>
                           </>
                         )}
                       </div>
                     </div>
                   ) : (
-                    <div className="form-group" style={{ margin: 0 }}>
+                    <div className="v06-form-group" style={{ margin: 0 }}>
                       <input
                         type="url"
-                        className={`form-input ${errors.avatarUrl ? 'input-error' : ''}`}
+                        className={`v06-input ${errors.avatarUrl ? 'input-error' : ''}`}
                         placeholder="https://res.cloudinary.com/..."
                         value={avatarUrl}
                         onChange={(e) => {
@@ -360,26 +402,41 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
                         }}
                       />
                       {errors.avatarUrl && (
-                        <div className="v04-field-error">
-                          <span>⚠️</span> {errors.avatarUrl}
+                        <div className="v06-field-error">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                          <span>{errors.avatarUrl}</span>
                         </div>
                       )}
                     </div>
                   )}
 
                   {uploadError && (
-                    <div className="v04-field-error">
-                      <span>⚠️</span> {uploadError}
+                    <div className="v06-field-error">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                      <span>{uploadError}</span>
                     </div>
                   )}
 
                   {avatarUrl && (
                     <button
                       type="button"
-                      className="v04-btn-clear-avatar"
+                      className="v06-btn-clear-img"
                       onClick={handleClearAvatar}
+                      title="Xóa ảnh đại diện"
                     >
-                      ✕ Gỡ ảnh
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                      Gỡ ảnh đại diện
                     </button>
                   )}
                 </div>
@@ -410,7 +467,12 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
                     </div>
                     {errors.experienceYears && (
                       <div className="v04-field-error">
-                        <span>⚠️</span> {errors.experienceYears}
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                          <line x1="12" y1="9" x2="12" y2="13" />
+                          <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        <span>{errors.experienceYears}</span>
                       </div>
                     )}
                     <div className="v04-meta-exp-display">
@@ -443,7 +505,12 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
                   />
                   {errors.displayName && (
                     <div className="v04-field-error">
-                      <span>⚠️</span> {errors.displayName}
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                      <span>{errors.displayName}</span>
                     </div>
                   )}
                   <span className="v04-field-hint">
@@ -476,7 +543,12 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
                   />
                   {errors.bio && (
                     <div className="v04-field-error">
-                      <span>⚠️</span> {errors.bio}
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                      <span>{errors.bio}</span>
                     </div>
                   )}
                   <span className="v04-field-hint">
@@ -491,7 +563,7 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
           <div className="v04-modal-footer">
             <button
               type="button"
-              className="v04-btn-cancel"
+              className="v06-btn-cancel"
               onClick={onClose}
               disabled={isSubmitting || isUploading}
             >

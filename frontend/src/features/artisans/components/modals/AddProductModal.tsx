@@ -419,7 +419,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                 aria-label="Đóng biểu mẫu sản phẩm"
                 title="Đóng (ESC)"
               >
-                ✕
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
           </div>
@@ -429,7 +432,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
             {/* General Error Banner */}
             {generalError && (
               <div className="v06-rejection-banner" role="alert">
-                <span className="v06-rejection-banner-icon">⚠️</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="v06-rejection-banner-icon" style={{ flexShrink: 0 }}>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
                 <div className="v06-rejection-content">
                   <strong className="v06-rejection-title">Có lỗi xảy ra:</strong>
                   <div className="v06-rejection-note">{generalError}</div>
@@ -440,7 +447,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
             {/* Rejection Alert Banner if status === 'REJECTED' */}
             {isEditMode && initialData?.status === 'REJECTED' && initialData?.moderation_note && (
               <div className="v06-rejection-banner" role="alert">
-                <span className="v06-rejection-banner-icon">⚠️</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="v06-rejection-banner-icon" style={{ flexShrink: 0 }}>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
                 <div className="v06-rejection-content">
                   <strong className="v06-rejection-title">Sản phẩm cần chỉnh sửa và gửi duyệt lại</strong>
                   <div className="v06-rejection-note">
@@ -477,7 +488,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
             {/* Pending Notice Banner if status === 'PENDING' */}
             {isEditMode && initialData?.status === 'PENDING' && (
               <div className="v06-pending-banner">
-                <span style={{ fontSize: '18px' }}>⚠️</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '2px' }}>
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
                 <div>
                   <strong>Sản phẩm đang trong quá trình xét duyệt.</strong>
                   <span style={{ display: 'block', fontSize: '12px', marginTop: '2px' }}>
@@ -494,8 +509,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
               </div>
             )}
             {auxError && (
-              <div style={{ color: '#DC2626', fontSize: '12px', marginBottom: '12px' }}>
-                ⚠️ {auxError}
+              <div style={{ color: '#DC2626', fontSize: '12px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <span>{auxError}</span>
               </div>
             )}
 
@@ -524,7 +544,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                       />
                     ) : (
                       <div className="v06-empty-preview">
-                        <span className="v06-empty-preview-icon">🏺</span>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8C9691" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="v06-empty-preview-icon" style={{ marginBottom: '4px' }}>
+                          <path d="M8 3h8l1 4H7l1-4z" />
+                          <path d="M7 7c-2.5 3-3 8 0 12h10c3-4 2.5-9 0-12" />
+                          <path d="M10 21v1h4v-1" />
+                        </svg>
                         <span>Chưa có ảnh đại diện</span>
                         <small style={{ color: '#8C9691' }}>Khuyến nghị tỷ lệ 4:3 hoặc vuông</small>
                       </div>
@@ -542,7 +566,10 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                           setUploadError(null);
                         }}
                       >
-                        📁 Tải ảnh lên
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                        </svg>
+                        Tải ảnh từ máy
                       </button>
                       <button
                         type="button"
@@ -552,7 +579,11 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                           setUploadError(null);
                         }}
                       >
-                        🔗 Nhập liên kết
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
+                        Dán liên kết ảnh
                       </button>
                     </div>
 
@@ -585,12 +616,23 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                                   animation: 'spin 0.8s linear infinite',
                                 }}
                               />
-                              <span>Đang tải lên Cloudinary...</span>
+                              <span style={{ fontSize: '13px', color: '#984628' }}>
+                                Đang tải lên Cloudinary...
+                              </span>
                             </>
                           ) : (
                             <>
-                              <span style={{ fontSize: '18px' }}>📷</span>
-                              <span>Chọn ảnh(&lt; 5MB)</span>
+                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#984628" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                              </svg>
+                              <div>
+                                <span style={{ fontWeight: 600, color: '#002720' }}>Bấm chọn tệp ảnh</span>
+                                <span style={{ display: 'block', fontSize: '11px', color: '#8C9691', marginTop: '2px' }}>
+                                  PNG, JPG, WEBP tối đa 5MB
+                                </span>
+                              </div>
                             </>
                           )}
                         </div>
@@ -612,7 +654,12 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
 
                     {uploadError && (
                       <div className="v06-field-error">
-                        <span>⚠️</span> {uploadError}
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                          <line x1="12" y1="9" x2="12" y2="13" />
+                          <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        <span>{uploadError}</span>
                       </div>
                     )}
 
@@ -621,9 +668,13 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                         type="button"
                         className="v06-btn-clear-img"
                         onClick={handleClearImage}
-                        aria-label="Xóa ảnh đại diện"
+                        title="Xóa ảnh đại diện"
                       >
-                        ✕ Gỡ ảnh
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px' }}>
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                        Gỡ ảnh đại diện
                       </button>
                     )}
                   </div>
@@ -668,7 +719,12 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                   />
                   {formErrors.productName && (
                     <div className="v06-field-error">
-                      <span>⚠️</span> {formErrors.productName}
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                      <span>{formErrors.productName}</span>
                     </div>
                   )}
                   <span className="v06-field-hint">
@@ -705,7 +761,12 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                     </select>
                     {formErrors.categoryId && (
                       <div className="v06-field-error">
-                        <span>⚠️</span> {formErrors.categoryId}
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                          <line x1="12" y1="9" x2="12" y2="13" />
+                          <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        <span>{formErrors.categoryId}</span>
                       </div>
                     )}
                   </div>
@@ -731,13 +792,18 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                       <option value="">-- Chọn nghệ nhân làng nghề --</option>
                       {artisanOptions.map((a) => (
                         <option key={a.artisan_id} value={a.artisan_id}>
-                          {a.display_name} {a.verification_status === 'APPROVED' ? '✓ (Đã xác minh)' : '(Chờ xác minh)'}
+                          {a.display_name} {a.verification_status === 'APPROVED' ? '(Đã xác minh)' : '(Chờ xác minh)'}
                         </option>
                       ))}
                     </select>
                     {formErrors.artisanId && (
                       <div className="v06-field-error">
-                        <span>⚠️</span> {formErrors.artisanId}
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                          <line x1="12" y1="9" x2="12" y2="13" />
+                          <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        <span>{formErrors.artisanId}</span>
                       </div>
                     )}
                     {artisanOptions.length === 0 && !isLoadingAux && (
@@ -776,7 +842,12 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                   </div>
                   {formErrors.basePrice && (
                     <div className="v06-field-error">
-                      <span>⚠️</span> {formErrors.basePrice}
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                      <span>{formErrors.basePrice}</span>
                     </div>
                   )}
                   <span className="v06-field-hint">
@@ -807,7 +878,12 @@ export const AddProductModal: React.FC<AddProductModalProps> = ({
                   />
                   {formErrors.description && (
                     <div className="v06-field-error">
-                      <span>⚠️</span> {formErrors.description}
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                      </svg>
+                      <span>{formErrors.description}</span>
                     </div>
                   )}
                   <span className="v06-field-hint">
