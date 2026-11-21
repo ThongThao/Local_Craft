@@ -32,6 +32,7 @@ export {
 export * from './reviews';
 export * from './stories';
 export * from './notifications';
+export * from './analytics';
 
 
 

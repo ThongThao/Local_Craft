@@ -747,9 +747,9 @@ export const VariantsInventoryTab: React.FC<VariantsInventoryTabProps> = ({
       {/* ========================================================================= */}
       {/* 4. TOOLBAR SEARCH & FILTERS (SECTION 12) - Căn 1 hàng ngang chuẩn        */}
       {/* ========================================================================= */}
-      <div className="v03-filter-card" style={{ flexWrap: 'wrap', gap: '14px' }}>
+      <div className="v03-filter-card">
         {/* Left: Search Box */}
-        <div className="v03-search-wrapper" style={{ minWidth: '260px', flex: '1 1 280px' }}>
+        <div className="v03-search-wrapper">
           <svg
             className="v03-search-icon"
             width="17"

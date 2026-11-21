@@ -1,76 +1,103 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-interface ArtisanTopHeaderProps {
+export interface ArtisanTopHeaderProps {
   onBackToHome?: () => void;
   onNavigateToProfile?: () => void;
   onLogout?: () => void;
+  userName?: string;
+  userRole?: string;
+  userAvatar?: string;
+  onToggleMobileSidebar?: () => void;
+  villageName?: string;
 }
+
+type ActivePopover = 'notifications' | 'profile' | null;
 
 export const ArtisanTopHeader: React.FC<ArtisanTopHeaderProps> = ({
   onNavigateToProfile,
   onLogout,
+  userName = 'Quản lý làng nghề',
+  userRole = 'Quản lý làng nghề',
+  userAvatar,
+  onToggleMobileSidebar,
+  villageName,
 }) => {
-  const [dateRangeOpen, setDateRangeOpen] = useState(false);
-  const [facilityOpen, setFacilityOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  // Single active popover management
+  const [activePopover, setActivePopover] = useState<ActivePopover>(null);
+
+  const profileRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  const avatarChar = (userName || 'Q').trim()[0]?.toUpperCase() || 'Q';
+
+  // Click outside to close popovers
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(target) &&
+        notifRef.current &&
+        !notifRef.current.contains(target)
+      ) {
+        setActivePopover(null);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActivePopover(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const togglePopover = (popover: ActivePopover) => {
+    setActivePopover((prev) => (prev === popover ? null : popover));
+  };
 
   return (
-    <header className="artisan-v2-topbar">
-      {/* Left Selectors */}
+    <header className="artisan-v2-topbar" role="banner">
+      {/* Left Area: Hamburger toggle for mobile/tablet & brand pill */}
       <div className="artisan-v2-topbar-left">
-        {/* Facility Selector */}
-        <div className="artisan-v2-selector-wrapper">
+        {onToggleMobileSidebar && (
           <button
             type="button"
-            className="artisan-v2-selector-btn"
-            onClick={() => setFacilityOpen(!facilityOpen)}
+            className="artisan-v2-mobile-toggle-btn"
+            onClick={onToggleMobileSidebar}
+            title="Mở menu quản lý làng nghề"
+            aria-label="Mở menu điều hướng"
           >
-            <span className="selector-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
-            </span>
-            <span className="selector-text">HTX Gốm Men Rạn Bát Tràng - Nghệ nhân Ưu tú</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="6 9 12 15 18 9" />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
-        </div>
-
-        {/* Date Range Selector */}
-        <div className="artisan-v2-selector-wrapper">
-          <button
-            type="button"
-            className="artisan-v2-selector-btn"
-            onClick={() => setDateRangeOpen(!dateRangeOpen)}
-          >
-            <span className="selector-icon">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
-            </span>
-            <span className="selector-text">Tháng 10</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
+        )}
+        <div className="artisan-v2-topbar-mobile-brand">
+          <span className="brand-dot" />
+          <span className="brand-name">{villageName || 'LocalCraft'}</span>
         </div>
       </div>
 
-      {/* Right Controls */}
+      {/* Right Controls: Notifications, Help, Profile */}
       <div className="artisan-v2-topbar-right">
         {/* Notifications Icon Button */}
-        <div className="artisan-v2-icon-wrap">
+        <div className="artisan-v2-icon-wrap" ref={notifRef}>
           <button
             type="button"
-            className="artisan-v2-circle-btn"
-            title="Thông báo"
-            onClick={() => setNotificationsOpen(!notificationsOpen)}
+            className={`artisan-v2-circle-btn ${activePopover === 'notifications' ? 'active' : ''}`}
+            title="Thông báo hệ thống"
+            aria-label="Thông báo hệ thống"
+            aria-expanded={activePopover === 'notifications'}
+            onClick={() => togglePopover('notifications')}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -79,24 +106,24 @@ export const ArtisanTopHeader: React.FC<ArtisanTopHeaderProps> = ({
             <span className="artisan-v2-notif-dot" />
           </button>
 
-          {notificationsOpen && (
-            <div className="artisan-v2-notif-dropdown">
+          {activePopover === 'notifications' && (
+            <div className="artisan-v2-notif-dropdown" role="region" aria-label="Danh sách thông báo">
               <div className="notif-header">
                 <strong>Thông báo làng nghề</strong>
-                <span className="notif-badge">3 mới</span>
+                <span className="notif-badge">Hệ thống</span>
               </div>
               <div className="notif-item">
                 <div className="notif-dot" />
                 <div>
-                  <div className="notif-title">Đơn hàng mới #WS-20241130-01</div>
-                  <div className="notif-sub">Du khách Jean-Luc Moreau đã đặt 02 chỗ Workshop</div>
+                  <div className="notif-title">Kết nối đồng bộ thời gian thực</div>
+                  <div className="notif-sub">Số liệu sản phẩm, đơn hàng và workshop đã cập nhật</div>
                 </div>
               </div>
               <div className="notif-item">
                 <div className="notif-dot" />
                 <div>
-                  <div className="notif-title">Nhiệt độ lò nung ổn định</div>
-                  <div className="notif-sub">Lò củi số 1 đạt 1280°C - Sẵn sàng cho mẻ gốm men rạn</div>
+                  <div className="notif-title">Bảo tồn di sản OCOP</div>
+                  <div className="notif-sub">Hệ thống quản lý làng nghề LocalCraft sẵn sàng vận hành</div>
                 </div>
               </div>
             </div>
@@ -104,44 +131,69 @@ export const ArtisanTopHeader: React.FC<ArtisanTopHeaderProps> = ({
         </div>
 
         {/* Help Circle Button */}
-        <button type="button" className="artisan-v2-circle-btn" title="Trợ giúp & Hướng dẫn">
-          <span style={{ fontSize: 13, fontWeight: 700 }}>?</span>
+        <button
+          type="button"
+          className="artisan-v2-circle-btn"
+          title="Trợ giúp & Hướng dẫn"
+          aria-label="Trợ giúp và hướng dẫn sử dụng"
+          onClick={() => window.open('https://localcraft.vn/help', '_blank')}
+        >
+          <span style={{ fontSize: 13, fontWeight: 700 }} aria-hidden="true">?</span>
         </button>
 
         {/* User Profile Pill */}
-        <div className="artisan-v2-user-wrap">
+        <div className="artisan-v2-user-wrap" ref={profileRef}>
           <div
-            className="artisan-v2-user-pill"
-            onClick={() => setProfileOpen(!profileOpen)}
+            className={`artisan-v2-user-pill ${activePopover === 'profile' ? 'active' : ''}`}
+            onClick={() => togglePopover('profile')}
             role="button"
             tabIndex={0}
+            aria-expanded={activePopover === 'profile'}
+            aria-haspopup="true"
+            aria-label="Tài khoản cá nhân"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                togglePopover('profile');
+              }
+            }}
           >
             <div className="artisan-v2-user-texts">
-              <span className="user-name">Ngô Văn Bảo</span>
-              <span className="user-role">Quản lý làng nghề</span>
+              <span className="user-name">{userName}</span>
+              <span className="user-role">{userRole}</span>
             </div>
             <div className="artisan-v2-user-avatar">
-              <span>B</span>
+              {userAvatar ? (
+                <img
+                  src={userAvatar}
+                  alt={userName}
+                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                />
+              ) : (
+                <span>{avatarChar}</span>
+              )}
             </div>
           </div>
 
-          {profileOpen && (
-            <div className="artisan-v2-user-dropdown">
+          {activePopover === 'profile' && (
+            <div className="artisan-v2-user-dropdown" role="menu">
               <button
                 type="button"
+                role="menuitem"
                 className="user-dropdown-item"
                 onClick={() => {
-                  setProfileOpen(false);
+                  setActivePopover(null);
                   onNavigateToProfile?.();
                 }}
               >
-                Hồ sơ cá nhân
+                Hồ sơ làng nghề (V02)
               </button>
               <button
                 type="button"
+                role="menuitem"
                 className="user-dropdown-item logout"
                 onClick={() => {
-                  setProfileOpen(false);
+                  setActivePopover(null);
                   onLogout?.();
                 }}
               >

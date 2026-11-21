@@ -24,68 +24,16 @@ export const ArtisanShowcaseGrid: React.FC<ArtisanShowcaseGridProps> = ({
   onSelectItem,
   products: dynamicProducts,
 }) => {
-  // 4 Sản phẩm độc bản & nổi bật của làng nghề
-  const defaultProducts: ShowcaseProductItem[] = [
-    {
-      id: 'prod-01',
-      name: 'Bình gốm Men Rạn Hoa Sen Cổ',
-      artisanName: 'NNƯT. Phạm Văn Vạn',
-      category: 'Gốm men rạn Bát Tràng',
-      image: 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=600&q=80',
-      price: '6.500.000 ₫',
-      salesCount: 8,
-      statusLabel: 'OCOP 5 Sao · Độc bản',
-      statusClass: 'dark-green',
-      stockNote: 'Chỉ còn 3 chiếc',
-    },
-    {
-      id: 'prod-02',
-      name: 'Bộ ấm chén Mộc Sa Men Tro Nung Củi',
-      artisanName: 'NNƯT. Trần Độ',
-      category: 'Trà cụ thủ công',
-      image: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=600&q=80',
-      price: '1.850.000 ₫',
-      salesCount: 45,
-      statusLabel: 'Bán chạy nhất',
-      statusClass: 'terracotta',
-      stockNote: 'Sẵn hàng xuất xưởng',
-    },
-    {
-      id: 'prod-03',
-      name: 'Đĩa gốm phù điêu Phố Cổ Hà Nội',
-      artisanName: 'NNƯT. Vũ Đức Thắng',
-      category: 'Mỹ nghệ trưng bày',
-      image: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=600&q=80',
-      price: '2.200.000 ₫',
-      salesCount: 29,
-      statusLabel: 'Di sản chứng nhận',
-      statusClass: 'teal',
-      stockNote: 'Còn 12 sản phẩm',
-    },
-    {
-      id: 'prod-04',
-      name: 'Lọ hoa vuốt tay Men Lam Cổ Điển',
-      artisanName: 'NNƯT. Phạm Văn Vạn',
-      category: 'Gốm gia dụng cao cấp',
-      image: 'https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=600&q=80',
-      price: '3.400.000 ₫',
-      salesCount: 18,
-      statusLabel: 'Đang mở bán',
-      statusClass: 'dark-green',
-      stockNote: 'Sắp hết hàng',
-    },
-  ];
-
-  const products = dynamicProducts && dynamicProducts.length > 0 ? dynamicProducts : defaultProducts;
+  const products = dynamicProducts !== undefined ? dynamicProducts : [];
 
   return (
     <div className="artisan-v2-showcase-section">
       {/* Section Header */}
       <div className="showcase-header-row">
         <div>
-          <h3 className="showcase-title">Sản phẩm độc bản & nổi bật</h3>
+          <h3 className="showcase-title">Sản phẩm độc bản &amp; nổi bật</h3>
           <p className="showcase-subtitle">
-            Top 4 tác phẩm thủ công tiêu biểu có lượt bán và quan tâm cao nhất tại cơ sở làng nghề
+            Các tác phẩm thủ công tiêu biểu có lượt bán và quan tâm cao nhất tại cơ sở làng nghề
           </p>
         </div>
 
@@ -103,9 +51,24 @@ export const ArtisanShowcaseGrid: React.FC<ArtisanShowcaseGridProps> = ({
         </button>
       </div>
 
-      {/* 4 Cards Grid */}
-      <div className="showcase-grid-row">
-        {products.map((item) => (
+      {/* 4 Cards Grid or Empty State */}
+      {products.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '36px 20px', background: '#FAF8F5', borderRadius: '16px', border: '1px dashed #D5CEBF' }}>
+          <p style={{ margin: '0 0 12px 0', fontSize: '13.5px', color: '#5C6F68', fontWeight: 600 }}>
+            Cơ sở làng nghề chưa có sản phẩm nào được công khai
+          </p>
+          <button
+            type="button"
+            className="artisan-primary-btn"
+            onClick={onManageAll}
+            style={{ margin: '0 auto' }}
+          >
+            Đến trang quản lý sản phẩm
+          </button>
+        </div>
+      ) : (
+        <div className="showcase-grid-row">
+          {products.map((item) => (
           <div
             key={item.id}
             className="showcase-card"
@@ -152,6 +115,7 @@ export const ArtisanShowcaseGrid: React.FC<ArtisanShowcaseGridProps> = ({
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 };

@@ -6,7 +6,7 @@ from rest_framework import generics, permissions, status
 # pyrefly: ignore [missing-import]
 from apps.common.responses import api_success, api_error
 # pyrefly: ignore [missing-import]
-from apps.common.permissions import IsCraftVillage, IsVillageManager, user_has_role
+from apps.common.permissions import IsCraftVillage, IsVillageManager, IsTourist, user_has_role
 # pyrefly: ignore [missing-import]
 from apps.products.models import ProductVariant
 from .models import Cart, CartItem, Order, VendorOrder
@@ -25,7 +25,7 @@ class CartView(generics.GenericAPIView):
     GET /api/v1/cart/
     Retrieve current user's shopping cart.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTourist]
 
     def get(self, request):
         cart, _ = Cart.objects.get_or_create(user=request.user)
@@ -38,7 +38,7 @@ class CartItemAddView(generics.GenericAPIView):
     POST /api/v1/cart/items/
     Add item to cart or increment quantity.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTourist]
 
     def post(self, request):
         variant_id = request.data.get('variant_id')
@@ -87,7 +87,7 @@ class CartItemUpdateDeleteView(generics.GenericAPIView):
     """
     PUT, DELETE /api/v1/cart/items/<id>/
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTourist]
 
     def put(self, request, pk):
         try:
@@ -123,7 +123,7 @@ class OrderListCreateView(generics.GenericAPIView):
     """
     GET, POST /api/v1/orders/
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTourist]
 
     def get(self, request):
         orders = Order.objects.filter(user=request.user).prefetch_related(
@@ -149,7 +149,7 @@ class OrderDetailView(generics.RetrieveAPIView):
     """
     GET /api/v1/orders/<id>/
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTourist]
     serializer_class = OrderSerializer
 
     def get_queryset(self):
@@ -476,9 +476,9 @@ class OrderCancelView(generics.GenericAPIView):
     """
     POST /api/v1/orders/<int:pk>/cancel/
     Cancel parent order and rollback inventories of all child vendor orders.
-    Can be cancelled by the tourist owning the order or an Admin.
+    Can be cancelled by the tourist owning the order.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsTourist]
 
     def post(self, request, pk):
         try:

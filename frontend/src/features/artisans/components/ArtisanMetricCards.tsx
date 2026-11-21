@@ -19,13 +19,13 @@ export const ArtisanMetricCards: React.FC<ArtisanMetricCardsProps> = ({
   onSelectMetricTab,
   metrics,
 }) => {
-  const ratingScore = metrics?.averageRating ? metrics.averageRating.toFixed(2) : '4.95';
-  const reviewsCountText = metrics?.reviewsCount !== undefined ? `${metrics.reviewsCount} đánh giá khách hàng` : '248 đánh giá khách hàng';
-  const revenueText = metrics?.revenueFormatted || '148.650.000 ₫';
-  const ordersText = metrics?.ordersCount !== undefined ? `${metrics.ordersCount} đơn` : '186 đơn';
-  const workshopsText = metrics?.workshopsCount !== undefined ? `${metrics.workshopsCount} workshop` : '32 workshop';
-  const bookingsText = metrics?.bookingsCount !== undefined ? `${metrics.bookingsCount} lượt` : '342 lượt';
-  const productsText = metrics?.productsCount !== undefined ? `${metrics.productsCount} sản phẩm` : '48 sản phẩm';
+  const ratingScore = metrics?.averageRating !== undefined && metrics.averageRating > 0 ? metrics.averageRating.toFixed(1) : '5.0';
+  const reviewsCountText = metrics?.reviewsCount !== undefined ? `${metrics.reviewsCount} đánh giá khách hàng` : '0 đánh giá khách hàng';
+  const revenueText = metrics?.revenueFormatted || '0 ₫';
+  const ordersText = metrics?.ordersCount !== undefined ? `${metrics.ordersCount} đơn` : '0 đơn';
+  const workshopsText = metrics?.workshopsCount !== undefined ? `${metrics.workshopsCount} workshop` : '0 workshop';
+  const bookingsText = metrics?.bookingsCount !== undefined ? `${metrics.bookingsCount} lượt` : '0 lượt';
+  const productsText = metrics?.productsCount !== undefined ? `${metrics.productsCount} sản phẩm` : '0 sản phẩm';
 
   return (
     <div className="artisan-v2-metrics-section">

@@ -28,67 +28,7 @@ export const ArtisanOperationsTable: React.FC<ArtisanOperationsTableProps> = ({
   onPrintReceipt,
   bookings: dynamicBookings,
 }) => {
-  // 4 lượt đặt workshop gần đây nhất (3-5 dòng cô đọng theo nghiệp vụ V01)
-  const defaultBookings: OperationBookingItem[] = [
-    {
-      id: 'WS-20241130-01',
-      customerName: 'Jean-Luc Moreau',
-      customerCountry: 'Pháp',
-      customerAvatarBg: '#FFDBCF',
-      customerInitials: 'JL',
-      workshopName: 'Vuốt gốm men rạn Bát Tràng cổ truyền',
-      workshopNote: 'Yêu cầu: Hướng dẫn tiếng Anh & đóng hộp gửi Paris',
-      scheduleTime: 'Hôm nay, 09:00 - 11:30',
-      participantsCount: '02 người',
-      totalAmountFormatted: '1.200.000 ₫',
-      status: 'CHECKED_IN',
-      statusLabel: 'Đã check-in',
-    },
-    {
-      id: 'WS-20241130-02',
-      customerName: 'Hoàng Thuỳ Linh',
-      customerCountry: 'Hà Nội',
-      customerAvatarBg: '#E8DED1',
-      customerInitials: 'HL',
-      workshopName: 'Nghệ thuật chấm men lam & men rạn',
-      workshopNote: 'Đặt trước cho gia đình: 2 người lớn & 2 trẻ em',
-      scheduleTime: 'Hôm nay, 14:30 - 17:00',
-      participantsCount: '04 người',
-      totalAmountFormatted: '2.400.000 ₫',
-      status: 'PENDING',
-      statusLabel: 'Chờ đón khách',
-    },
-    {
-      id: 'WS-20241201-01',
-      customerName: 'Kenji Takahashi',
-      customerCountry: 'Nhật Bản',
-      customerAvatarBg: '#D5E5DE',
-      customerInitials: 'KT',
-      workshopName: 'Vuốt gốm men rạn Bát Tràng cổ truyền',
-      workshopNote: 'Đoàn chuyên gia đồ gốm Kyoto ghé thăm nghiên cứu',
-      scheduleTime: 'Ngày mai, 09:00 - 12:00',
-      participantsCount: '06 người',
-      totalAmountFormatted: '4.500.000 ₫',
-      status: 'DEPOSIT_CONFIRMED',
-      statusLabel: 'Đã xác nhận cọc',
-    },
-    {
-      id: 'WS-20241201-02',
-      customerName: 'Nguyễn Minh Quân',
-      customerCountry: 'Đà Nẵng',
-      customerAvatarBg: '#E5DFD5',
-      customerInitials: 'MQ',
-      workshopName: 'Tạo hình gốm nung củi & bàn xoay cá nhân',
-      workshopNote: 'Tour trải nghiệm văn hóa gia đình',
-      scheduleTime: 'Chủ Nhật, 14:00 - 16:30',
-      participantsCount: '03 người',
-      totalAmountFormatted: '1.800.000 ₫',
-      status: 'PENDING',
-      statusLabel: 'Chờ đón khách',
-    },
-  ];
-
-  const recentBookings = dynamicBookings && dynamicBookings.length > 0 ? dynamicBookings : defaultBookings;
+  const recentBookings = dynamicBookings !== undefined ? dynamicBookings : [];
 
   return (
     <div className="artisan-v2-operations-card">
@@ -97,7 +37,9 @@ export const ArtisanOperationsTable: React.FC<ArtisanOperationsTableProps> = ({
         <div>
           <div className="operations-title-flex">
             <h3 className="operations-card-title">Lượt đặt workshop gần đây</h3>
-            <span className="operations-count-pill">04 lượt mới nhất</span>
+            <span className="operations-count-pill">
+              {recentBookings.length > 0 ? `${String(recentBookings.length).padStart(2, '0')} lượt mới nhất` : '0 lượt'}
+            </span>
           </div>
           <p className="operations-card-subtitle">
             Danh sách du khách đăng ký tham gia lớp học làm gốm tại xưởng làng nghề
@@ -133,7 +75,23 @@ export const ArtisanOperationsTable: React.FC<ArtisanOperationsTableProps> = ({
             </tr>
           </thead>
           <tbody>
-            {recentBookings.map((row) => (
+            {recentBookings.length === 0 ? (
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '36px 20px', color: '#64748b' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                    <span style={{ fontSize: '13.5px', fontWeight: 600 }}>Chưa có lượt đặt workshop nào phát sinh</span>
+                    <span style={{ fontSize: '12px', color: '#94a3b8' }}>Các lượt du khách đăng ký tham gia workshop sẽ hiển thị tại đây</span>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              recentBookings.map((row) => (
               <tr
                 key={row.id}
                 onClick={() => onViewBookingDetail?.(row.id)}
@@ -232,7 +190,8 @@ export const ArtisanOperationsTable: React.FC<ArtisanOperationsTableProps> = ({
                   </div>
                 </td>
               </tr>
-            ))}
+            ))
+            )}
           </tbody>
         </table>
       </div>

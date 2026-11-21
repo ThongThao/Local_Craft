@@ -294,7 +294,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           {order && !isLoading && (
             <div className="v12-booking-details-content" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Row 1: Thông tin khách hàng & Địa chỉ giao hàng snapshot */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
                 {/* Box Khách hàng */}
                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px' }}>
                   <h4 style={{ margin: '0 0 12px', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -382,7 +382,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
               )}
 
               {/* Danh sách tác phẩm snapshot thuộc làng nghề */}
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+              <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflowX: 'auto' }}>
                 <div style={{ padding: '12px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#334155' }}>
                     Danh Sách Sản Phẩm Làng Nghề ({order.items?.length || 0})
@@ -391,7 +391,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     Snapshot giá & biến thể tại thời điểm đặt hàng
                   </span> */}
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                   <thead>
                     <tr style={{ background: '#f1f5f9', color: '#475569', borderBottom: '1px solid #e2e8f0' }}>
                       <th style={{ padding: '10px 16px', width: '300px', }}>Tác phẩm</th>

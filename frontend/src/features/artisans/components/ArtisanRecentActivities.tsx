@@ -10,49 +10,14 @@ export interface RecentActivityItem {
 
 interface ArtisanRecentActivitiesProps {
   onViewActivityDetail?: (activityId: string) => void;
+  activities?: RecentActivityItem[];
 }
 
 export const ArtisanRecentActivities: React.FC<ArtisanRecentActivitiesProps> = ({
   onViewActivityDetail,
+  activities: dynamicActivities,
 }) => {
-  // Dữ liệu hoạt động gần đây theo nghiệp vụ V01
-  const activities: RecentActivityItem[] = [
-    {
-      id: 'act-01',
-      type: 'order',
-      content: 'Đơn hàng #DH1024 đã được xác nhận đóng gói giao tới du khách Pháp',
-      targetName: 'Bình gốm Men Rạn Hoa Sen',
-      timestamp: '5 phút trước',
-    },
-    {
-      id: 'act-02',
-      type: 'booking',
-      content: 'Khách hàng Nguyễn Văn A vừa đặt 04 chỗ ca trải nghiệm làm gốm cuối tuần',
-      targetName: 'Vuốt gốm men rạn Bát Tràng',
-      timestamp: '22 phút trước',
-    },
-    {
-      id: 'act-03',
-      type: 'review',
-      content: 'Sản phẩm "Bộ ấm chén Mộc Sa" nhận đánh giá mới 5 sao từ du khách Nhật Bản',
-      targetName: 'Đánh giá di sản OCOP',
-      timestamp: '1 giờ trước',
-    },
-    {
-      id: 'act-04',
-      type: 'workshop',
-      content: 'Workshop "Nghệ thuật chấm men lam" ca chiều Thứ Bảy vừa đủ chỗ học viên',
-      targetName: '12/12 học viên kín chỗ',
-      timestamp: 'Hôm nay, 08:30',
-    },
-    {
-      id: 'act-05',
-      type: 'product',
-      content: 'Tác phẩm độc bản mới "Lọ hoa vuốt tay Men Lam" đã được kiểm duyệt xuất xưởng',
-      targetName: 'NNƯT. Phạm Văn Vạn',
-      timestamp: 'Hôm qua, 16:45',
-    },
-  ];
+  const activities = dynamicActivities !== undefined ? dynamicActivities : [];
 
   const getIconForType = (type: RecentActivityItem['type']) => {
     switch (type) {
@@ -119,11 +84,18 @@ export const ArtisanRecentActivities: React.FC<ArtisanRecentActivitiesProps> = (
             Cập nhật diễn biến đơn hàng, lịch workshop và tương tác của khách
           </p>
         </div>
-        <span className="activity-count-badge">5 mới nhất</span>
+        <span className="activity-count-badge">
+          {activities.length > 0 ? `${activities.length} mới nhất` : '0 hoạt động'}
+        </span>
       </div>
 
       <div className="activity-timeline-list">
-        {activities.map((act) => (
+        {activities.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '32px 16px', color: '#64748b' }}>
+            <span style={{ fontSize: '13px', fontWeight: 600 }}>Chưa có hoạt động giao dịch hoặc lượt đặt mới phát sinh</span>
+          </div>
+        ) : (
+          activities.map((act) => (
           <div
             key={act.id}
             className="activity-item-row"
@@ -146,7 +118,8 @@ export const ArtisanRecentActivities: React.FC<ArtisanRecentActivitiesProps> = (
               </div>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   );

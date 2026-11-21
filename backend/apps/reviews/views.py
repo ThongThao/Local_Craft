@@ -178,6 +178,10 @@ class ReviewListCreateView(generics.GenericAPIView):
         return api_success(data=serializer.data, message="Lấy danh sách đánh giá thành công")
 
     def post(self, request):
+        if not (request.user and request.user.is_authenticated):
+            return api_error(message="Vui lòng đăng nhập để gửi đánh giá.", status_code=status.HTTP_401_UNAUTHORIZED)
+        if not user_has_role(request.user, 'TOURIST'):
+            return api_error(message="Chức năng gửi đánh giá chỉ dành riêng cho tài khoản Du khách.", status_code=status.HTTP_403_FORBIDDEN)
         serializer = CreateReviewSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         review = serializer.save()

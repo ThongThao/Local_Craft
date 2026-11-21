@@ -24,7 +24,7 @@ class IsTourist(BasePermission):
     """Requires user to be authenticated with TOURIST role."""
 
     def has_permission(self, request, view):
-        return user_has_role(request.user, 'TOURIST') or user_has_role(request.user, 'ADMIN')
+        return user_has_role(request.user, 'TOURIST')
 
 
 class IsCraftVillage(BasePermission):

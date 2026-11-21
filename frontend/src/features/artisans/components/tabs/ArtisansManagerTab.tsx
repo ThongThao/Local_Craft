@@ -61,25 +61,25 @@ export const ArtisansManagerTab: React.FC<ArtisansManagerTabProps> = ({
     setCurrentPage(1);
   }, [statusFilter]);
 
-const IconLayoutGrid: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="3" width="7" height="7" />
-    <rect x="14" y="3" width="7" height="7" />
-    <rect x="14" y="14" width="7" height="7" />
-    <rect x="3" y="14" width="7" height="7" />
-  </svg>
-);
+  const IconLayoutGrid: React.FC<{ size?: number }> = ({ size = 16 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="14" y="14" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+    </svg>
+  );
 
-const IconList: React.FC<{ size?: number }> = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="8" y1="6" x2="21" y2="6" />
-    <line x1="8" y1="12" x2="21" y2="12" />
-    <line x1="8" y1="18" x2="21" y2="18" />
-    <line x1="3" y1="6" x2="3.01" y2="6" />
-    <line x1="3" y1="12" x2="3.01" y2="12" />
-    <line x1="3" y1="18" x2="3.01" y2="18" />
-  </svg>
-);
+  const IconList: React.FC<{ size?: number }> = ({ size = 16 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" />
+      <line x1="3" y1="12" x2="3.01" y2="12" />
+      <line x1="3" y1="18" x2="3.01" y2="18" />
+    </svg>
+  );
 
   // 1. KPI Statistics Calculations (Strictly 3 Verification Statuses)
   const stats = useMemo(() => {
@@ -334,7 +334,7 @@ const IconList: React.FC<{ size?: number }> = ({ size = 16 }) => (
               onClick={() => setViewMode('table')}
               title="Xem danh sách dạng bảng chi tiết"
             >
-             <IconList size={15} />
+              <IconList size={15} />
             </button>
             <button
               type="button"
@@ -617,169 +617,169 @@ const IconList: React.FC<{ size?: number }> = ({ size = 16 }) => (
           ) : (
             /* VIEW MODE 2: CARD / GRID VIEW */
             <div className="v03-cards-grid">
-                {paginatedArtisans.map((artisan) => {
-                  const bioText = (artisan.bio || '').trim();
-                  const hasBio = bioText.length > 0;
-                  // Bio is considered long if it exceeds ~130 chars or has multiple linebreaks
-                  const isBioLong = hasBio && (bioText.length > 130 || (bioText.match(/\n/g) || []).length >= 3);
+              {paginatedArtisans.map((artisan) => {
+                const bioText = (artisan.bio || '').trim();
+                const hasBio = bioText.length > 0;
+                // Bio is considered long if it exceeds ~130 chars or has multiple linebreaks
+                const isBioLong = hasBio && (bioText.length > 130 || (bioText.match(/\n/g) || []).length >= 3);
 
-                  return (
-                    <div key={artisan.id} className="v03-artisan-card">
-                      {/* 1. Header: Avatar & Info */}
-                      <div className="v03-card-top-row">
-                        <div
-                          className="v03-card-avatar-wrap"
-                          onClick={() => setViewArtisanModal(artisan)}
-                          title={`Xem chi tiết hồ sơ nghệ nhân ${artisan.displayName}`}
-                        >
-                          {artisan.avatarUrl ? (
-                            <img
-                              src={artisan.avatarUrl}
-                              alt={artisan.displayName}
-                              className="v03-card-avatar"
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.display = 'none';
-                              }}
-                            />
-                          ) : null}
-                          <div className="v03-card-avatar-fallback">
-                            {artisan.displayName ? artisan.displayName.slice(0, 1).toUpperCase() : 'N'}
-                          </div>
-                        </div>
-
-                        <div className="v03-card-info-col">
-                          <div className="v03-card-title-row">
-                            <button
-                              type="button"
-                              className="v03-card-name-btn"
-                              onClick={() => setViewArtisanModal(artisan)}
-                              title={artisan.displayName}
-                            >
-                              {artisan.displayName}
-                            </button>
-                            <span className="v03-card-code" title={`Mã nghệ nhân: #${artisan.id}`}>
-                              #{artisan.id}
-                            </span>
-                          </div>
-
-                          <div className="v03-card-badge-container">
-                            {renderStatusBadge(artisan.verificationStatus)}
-                          </div>
+                return (
+                  <div key={artisan.id} className="v03-artisan-card">
+                    {/* 1. Header: Avatar & Info */}
+                    <div className="v03-card-top-row">
+                      <div
+                        className="v03-card-avatar-wrap"
+                        onClick={() => setViewArtisanModal(artisan)}
+                        title={`Xem chi tiết hồ sơ nghệ nhân ${artisan.displayName}`}
+                      >
+                        {artisan.avatarUrl ? (
+                          <img
+                            src={artisan.avatarUrl}
+                            alt={artisan.displayName}
+                            className="v03-card-avatar"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        ) : null}
+                        <div className="v03-card-avatar-fallback">
+                          {artisan.displayName ? artisan.displayName.slice(0, 1).toUpperCase() : 'N'}
                         </div>
                       </div>
 
-                      {/* 2. Kinh nghiệm làm nghề */}
-                      <div className="v03-card-experience">
-                        <span className="v03-card-experience-lbl">THÂM NIÊN LÀM NGHỀ</span>
-                        <span className="v03-card-experience-val">
-                          <strong>{artisan.experienceYears ?? 0}</strong> năm
-                        </span>
-                      </div>
-
-                      {/* 3. Tiểu sử & Câu chuyện (Fixed Height & Line Clamped) */}
-                      <div className="v03-card-bio-section">
-                        <span className="v03-card-bio-lbl">TIỂU SỬ & CÂU CHUYỆN</span>
-                        <div
-                          className={`v03-card-bio-container ${isBioLong ? 'has-long-bio' : ''}`}
-                          onClick={() => {
-                            if (isBioLong) setViewArtisanModal(artisan);
-                          }}
-                          title={isBioLong ? 'Nhấn để xem toàn bộ tiểu sử và câu chuyện nghệ nhân' : undefined}
-                        >
-                          {hasBio ? (
-                            <p className="v03-card-bio-text">{bioText}</p>
-                          ) : (
-                            <p className="v03-card-bio-empty">Chưa có thông tin tiểu sử.</p>
-                          )}
-
-                          {isBioLong && (
-                            <button
-                              type="button"
-                              className="v03-card-read-more"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setViewArtisanModal(artisan);
-                              }}
-                              title="Xem toàn bộ tiểu sử và câu chuyện nghệ nhân"
-                              aria-label="Xem thêm tiểu sử nghệ nhân"
-                            >
-                              ... Xem thêm
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* 4. Làng nghề & Thống kê sản phẩm / workshop */}
-                      <div className="v03-card-meta-line">
-                        <span className="v03-card-village-badge" title={artisan.villageName || 'Làng nghề'}>
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                          </svg>
-                          <span>{artisan.villageName || 'Làng nghề truyền thống'}</span>
-                        </span>
-
-                        <div className="v03-card-activity-chips">
-                          <span className="v03-act-chip" title="Số lượng sản phẩm liên kết">
-                            <strong>{artisan.productCount ?? 0}</strong> sp
-                          </span>
-                          <span className="v03-act-chip" title="Số lượng workshop tham gia">
-                            <strong>{artisan.workshopCount ?? 0}</strong> ws
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* 5. Footer Actions: Pinned to Bottom */}
-                      <div className="v03-card-footer-box">
-                        <span className="v03-card-heritage-code">
-                          ID: #{artisan.id}
-                        </span>
-
-                        <div className="v03-card-actions-wrapper">
+                      <div className="v03-card-info-col">
+                        <div className="v03-card-title-row">
                           <button
                             type="button"
-                            className="v03-icon-action-btn view"
+                            className="v03-card-name-btn"
                             onClick={() => setViewArtisanModal(artisan)}
-                            title="Xem chi tiết hồ sơ"
-                            aria-label="Xem chi tiết hồ sơ"
+                            title={artisan.displayName}
                           >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                              <circle cx="12" cy="12" r="3" />
-                            </svg>
+                            {artisan.displayName}
                           </button>
+                          <span className="v03-card-code" title={`Mã nghệ nhân: #${artisan.id}`}>
+                            #{artisan.id}
+                          </span>
+                        </div>
 
-                          <button
-                            type="button"
-                            className="v03-icon-action-btn edit"
-                            onClick={() => onEditArtisan(artisan)}
-                            title="Chỉnh sửa thông tin hồ sơ"
-                            aria-label="Chỉnh sửa hồ sơ"
-                          >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
-                          </button>
-
-                          <button
-                            type="button"
-                            className="v03-icon-action-btn delete"
-                            onClick={() => handleOpenDelete(artisan)}
-                            title="Xóa hồ sơ nghệ nhân"
-                            aria-label="Xóa hồ sơ nghệ nhân"
-                          >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <polyline points="3 6 5 6 21 6" />
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            </svg>
-                          </button>
+                        <div className="v03-card-badge-container">
+                          {renderStatusBadge(artisan.verificationStatus)}
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+
+                    {/* 2. Kinh nghiệm làm nghề */}
+                    <div className="v03-card-experience">
+                      <span className="v03-card-experience-lbl">THÂM NIÊN LÀM NGHỀ</span>
+                      <span className="v03-card-experience-val">
+                        <strong>{artisan.experienceYears ?? 0}</strong> năm
+                      </span>
+                    </div>
+
+                    {/* 3. Tiểu sử & Câu chuyện (Fixed Height & Line Clamped) */}
+                    <div className="v03-card-bio-section">
+                      <span className="v03-card-bio-lbl">TIỂU SỬ & CÂU CHUYỆN</span>
+                      <div
+                        className={`v03-card-bio-container ${isBioLong ? 'has-long-bio' : ''}`}
+                        onClick={() => {
+                          if (isBioLong) setViewArtisanModal(artisan);
+                        }}
+                        title={isBioLong ? 'Nhấn để xem toàn bộ tiểu sử và câu chuyện nghệ nhân' : undefined}
+                      >
+                        {hasBio ? (
+                          <p className="v03-card-bio-text">{bioText}</p>
+                        ) : (
+                          <p className="v03-card-bio-empty">Chưa có thông tin tiểu sử.</p>
+                        )}
+
+                        {isBioLong && (
+                          <button
+                            type="button"
+                            className="v03-card-read-more"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewArtisanModal(artisan);
+                            }}
+                            title="Xem toàn bộ tiểu sử và câu chuyện nghệ nhân"
+                            aria-label="Xem thêm tiểu sử nghệ nhân"
+                          >
+                            ... Xem thêm
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 4. Làng nghề & Thống kê sản phẩm / workshop */}
+                    <div className="v03-card-meta-line">
+                      <span className="v03-card-village-badge" title={artisan.villageName || 'Làng nghề'}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <span>{artisan.villageName || 'Làng nghề truyền thống'}</span>
+                      </span>
+
+                      <div className="v03-card-activity-chips">
+                        <span className="v03-act-chip" title="Số lượng sản phẩm liên kết">
+                          <strong>{artisan.productCount ?? 0}</strong> sp
+                        </span>
+                        <span className="v03-act-chip" title="Số lượng workshop tham gia">
+                          <strong>{artisan.workshopCount ?? 0}</strong> ws
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 5. Footer Actions: Pinned to Bottom */}
+                    <div className="v03-card-footer-box">
+                      <span className="v03-card-heritage-code">
+                        ID: #{artisan.id}
+                      </span>
+
+                      <div className="v03-card-actions-wrapper">
+                        <button
+                          type="button"
+                          className="v03-icon-action-btn view"
+                          onClick={() => setViewArtisanModal(artisan)}
+                          title="Xem chi tiết hồ sơ"
+                          aria-label="Xem chi tiết hồ sơ"
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="v03-icon-action-btn edit"
+                          onClick={() => onEditArtisan(artisan)}
+                          title="Chỉnh sửa thông tin hồ sơ"
+                          aria-label="Chỉnh sửa hồ sơ"
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="v03-icon-action-btn delete"
+                          onClick={() => handleOpenDelete(artisan)}
+                          title="Xóa hồ sơ nghệ nhân"
+                          aria-label="Xóa hồ sơ nghệ nhân"
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
 
           {/* Unified LocalCraft Pagination */}

@@ -118,15 +118,25 @@ export interface WorkshopBookingRecord {
 
 export interface HeritageStoryItem {
   id: number;
-  title: string;
+  storyId?: number;
+  villageId?: number;
+  villageName?: string;
+  artisanId?: number | null;
   artisanName: string;
+  title: string;
+  slug?: string;
+  summary?: string;
   excerpt: string;
+  content?: string;
   coverImage: string;
-  readTime: string;
-  views: number;
-  likes: number;
+  status?: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'HIDDEN';
+  readTime?: string;
+  views?: number;
+  likes?: number;
   publishedAt: string;
-  tag: string;
+  createdAt?: string;
+  updatedAt?: string;
+  tag?: string;
 }
 
 export interface KpiMetricCard {

@@ -285,20 +285,19 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
                     <div className="v04-status-overlay">
                       <span className={`v03-badge-status ${initialData.verificationStatus.toLowerCase()}`}>
                         <span
-                          className={`status-dot ${
-                            initialData.verificationStatus === 'APPROVED'
+                          className={`status-dot ${initialData.verificationStatus === 'APPROVED'
                               ? 'green'
                               : initialData.verificationStatus === 'PENDING'
-                              ? 'amber'
-                              : 'red'
-                          }`}
+                                ? 'amber'
+                                : 'red'
+                            }`}
                         />
                         <span>
                           {initialData.verificationStatus === 'APPROVED'
                             ? 'Đã xác minh'
                             : initialData.verificationStatus === 'PENDING'
-                            ? 'Chờ xác minh'
-                            : 'Từ chối'}
+                              ? 'Chờ xác minh'
+                              : 'Từ chối'}
                         </span>
                       </span>
                     </div>
@@ -578,8 +577,8 @@ export const AddArtisanModal: React.FC<AddArtisanModalProps> = ({
               {isSubmitting
                 ? 'Đang lưu hồ sơ...'
                 : isEditMode
-                  ? 'Lưu thay đổi hồ sơ'
-                  : 'Xác nhận tạo hồ sơ'}
+                  ? 'Lưu hồ sơ'
+                  : 'Xác nhận'}
             </button>
           </div>
         </form>

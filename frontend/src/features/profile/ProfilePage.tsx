@@ -15,7 +15,6 @@ import {
 interface ProfilePageProps {
   onBackToHome?: () => void;
   onNavigateToLogin?: () => void;
-  onNavigateToArtisanDashboard?: () => void;
   onChangePassword?: () => void;
   onExploreWorkshops?: () => void;
   userEmail?: string;
@@ -25,7 +24,6 @@ interface ProfilePageProps {
 export const ProfilePage: React.FC<ProfilePageProps> = ({
   onBackToHome,
   onNavigateToLogin,
-  onNavigateToArtisanDashboard,
   onChangePassword,
   onExploreWorkshops,
   userEmail,
@@ -222,7 +220,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
         onBackToHome={onBackToHome}
         onOpenLogin={onNavigateToLogin}
         onOpenProfile={() => {}}
-        onOpenArtisanDashboard={onNavigateToArtisanDashboard}
         onLogout={onNavigateToLogin}
         onOpenExplore={onBackToHome}
         onOpenSearch={() => showToast('Tính năng tìm kiếm nhanh di sản')}

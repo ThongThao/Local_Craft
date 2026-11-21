@@ -1,8 +1,10 @@
+from django.db.models import Q
 from rest_framework import generics, permissions, status
 from apps.common.responses import api_success, api_error
 from apps.villages.models import CraftVillage
 from apps.workshops.models import Workshop
 from apps.products.models import Product
+from apps.stories.models import CraftStory
 from .models import ChatSession, ChatMessage, KnowledgeSource, KnowledgeChunk
 from .serializers import ChatSessionSerializer, ChatMessageSerializer, ChatbotQuerySerializer
 
@@ -42,17 +44,34 @@ class ChatbotQueryView(generics.GenericAPIView):
             message_content=user_message,
         )
 
-        # Retrieval-Augmented Grounding: search KnowledgeChunk
+        # Retrieval-Augmented Grounding: search KnowledgeChunk (STRICT: only APPROVED sources and APPROVED related stories)
         keywords = [k.lower() for k in user_message.split() if len(k) > 2]
         relevant_chunks = []
         for kw in keywords:
             chunks = KnowledgeChunk.objects.filter(
                 chunk_content__icontains=kw,
-                knowledge_source__status=KnowledgeSource.KnowledgeStatus.APPROVED
-            ).select_related('knowledge_source')[:2]
+                knowledge_source__status=KnowledgeSource.KnowledgeStatus.APPROVED,
+            ).filter(
+                Q(knowledge_source__related_story__isnull=True) |
+                Q(knowledge_source__related_story__status=CraftStory.StoryStatus.APPROVED)
+            ).select_related('knowledge_source', 'knowledge_source__related_story')[:2]
             for c in chunks:
                 if c not in relevant_chunks:
                     relevant_chunks.append(c)
+
+        # Direct search on CraftStory: STRICTLY ONLY status=APPROVED is permitted
+        relevant_stories = []
+        for kw in keywords:
+            matched_stories = CraftStory.objects.filter(
+                status=CraftStory.StoryStatus.APPROVED
+            ).filter(
+                Q(title__icontains=kw) |
+                Q(summary__icontains=kw) |
+                Q(content__icontains=kw)
+            ).select_related('village', 'artisan')[:2]
+            for st in matched_stories:
+                if st not in relevant_stories:
+                    relevant_stories.append(st)
 
         # Also search CraftVillages / Workshops / Products
         matched_villages = CraftVillage.objects.filter(
@@ -61,12 +80,24 @@ class ChatbotQueryView(generics.GenericAPIView):
 
         # Generate response grounded in retrieved data
         sources_used = []
-        if relevant_chunks:
-            chunk_texts = [f"- {c.knowledge_source.source_title}: {c.chunk_content[:200]}" for c in relevant_chunks[:2]]
-            sources_used = [c.knowledge_source.source_title for c in relevant_chunks[:2]]
+        content_pieces = []
+
+        for c in relevant_chunks[:2]:
+            sources_used.append(c.knowledge_source.source_title)
+            content_pieces.append(c.chunk_content)
+
+        for st in relevant_stories[:2]:
+            source_label = f"Câu chuyện: {st.title} ({st.village.village_name})"
+            if source_label not in sources_used:
+                sources_used.append(source_label)
+            story_excerpt = st.summary or (st.content[:250] + '...' if len(st.content) > 250 else st.content)
+            content_pieces.append(f"【{st.title}】: {story_excerpt}")
+
+        if content_pieces:
+            grounding_text = "\n\n".join(content_pieces[:2])
             bot_reply = (
                 f"Dựa trên tư liệu văn hóa làng nghề của LocalCraft:\n\n"
-                f"{relevant_chunks[0].chunk_content}\n\n"
+                f"{grounding_text}\n\n"
                 f"Bạn có muốn khám phá thêm sản phẩm hoặc đặt workshop trải nghiệm tại làng nghề này không?"
             )
         else:

@@ -157,7 +157,7 @@ const toLocalDatetimeInputValue = (isoString?: string): string => {
 export const WorkshopSchedulesTab: React.FC<WorkshopSchedulesTabProps> = ({
   initialWorkshopId,
   onBackToWorkshops: _onBackToWorkshops,
-  onNavigateToBookings,
+  onNavigateToBookings: _onNavigateToBookings,
   showToast,
 }) => {
   // Workshops list for dropdown selection
@@ -759,8 +759,8 @@ export const WorkshopSchedulesTab: React.FC<WorkshopSchedulesTabProps> = ({
       </div>
 
       {/* 4. Filter Toolbar */}
-      <div className="v03-filter-card" style={{ flexWrap: 'wrap', gap: '12px' }}>
-        <div className="v03-search-wrapper" style={{ minWidth: '240px', flex: '1 1 240px' }}>
+      <div className="v03-filter-card">
+        <div className="v03-search-wrapper">
           <IconSearch size={16} className="v03-search-icon" />
           <input
             type="text"
@@ -912,7 +912,7 @@ export const WorkshopSchedulesTab: React.FC<WorkshopSchedulesTabProps> = ({
                         >
                           <IconEye size={13} />
                         </button>
-                        {/* <button
+                        <button
                           type="button"
                           className="v10-btn-icon edit"
                           onClick={() => openEditModal(s)}
@@ -920,7 +920,7 @@ export const WorkshopSchedulesTab: React.FC<WorkshopSchedulesTabProps> = ({
                           disabled={s.status === 'CANCELLED' || s.status === 'COMPLETED'}
                         >
                           <IconEdit size={13} /> 
-                        </button> */}
+                        </button>
                         <button
                           type="button"
                           className="v10-btn-icon reschedule"

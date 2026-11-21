@@ -573,7 +573,7 @@ export const VillageOrdersTab: React.FC<VillageOrdersTabProps> = ({
 
           {/* Order Status Select Dropdown */}
           <div className="v03-filter-group">
-            <label className="v03-filter-label">Trạng thái:</label>
+            <label className="v03-filter-label">Đơn hàng:</label>
             <select
               className="v03-select-box"
               value={statusFilter}
@@ -581,7 +581,6 @@ export const VillageOrdersTab: React.FC<VillageOrdersTabProps> = ({
                 setStatusFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              style={{ minWidth: '160px' }}
               title="Lọc theo trạng thái đơn hàng"
             >
               <option value="ALL">Tất cả</option>
@@ -597,7 +596,7 @@ export const VillageOrdersTab: React.FC<VillageOrdersTabProps> = ({
 
           {/* Payment Filter Dropdown */}
           <div className="v03-filter-group">
-            <label className="v03-filter-label">Trạng thái:</label>
+            <label className="v03-filter-label">Thanh toán:</label>
             <select
               className="v03-select-box"
               value={paymentStatusFilter}
@@ -605,7 +604,6 @@ export const VillageOrdersTab: React.FC<VillageOrdersTabProps> = ({
                 setPaymentStatusFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              style={{ minWidth: '160px' }}
               title="Lọc theo trạng thái thanh toán"
             >
               <option value="ALL">Tất cả</option>

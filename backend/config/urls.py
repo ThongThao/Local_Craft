@@ -3,6 +3,7 @@ Root URL configuration for LocalCraft backend.
 """
 
 from django.urls import path, include
+from apps.villages.views import VillageActivityAnalyticsView
 
 urlpatterns = [
     # Health check & system status
@@ -15,6 +16,9 @@ urlpatterns = [
     path('api/v1/villages/', include('apps.villages.urls')),
     path('api/v1/artisans/', include('apps.artisans.urls')),
     path('api/v1/stories/', include('apps.stories.urls')),
+
+    # Village Activity & Revenue Analytics (Screen V17)
+    path('api/v1/analytics/village-activity/', VillageActivityAnalyticsView.as_view(), name='village-activity-analytics'),
 
     # Products & Workshops
     path('api/v1/products/', include('apps.products.urls')),

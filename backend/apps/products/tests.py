@@ -21,6 +21,8 @@ class BusinessAPITestCase(TestCase):
         )
         self.user.set_password('Password@123')
         self.user.save()
+        tourist_role, _ = Role.objects.get_or_create(role_code='TOURIST', defaults={'role_name': 'Khách du lịch'})
+        UserRole.objects.create(user=self.user, role=tourist_role)
 
         # Seed Village
         self.village = CraftVillage.objects.create(

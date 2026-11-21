@@ -22,6 +22,7 @@ export interface SidebarNavCounts {
   bookings?: number;
   orders?: number;
   reviews?: number;
+  stories?: number;
 }
 
 interface ArtisanSidebarProps {
@@ -32,6 +33,8 @@ interface ArtisanSidebarProps {
   villageName?: string;
   villageSubtitle?: string;
   villageId?: number;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 interface MenuGroup {
@@ -52,6 +55,8 @@ export const ArtisanSidebar: React.FC<ArtisanSidebarProps> = ({
   villageName,
   villageSubtitle,
   villageId,
+  isMobileOpen = false,
+  onCloseMobile,
 }) => {
   // Tổ chức nhóm chức năng theo tài khoản Quản lý Làng nghề (V01-V17)
   const menuGroups: MenuGroup[] = [
@@ -205,6 +210,7 @@ export const ArtisanSidebar: React.FC<ArtisanSidebarProps> = ({
         {
           id: 'stories',
           label: 'Câu chuyện làng nghề',
+          badge: counts?.stories !== undefined ? String(counts.stories) : undefined,
           icon: (
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -232,16 +238,33 @@ export const ArtisanSidebar: React.FC<ArtisanSidebarProps> = ({
   ];
 
   return (
-    <aside className="artisan-v2-sidebar">
+    <aside className={`artisan-v2-sidebar ${isMobileOpen ? 'mobile-open' : ''}`}>
       {/* Brand Header */}
-      <div className="artisan-v2-sidebar-brand" onClick={onBackToHome} role="button" tabIndex={0}>
-        <div className="artisan-v2-brand-emblem">
-          <AppIcon name="pottery" size={20} />
+      <div className="artisan-v2-sidebar-brand-row">
+        <div className="artisan-v2-sidebar-brand" onClick={onBackToHome} role="button" tabIndex={0}>
+          <div className="artisan-v2-brand-emblem">
+            <AppIcon name="pottery" size={20} />
+          </div>
+          <div className="artisan-v2-brand-texts">
+            <span className="artisan-v2-brand-title">LocalCraft</span>
+            <span className="artisan-v2-brand-tagline">TINH HOA DI SẢN</span>
+          </div>
         </div>
-        <div className="artisan-v2-brand-texts">
-          <span className="artisan-v2-brand-title">LocalCraft</span>
-          <span className="artisan-v2-brand-tagline">TINH HOA DI SẢN</span>
-        </div>
+
+        {onCloseMobile && (
+          <button
+            type="button"
+            className="artisan-v2-sidebar-close-btn"
+            onClick={onCloseMobile}
+            title="Đóng menu"
+            aria-label="Đóng menu quản lý"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Unit Management Badge Card */}

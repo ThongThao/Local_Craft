@@ -17,7 +17,6 @@ import { VILLAGES_DATA, PRODUCTS_DATA } from '@/data/landing';
 interface LandingPageProps {
   onNavigateToLogin?: () => void;
   onNavigateToProfile?: () => void;
-  onNavigateToArtisanDashboard?: () => void;
   onLogout?: () => void;
   isLoggedIn?: boolean;
   currentUser?: {
@@ -32,7 +31,6 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({
   onNavigateToLogin,
   onNavigateToProfile,
-  onNavigateToArtisanDashboard,
   onLogout,
   isLoggedIn = false,
   currentUser = null,
@@ -116,7 +114,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         onOpenSearch={() => setSearchModalOpen(true)}
         onOpenLogin={onNavigateToLogin || (() => showToast('Cổng đăng nhập tài khoản đang sẵn sàng.'))}
         onOpenProfile={onNavigateToProfile}
-        onOpenArtisanDashboard={onNavigateToArtisanDashboard}
         onLogout={onLogout}
         isLoggedIn={isLoggedIn}
         currentUser={currentUser}

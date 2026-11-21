@@ -1134,7 +1134,7 @@ export const WorkshopsManagerTab: React.FC<WorkshopsManagerTabProps> = ({
               </div>
 
               {/* Navigation CTA Shortcuts */}
-              <div className="v08-view-shortcuts-bar">
+              {/* <div className="v08-view-shortcuts-bar">
                 <span className="v08-shortcuts-label">Điều hướng quản lý:</span>
                 <div className="v08-shortcuts-btns">
                   <button
@@ -1179,7 +1179,7 @@ export const WorkshopsManagerTab: React.FC<WorkshopsManagerTabProps> = ({
                     <span>Quản lý lượt đặt</span>
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="modal-actions-row" style={{ marginTop: '20px' }}>

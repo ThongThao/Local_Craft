@@ -8,7 +8,6 @@ export interface NavbarProps {
   onOpenLogin?: () => void;
   onOpenExplore?: () => void;
   onOpenProfile?: () => void;
-  onOpenArtisanDashboard?: () => void;
   onLogout?: () => void;
   onBackToHome?: () => void;
   isLoggedIn?: boolean;
@@ -28,7 +27,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenLogin,
   onOpenExplore,
   onOpenProfile,
-  onOpenArtisanDashboard,
   onLogout,
   onBackToHome,
   isLoggedIn = false,
@@ -450,23 +448,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </svg>
                       Hồ sơ cá nhân
                     </button>
-                    {((currentUser as any)?.role_id === 1 || currentUser?.roles?.includes('CRAFT_VILLAGE')) && (
-                      <button
-                        type="button"
-                        className="navbar-dropdown-item"
-                        onClick={() => {
-                          setUserDropdownOpen(false);
-                          onOpenArtisanDashboard?.();
-                        }}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                          <path d="M2 17l10 5 10-5" />
-                          <path d="M2 12l10 5 10-5" />
-                        </svg>
-                        Dashboard Làng Nghề (Nghệ Nhân)
-                      </button>
-                    )}
                     <button
                       type="button"
                       className="navbar-dropdown-item"
@@ -596,19 +577,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   Hồ sơ cá nhân
                 </Button>
-                {((currentUser as any)?.role_id === 1 || currentUser?.roles?.includes('CRAFT_VILLAGE')) && (
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    fullWidth
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      onOpenArtisanDashboard?.();
-                    }}
-                  >
-                    🏛️ Dashboard Làng Nghề 
-                  </Button>
-                )}
                 <Button
                   variant="outline"
                   size="md"

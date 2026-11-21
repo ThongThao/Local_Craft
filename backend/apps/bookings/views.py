@@ -78,6 +78,11 @@ class BookingListCreateView(generics.GenericAPIView):
         return api_success(data=serializer.data, message="Lấy danh sách đăng ký workshop thành công")
 
     def post(self, request):
+        if not user_has_role(request.user, 'TOURIST'):
+            return api_error(
+                message="Chức năng đặt chỗ workshop chỉ dành riêng cho tài khoản Du khách.",
+                status_code=status.HTTP_403_FORBIDDEN
+            )
         serializer = CreateBookingSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         booking = serializer.save()

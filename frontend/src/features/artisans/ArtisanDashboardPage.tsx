@@ -4,18 +4,13 @@ import {
   ArtisanProfileItem,
   CraftProductItem,
   CraftWorkshopItem,
-  OrderItemRecord,
-  WorkshopBookingRecord,
   HeritageStoryItem,
 } from './types';
 import {
   INITIAL_VILLAGES,
   INITIAL_PRODUCTS,
   INITIAL_WORKSHOPS,
-  INITIAL_ORDERS,
-  INITIAL_BOOKINGS,
   INITIAL_HERITAGE_STORIES,
-  REVENUE_CHART_DATA,
 } from './data/artisanDashboardData';
 import { ProductDto } from '@/services/api/products';
 
@@ -26,9 +21,8 @@ import ArtisanMetricCards, { ArtisanMetricData } from './components/ArtisanMetri
 import ArtisanGrowthChart from './components/ArtisanGrowthChart';
 import ArtisanShowcaseGrid, { ShowcaseProductItem } from './components/ArtisanShowcaseGrid';
 import ArtisanOperationsTable, { OperationBookingItem } from './components/ArtisanOperationsTable';
-import ArtisanRecentActivities from './components/ArtisanRecentActivities';
+import ArtisanRecentActivities, { RecentActivityItem } from './components/ArtisanRecentActivities';
 
-import OverviewTab from './components/tabs/OverviewTab';
 import ArtisansManagerTab from './components/tabs/ArtisansManagerTab';
 import ProductsManagerTab from './components/tabs/ProductsManagerTab';
 import VariantsInventoryTab from './components/tabs/VariantsInventoryTab';
@@ -39,12 +33,14 @@ import VillageOrdersTab from './components/tabs/VillageOrdersTab';
 import HeritageStoriesTab from './components/tabs/HeritageStoriesTab';
 import VillageProfileTab from './components/tabs/VillageProfileTab';
 import ReviewsManagerTab from './components/tabs/ReviewsManagerTab';
+import ActivityStatisticsTab from './components/tabs/ActivityStatisticsTab';
 
 import AddArtisanModal from './components/modals/AddArtisanModal';
 import AddProductModal from './components/modals/AddProductModal';
 import AddWorkshopModal from './components/modals/AddWorkshopModal';
 import PublicPreviewModal from './components/modals/PublicPreviewModal';
 import {
+  authApi,
   artisansApi,
   villagesApi,
   productsApi,
@@ -52,7 +48,9 @@ import {
   bookingsApi,
   workshopsApi,
   reviewsApi,
+  storiesApi,
 } from '@/services/api';
+
 
 
 export interface ArtisanDashboardPageProps {
@@ -76,18 +74,28 @@ export type DashboardTabKey =
   | 'stories';
 
 export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
-  onBackToHome,
-  onNavigateToProfile,
+  onBackToHome: _onBackToHome,
+  onNavigateToProfile: _onNavigateToProfile,
   onLogout,
 }) => {
   // Navigation & Tabs
-  const [activeTab, setActiveTab] = useState<DashboardTabKey>('artisans');
+  const [activeTab, setActiveTab] = useState<DashboardTabKey>('overview');
   const [selectedWorkshopForSchedulesId, setSelectedWorkshopForSchedulesId] = useState<number | null>(null);
   const [selectedWorkshopForBookingsId, setSelectedWorkshopForBookingsId] = useState<number | null>(null);
 
-  // Primary Village & Artisan
-  // Primary Village & Artisan
+  // User Profile
+  const [currentUserProfile, setCurrentUserProfile] = useState<{
+    name: string;
+    role: string;
+    avatarUrl?: string;
+  }>({
+    name: 'Quản lý làng nghề',
+    role: 'Quản lý làng nghề',
+  });
+
+  // Primary Village (Single source of truth for logged-in Craft Village Manager)
   const [selectedVillage, setSelectedVillage] = useState<CraftVillageData>(INITIAL_VILLAGES[0]);
+
   const [artisansList, setArtisansList] = useState<ArtisanProfileItem[]>([]);
   const [isLoadingArtisans, setIsLoadingArtisans] = useState<boolean>(true);
   const [artisanError, setArtisanError] = useState<string | null>(null);
@@ -96,8 +104,6 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
   // Management Collections
   const [productsList] = useState<CraftProductItem[]>(INITIAL_PRODUCTS);
   const [workshopsList, setWorkshopsList] = useState<CraftWorkshopItem[]>(INITIAL_WORKSHOPS);
-  const [ordersList, setOrdersList] = useState<OrderItemRecord[]>(INITIAL_ORDERS);
-  const [bookingsList, setBookingsList] = useState<WorkshopBookingRecord[]>(INITIAL_BOOKINGS);
   const [storiesList, setStoriesList] = useState<HeritageStoryItem[]>(INITIAL_HERITAGE_STORIES);
 
   // Modals state
@@ -114,6 +120,7 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
   const [workshopRefreshTrigger, setWorkshopRefreshTrigger] = useState<number>(0);
 
   const [previewModalOpen, setPreviewModalOpen] = useState<boolean>(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
 
   // Toast feedback state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -122,6 +129,7 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
   const [overviewMetrics, setOverviewMetrics] = useState<ArtisanMetricData | undefined>(undefined);
   const [overviewShowcaseProducts, setOverviewShowcaseProducts] = useState<ShowcaseProductItem[]>([]);
   const [overviewRecentBookings, setOverviewRecentBookings] = useState<OperationBookingItem[]>([]);
+  const [overviewRecentActivities, setOverviewRecentActivities] = useState<RecentActivityItem[]>([]);
 
   // Real DB counts for Sidebar Navigation & Overview KPIs
   const [sidebarCounts, setSidebarCounts] = useState<SidebarNavCounts>({
@@ -140,7 +148,7 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
   // Load sidebar navigation counts and live overview collections directly from real backend APIs
   const loadSidebarCounts = async () => {
     try {
-      const [artRes, prodSummaryRes, prodListRes, wsRes, ordRes, ordSummaryRes, bkRes, revRes, wsSummaryRes] = await Promise.allSettled([
+      const [artRes, prodSummaryRes, prodListRes, wsRes, ordRes, ordSummaryRes, bkRes, revRes, wsSummaryRes, storiesSummaryRes] = await Promise.allSettled([
         artisansApi.getAll(),
         productsApi.getSummary(),
         productsApi.getAll(),
@@ -150,6 +158,7 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
         bookingsApi.getMyBookings(),
         reviewsApi.getSummary(),
         workshopsApi.getSummary(),
+        storiesApi.getSummary(),
       ]);
 
       const counts: SidebarNavCounts = {};
@@ -173,18 +182,45 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
       }
       if (prodListRes.status === 'fulfilled' && prodListRes.value.success && Array.isArray(prodListRes.value.data)) {
         if (!totalProducts) totalProducts = prodListRes.value.data.length;
-        const mappedShowcase: ShowcaseProductItem[] = prodListRes.value.data.slice(0, 4).map((p: any) => ({
-          id: p.product_id,
-          name: p.product_name,
-          artisanName: p.artisan_name || 'Nghệ nhân Bát Tràng',
-          category: p.category_name || 'Gốm thủ công',
-          image: p.cover_image_url || 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=600&q=80',
-          price: `${Number(p.base_price || 0).toLocaleString('vi-VN')} ₫`,
-          salesCount: 12,
-          statusLabel: 'Đang mở bán',
-          statusClass: 'dark-green',
-          stockNote: 'Sẵn hàng tại xưởng',
-        }));
+        const mappedShowcase: ShowcaseProductItem[] = prodListRes.value.data.slice(0, 4).map((p: any) => {
+          let statusLabel = 'Đang mở bán';
+          let statusClass = 'dark-green';
+          let stockNote = 'Sẵn sàng giao';
+
+          if (p.status === 'PENDING') {
+            statusLabel = 'Chờ duyệt';
+            statusClass = 'amber';
+            stockNote = 'Chờ quản trị duyệt';
+          } else if (p.status === 'DRAFT') {
+            statusLabel = 'Bản nháp';
+            statusClass = 'gray';
+            stockNote = 'Chưa phát hành';
+          } else if (p.status === 'HIDDEN') {
+            statusLabel = 'Tạm ẩn';
+            statusClass = 'gray';
+            stockNote = 'Đang tạm ẩn';
+          } else if (p.status === 'REJECTED') {
+            statusLabel = 'Từ chối';
+            statusClass = 'red';
+            stockNote = 'Cần cập nhật';
+          } else if (p.business_state === 'OUT_OF_STOCK') {
+            statusLabel = 'Hết hàng';
+            statusClass = 'red';
+            stockNote = 'Hết hàng';
+          }
+
+          return {
+            id: p.product_id,
+            name: p.product_name,
+            artisanName: p.artisan_name || 'Nghệ nhân làng nghề',
+            category: p.category_name || 'Thủ công mỹ nghệ',
+            image: p.cover_image_url || 'https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?auto=format&fit=crop&w=600&q=80',
+            price: `${Number(p.base_price || 0).toLocaleString('vi-VN')} ₫`,
+            statusLabel,
+            statusClass,
+            stockNote,
+          };
+        });
         setOverviewShowcaseProducts(mappedShowcase);
       }
 
@@ -198,20 +234,6 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
       if (ordRes.status === 'fulfilled' && ordRes.value.success && Array.isArray(ordRes.value.data)) {
         counts.orders = ordRes.value.data.length;
         totalOrders = ordRes.value.data.length;
-        const mappedOrders: OrderItemRecord[] = ordRes.value.data.map((vo: any) => ({
-          orderId: vo.vendor_order_code || `VO-${vo.vendor_order_id}`,
-          customerName: vo.recipient_name || vo.customer_name || 'Du khách',
-          customerPhone: vo.recipient_phone || '0900000000',
-          customerLocation: vo.shipping_address || 'Hà Nội',
-          productTitle: vo.items && vo.items.length > 0 ? vo.items[0].product_name_snapshot : 'Sản phẩm thủ công',
-          quantity: vo.items && vo.items.length > 0 ? vo.items[0].quantity : 1,
-          totalAmount: Number(vo.total_amount || 0),
-          formattedAmount: `${Number(vo.total_amount || 0).toLocaleString('vi-VN')} ₫`,
-          orderDate: vo.created_at ? new Date(vo.created_at).toLocaleDateString('vi-VN') : 'Hôm nay',
-          status: vo.status === 'PENDING' ? 'PENDING' : vo.status === 'CONFIRMED' ? 'PREPARING' : vo.status === 'SHIPPED' ? 'SHIPPING' : 'COMPLETED',
-          paymentMethod: 'VNPAY',
-        }));
-        setOrdersList(mappedOrders);
       }
       if (ordSummaryRes.status === 'fulfilled' && ordSummaryRes.value.success && ordSummaryRes.value.data) {
         totalRevenue += Number(ordSummaryRes.value.data.total_village_revenue || ordSummaryRes.value.data.total_order_amount || 0);
@@ -249,20 +271,7 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
         }));
         setOverviewRecentBookings(mappedOps);
 
-        const mappedBookings: WorkshopBookingRecord[] = bkList.map((b: any) => ({
-          bookingId: b.booking_code || `WS-${b.booking_id}`,
-          workshopTitle: b.workshop_name || 'Trải nghiệm làng nghề',
-          guestName: b.customer_name || b.user_name || 'Du khách',
-          guestPhone: b.customer_phone || b.user_phone || '0900000000',
-          guestCount: b.participant_count || 1,
-          sessionTime: b.start_at ? new Date(b.start_at).toLocaleString('vi-VN') : 'Hôm nay',
-          totalAmount: Number(b.total_amount || 0),
-          formattedAmount: `${Number(b.total_amount || 0).toLocaleString('vi-VN')} ₫`,
-          status: b.status === 'COMPLETED' || b.status === 'CHECKED_IN' ? 'CHECKED_IN' : b.status === 'CANCELLED' ? 'CANCELLED' : 'CONFIRMED',
-          qrCode: b.booking_code || 'QR-DEFAULT',
-          specialNote: b.special_request || '',
-        }));
-        setBookingsList(mappedBookings);
+
       }
 
       // 6. Reviews (Database-aggregated KPI from reviewsApi.getSummary)
@@ -281,13 +290,65 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
         counts.reviews = totalReviews;
       }
 
+      // 7. Stories (Database-aggregated KPI from storiesApi.getSummary)
+      if (storiesSummaryRes.status === 'fulfilled' && storiesSummaryRes.value.success && storiesSummaryRes.value.data) {
+        counts.stories = storiesSummaryRes.value.data.total_stories;
+      }
+
       setSidebarCounts((prev) => ({
         ...prev,
         ...counts,
       }));
 
+      // Aggregate dynamic recent activities from real orders, bookings, and products
+      const recentList: RecentActivityItem[] = [];
+
+      if (ordRes.status === 'fulfilled' && ordRes.value.success && Array.isArray(ordRes.value.data)) {
+        ordRes.value.data.slice(0, 3).forEach((ord: any) => {
+          recentList.push({
+            id: `ord-${ord.vendor_order_id}`,
+            type: 'order',
+            content: `Đơn hàng #${ord.vendor_order_code || ord.vendor_order_id} trị giá ${Number(ord.total_amount || 0).toLocaleString('vi-VN')} ₫`,
+            targetName: ord.recipient_name || ord.customer_name || 'Khách hàng',
+            timestamp: ord.order_placed_at
+              ? new Date(ord.order_placed_at).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+              : 'Gần đây',
+          });
+        });
+      }
+
+      if (bkRes.status === 'fulfilled' && bkRes.value.success && Array.isArray(bkRes.value.data)) {
+        bkRes.value.data.slice(0, 3).forEach((bk: any) => {
+          recentList.push({
+            id: `bk-${bk.booking_id}`,
+            type: 'booking',
+            content: `Lượt đăng ký trải nghiệm (${bk.participant_count || 1} khách)`,
+            targetName: bk.workshop_name || 'Workshop làng nghề',
+            timestamp: bk.start_at
+              ? new Date(bk.start_at).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+              : 'Gần đây',
+          });
+        });
+      }
+
+      if (prodListRes.status === 'fulfilled' && prodListRes.value.success && Array.isArray(prodListRes.value.data)) {
+        prodListRes.value.data.slice(0, 2).forEach((prod: any) => {
+          recentList.push({
+            id: `prod-${prod.product_id}`,
+            type: 'product',
+            content: `Tác phẩm "${prod.product_name}" trong bộ sưu tập`,
+            targetName: prod.artisan_name || 'Làng nghề',
+            timestamp: prod.updated_at
+              ? new Date(prod.updated_at).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+              : 'Đang mở bán',
+          });
+        });
+      }
+
+      setOverviewRecentActivities(recentList.slice(0, 5));
+
       setOverviewMetrics({
-        revenueFormatted: `${totalRevenue > 0 ? totalRevenue.toLocaleString('vi-VN') : '148.650.000'} ₫`,
+        revenueFormatted: `${totalRevenue.toLocaleString('vi-VN')} ₫`,
         ordersCount: totalOrders,
         workshopsCount: totalWorkshops,
         bookingsCount: totalBookings,
@@ -368,6 +429,24 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
         console.warn('Could not fetch managed village profile:', err);
       });
 
+    authApi
+      .getMe()
+      .then((res) => {
+        if (res.success && res.data) {
+          const roleLabel = res.data.roles?.includes('CRAFT_VILLAGE')
+            ? 'Quản lý làng nghề'
+            : res.data.roles?.[0] || 'Quản lý';
+          setCurrentUserProfile({
+            name: res.data.full_name || 'Quản lý làng nghề',
+            role: roleLabel,
+            avatarUrl: res.data.avatar_url,
+          });
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not fetch user profile:', err);
+      });
+
     loadArtisans();
     loadSidebarCounts();
   }, []);
@@ -385,6 +464,8 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
         console.warn('Could not refresh product summary count:', err);
       });
   }, [productRefreshTrigger]);
+
+
 
   // Quick Open Modal Handler
   const handleOpenAddModal = (type: 'artisan' | 'product' | 'workshop') => {
@@ -517,37 +598,9 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
     showToast('Đã xóa lớp workshop');
   };
 
-  // Order & Booking Status Updates
-  const handleUpdateOrderStatus = (orderId: string, newStatus: OrderItemRecord['status']) => {
-    setOrdersList((prev) =>
-      prev.map((o) => (o.orderId === orderId ? { ...o, status: newStatus } : o))
-    );
-    showToast(`Đơn hàng ${orderId} đã cập nhật sang trạng thái: ${newStatus}`);
-  };
-
-  const handleCheckInBooking = async (bookingId: string) => {
-    const numId = Number(bookingId);
-    if (!isNaN(numId) && numId > 0) {
-      try {
-        const res = await bookingsApi.updateAttendance(numId, 'COMPLETED');
-        if (!res.success) {
-          showToast(res.message || 'Không thể điểm danh đơn đặt.');
-          return;
-        }
-      } catch (err: unknown) {
-        console.warn('Check-in API error:', err);
-      }
-    }
-    setBookingsList((prev) =>
-      prev.map((b) => (b.bookingId === bookingId ? { ...b, status: 'CHECKED_IN' } : b))
-    );
-    showToast(`Đã điểm danh đón khách cho lịch đặt: ${bookingId}`);
-  };
-
-
   const handleLikeStory = (storyId: number) => {
     setStoriesList((prev) =>
-      prev.map((s) => (s.id === storyId ? { ...s, likes: s.likes + 1 } : s))
+      prev.map((s) => (s.id === storyId ? { ...s, likes: (s.likes || 0) + 1 } : s))
     );
     showToast('Cảm ơn bạn đã lưu giữ và yêu thích câu chuyện làng nghề!');
   };
@@ -566,29 +619,47 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
         </div>
       )}
 
+      {/* Mobile Drawer Overlay Backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          className="artisan-v2-sidebar-backdrop active"
+          onClick={() => setMobileSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       {/* 1. Left Sidebar Navigation */}
       <ArtisanSidebar
         activeTab={activeTab as SidebarTabKey}
         onSelectTab={(tab) => {
           setActiveTab(tab as DashboardTabKey);
+          setMobileSidebarOpen(false);
         }}
-        onBackToHome={onBackToHome}
+        onBackToHome={() => {
+          setActiveTab('overview');
+          setMobileSidebarOpen(false);
+        }}
         counts={sidebarCounts}
         villageName={selectedVillage.name}
-        villageSubtitle="OCOP 5 Sao Quốc Gia"
+        villageSubtitle={selectedVillage.province ? `${selectedVillage.province} · Di sản làng nghề` : 'Cơ sở làng nghề'}
         villageId={selectedVillage.villageId}
+        isMobileOpen={mobileSidebarOpen}
+        onCloseMobile={() => setMobileSidebarOpen(false)}
       />
 
       {/* 2. Content Wrapper (TopBar + Main Area) */}
       <div className="artisan-v2-content-wrap">
-        {/* Top Header Bar (Shown on overview and operational tabs, hidden on Village Profile per V02 design) */}
-        {activeTab !== 'settings' && (
-          <ArtisanTopHeader
-            onBackToHome={onBackToHome}
-            onNavigateToProfile={onNavigateToProfile}
-            onLogout={onLogout}
-          />
-        )}
+        {/* Top Header Bar (Unified header across all screens: V01 - V17) */}
+        <ArtisanTopHeader
+          onBackToHome={() => setActiveTab('overview')}
+          onNavigateToProfile={() => setActiveTab('settings')}
+          onLogout={onLogout}
+          userName={currentUserProfile.name}
+          userRole={currentUserProfile.role}
+          userAvatar={currentUserProfile.avatarUrl}
+          onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
+          villageName={selectedVillage.name}
+        />
 
         {/* Main Dashboard Views */}
         <main className="artisan-v2-main-content">
@@ -609,7 +680,7 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
               />
 
               {/* D. Biểu đồ hoạt động ("Hiệu quả hoạt động" với bộ lọc thời gian & chỉ số) */}
-              <ArtisanGrowthChart />
+              <ArtisanGrowthChart villageId={selectedVillage.villageId} />
 
               {/* E. Sản phẩm nổi bật (Top 4 tác phẩm độc bản, "Xem tất cả" dẫn tới V05) */}
               <ArtisanShowcaseGrid
@@ -628,6 +699,7 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
 
               {/* G. Hoạt động gần đây (5 hoạt động mới nhất) */}
               <ArtisanRecentActivities
+                activities={overviewRecentActivities}
                 onViewActivityDetail={(id) => showToast(`Chi tiết diễn biến hoạt động: ${id}`)}
               />
             </>
@@ -728,32 +800,15 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
             />
           )}
 
-          {/* View 5: DOANH THU & ĐỐI SOÁT */}
+          {/* View 5: THỐNG KÊ HOẠT ĐỘNG & DOANH THU (V17) */}
           {activeTab === 'revenue' && (
-            <OverviewTab
-              village={selectedVillage}
-              artisan={
-                currentArtisan || {
-                  id: 0,
-                  villageId: selectedVillage.villageId,
-                  displayName: 'Chưa có nghệ nhân',
-                  experienceYears: 0,
-                  verificationStatus: 'PENDING',
-                  productCount: 0,
-                  workshopCount: 0,
-                  createdAt: new Date().toISOString(),
-                }
-              }
-              products={productsList}
-              workshops={workshopsList}
-              orders={ordersList}
-              bookings={bookingsList}
-              chartData={REVENUE_CHART_DATA}
-              onOpenAddModal={handleOpenAddModal}
-              onViewAllOrders={() => setActiveTab('orders')}
-              onViewAllWorkshops={() => setActiveTab('workshops')}
-              onUpdateOrderStatus={handleUpdateOrderStatus}
-              onCheckInBooking={handleCheckInBooking}
+            <ActivityStatisticsTab
+              villageId={selectedVillage.villageId}
+              villageName={selectedVillage.name}
+              onNavigateToOrders={() => setActiveTab('orders')}
+              onNavigateToWorkshops={() => setActiveTab('workshops')}
+              onNavigateToProducts={() => setActiveTab('products')}
+              onNavigateToBookings={() => setActiveTab('bookings')}
             />
           )}
 
@@ -765,13 +820,14 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
             />
           )}
 
-          {/* View 6.5: CÂU CHUYỆN DI SẢN & KÝ SỰ */}
+          {/* View 6.5: CÂU CHUYỆN DI SẢN & KÝ SỰ (V16) */}
           {activeTab === 'stories' && (
             <HeritageStoriesTab
               stories={storiesList}
               villageId={selectedVillage.villageId}
-              onOpenCreateStory={() => showToast('Mở trình tạo bài ký sự & đánh giá mới')}
+              artisans={artisansList}
               onLikeStory={handleLikeStory}
+              showToast={showToast}
             />
           )}
 
