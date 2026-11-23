@@ -8,6 +8,8 @@ from apps.common.responses import api_success, api_error
 # pyrefly: ignore [missing-import]
 from apps.common.permissions import IsCraftVillage, IsVillageManager, IsTourist, user_has_role
 # pyrefly: ignore [missing-import]
+from apps.notifications.services import NotificationService
+# pyrefly: ignore [missing-import]
 from apps.products.models import ProductVariant
 from .models import Cart, CartItem, Order, VendorOrder
 from .serializers import (
@@ -465,6 +467,17 @@ class VendorOrderStatusUpdateView(generics.GenericAPIView):
 
         # Aggregate and rollup parent order status
         sync_parent_order_status(vendor_order.order)
+
+        # Notify tourist on order progress
+        try:
+            if new_status == VendorOrder.VendorOrderStatus.CONFIRMED:
+                NotificationService.notify_tourist_order_confirmed(vendor_order)
+            elif new_status == VendorOrder.VendorOrderStatus.SHIPPED:
+                NotificationService.notify_tourist_order_shipped(vendor_order, tracking_code=vendor_order.tracking_code or '')
+            elif new_status in [VendorOrder.VendorOrderStatus.DELIVERED, VendorOrder.VendorOrderStatus.COMPLETED]:
+                NotificationService.notify_tourist_order_delivered(vendor_order)
+        except Exception:
+            pass
 
         return api_success(
             data=VendorOrderSerializer(vendor_order).data,

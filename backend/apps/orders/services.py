@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from apps.products.models import Inventory
+from apps.notifications.services import VillageNotificationService
 from .models import Order, VendorOrder
 
 
@@ -78,6 +79,7 @@ def cancel_parent_order(order: Order, user=None) -> Order:
     ]:
         raise ValidationError("Không thể hủy đơn hàng đang giao hoặc đã hoàn tất.")
 
+    cancelled_vos = []
     with transaction.atomic():
         parent = Order.objects.select_for_update().get(pk=order.pk)
         if parent.status == Order.OrderStatus.CANCELLED:
@@ -97,6 +99,7 @@ def cancel_parent_order(order: Order, user=None) -> Order:
                 rollback_vendor_order_inventory(vo)
                 vo.status = VendorOrder.VendorOrderStatus.CANCELLED
                 vo.save(update_fields=['status', 'updated_at'])
+                cancelled_vos.append(vo)
 
         # Fallback for any order items not tied to a vendor_order
         loose_items = parent.items.filter(vendor_order__isnull=True).select_related('variant').order_by('variant_id')
@@ -108,7 +111,14 @@ def cancel_parent_order(order: Order, user=None) -> Order:
 
         parent.status = Order.OrderStatus.CANCELLED
         parent.save(update_fields=['status', 'updated_at'])
-        return parent
+
+    for vo in cancelled_vos:
+        try:
+            VillageNotificationService.notify_order_cancelled_by_customer(vo.village, vo)
+        except Exception:
+            pass
+
+    return parent
 
 
 def sync_parent_order_status(order: Order) -> Order:

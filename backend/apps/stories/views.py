@@ -6,6 +6,7 @@ from apps.common.responses import api_success, api_error
 from apps.common.permissions import IsVillageManager, IsCraftVillage, user_has_role
 from django.contrib.auth import get_user_model
 from apps.notifications.models import Notification
+from apps.notifications.services import VillageNotificationService
 
 User = get_user_model()
 from .models import CraftStory
@@ -228,14 +229,24 @@ class CraftStoryDetailView(generics.RetrieveUpdateDestroyAPIView):
         if not user_has_role(request.user, 'ADMIN'):
             data['village'] = instance.village_id
 
+        old_status = instance.status
         serializer = self.get_serializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
         updated_story = serializer.save()
         sync_story_knowledge_source(updated_story)
 
         # If status transitioned to PENDING, notify admin (deduplicated)
-        if updated_story.status == CraftStory.StoryStatus.PENDING and instance.status != CraftStory.StoryStatus.PENDING:
+        if updated_story.status == CraftStory.StoryStatus.PENDING and old_status != CraftStory.StoryStatus.PENDING:
             notify_admins_story_pending(updated_story, is_update=True)
+
+        if user_has_role(request.user, 'ADMIN') and old_status != updated_story.status:
+            try:
+                if updated_story.status == CraftStory.StoryStatus.APPROVED:
+                    VillageNotificationService.notify_story_status(updated_story.village, updated_story, is_approved=True)
+                elif updated_story.status == CraftStory.StoryStatus.REJECTED:
+                    VillageNotificationService.notify_story_status(updated_story.village, updated_story, is_approved=False)
+            except Exception:
+                pass
 
         return api_success(data=serializer.data, message="Cập nhật câu chuyện thành công!")
 

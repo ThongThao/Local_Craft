@@ -124,6 +124,7 @@ export const App: React.FC = () => {
   const [recoveryEmail, setRecoveryEmail] = useState<string>('');
   const [recoveryOtp, setRecoveryOtp] = useState<string>('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [profileInitialTab, setProfileInitialTab] = useState<'profile' | 'workshops' | 'orders' | 'favorites' | 'preferences'>('profile');
 
   const showAppToast = (msg: string) => {
     setToastMessage(msg);
@@ -315,6 +316,7 @@ export const App: React.FC = () => {
         <ProfilePage
           userEmail={currentUser?.email}
           userFullName={currentUser?.fullName}
+          initialTab={profileInitialTab}
           onBackToHome={() => navigateTo('landing')}
           onNavigateToLogin={handleLogout}
           onChangePassword={() => navigateTo('reset-password')}
@@ -392,7 +394,10 @@ export const App: React.FC = () => {
       {currentView === 'landing' && (
         <LandingPage
           onNavigateToLogin={() => navigateTo('login')}
-          onNavigateToProfile={() => navigateTo('profile')}
+          onNavigateToProfile={(subTab) => {
+            if (subTab) setProfileInitialTab(subTab);
+            navigateTo('profile');
+          }}
           onLogout={handleLogout}
           isLoggedIn={isLoggedIn}
           currentUser={currentUser}

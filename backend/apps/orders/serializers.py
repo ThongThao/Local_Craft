@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 from rest_framework import serializers
 from apps.products.models import Inventory
+from apps.notifications.services import VillageNotificationService
 from .models import Cart, CartItem, Order, OrderItem, VendorOrder
 
 
@@ -262,6 +263,8 @@ class CreateOrderSerializer(serializers.Serializer):
             parent_subtotal = Decimal('0.00')
             parent_shipping = Decimal('0.00')
             parent_discount = Decimal('0.00')
+            created_vendor_orders = []
+            low_stock_alerts = []
 
             for village, v_items in items_by_village.items():
                 v_subtotal = sum(it.variant.price * it.quantity for it in v_items)
@@ -285,6 +288,7 @@ class CreateOrderSerializer(serializers.Serializer):
                     shipping_address=validated_data['shipping_address'],
                     shipping_note=validated_data.get('shipping_note', ''),
                 )
+                created_vendor_orders.append((village, vendor_order))
 
                 for item in v_items:
                     OrderItem.objects.create(
@@ -312,6 +316,9 @@ class CreateOrderSerializer(serializers.Serializer):
                     inv.quantity = inv.quantity - item.quantity
                     inv.save(update_fields=['quantity', 'updated_at'])
 
+                    if inv.quantity <= 5:
+                        low_stock_alerts.append((village, item.variant.product.product_name, item.variant.variant_name, inv.quantity))
+
                 parent_subtotal += v_subtotal
                 parent_shipping += v_shipping
                 parent_discount += v_discount
@@ -324,5 +331,18 @@ class CreateOrderSerializer(serializers.Serializer):
 
             # Clear cart items
             cart.items.all().delete()
+
+        # Send notifications after successful commit
+        for village, vo in created_vendor_orders:
+            try:
+                VillageNotificationService.notify_new_order(village, vo)
+            except Exception:
+                pass
+
+        for village, p_name, v_name, qty in low_stock_alerts:
+            try:
+                VillageNotificationService.notify_low_stock(village, p_name, v_name, qty)
+            except Exception:
+                pass
 
         return parent_order

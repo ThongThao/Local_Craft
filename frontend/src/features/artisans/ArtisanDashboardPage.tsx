@@ -659,6 +659,7 @@ export const ArtisanDashboardPage: React.FC<ArtisanDashboardPageProps> = ({
           userAvatar={currentUserProfile.avatarUrl}
           onToggleMobileSidebar={() => setMobileSidebarOpen((prev) => !prev)}
           villageName={selectedVillage.name}
+          onNavigateTab={(tab) => setActiveTab(tab)}
         />
 
         {/* Main Dashboard Views */}

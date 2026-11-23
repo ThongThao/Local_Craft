@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { SidebarTabKey } from './ArtisanSidebar';
+import { useArtisanNotifications } from '../hooks/useArtisanNotifications';
+import ArtisanNotificationDropdown from './ArtisanNotificationDropdown';
 
 export interface ArtisanTopHeaderProps {
   onBackToHome?: () => void;
@@ -9,6 +12,7 @@ export interface ArtisanTopHeaderProps {
   userAvatar?: string;
   onToggleMobileSidebar?: () => void;
   villageName?: string;
+  onNavigateTab?: (tab: SidebarTabKey, targetId?: number) => void;
 }
 
 type ActivePopover = 'notifications' | 'profile' | null;
@@ -21,12 +25,27 @@ export const ArtisanTopHeader: React.FC<ArtisanTopHeaderProps> = ({
   userAvatar,
   onToggleMobileSidebar,
   villageName,
+  onNavigateTab,
 }) => {
   // Single active popover management
   const [activePopover, setActivePopover] = useState<ActivePopover>(null);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  const isNotifOpen = activePopover === 'notifications';
+  const {
+    notifications,
+    unreadCount,
+    totalCount,
+    filter,
+    setFilter,
+    isLoading,
+    isUpdating,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useArtisanNotifications(isNotifOpen);
 
   const avatarChar = (userName || 'Q').trim()[0]?.toUpperCase() || 'Q';
 
@@ -94,8 +113,8 @@ export const ArtisanTopHeader: React.FC<ArtisanTopHeaderProps> = ({
           <button
             type="button"
             className={`artisan-v2-circle-btn ${activePopover === 'notifications' ? 'active' : ''}`}
-            title="Thông báo hệ thống"
-            aria-label="Thông báo hệ thống"
+            title={`Thông báo hệ thống (${unreadCount} chưa đọc)`}
+            aria-label={`Thông báo hệ thống (${unreadCount} chưa đọc)`}
             aria-expanded={activePopover === 'notifications'}
             onClick={() => togglePopover('notifications')}
           >
@@ -103,35 +122,33 @@ export const ArtisanTopHeader: React.FC<ArtisanTopHeaderProps> = ({
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
-            <span className="artisan-v2-notif-dot" />
+            {unreadCount > 0 ? (
+              <span className="artisan-v2-notif-badge">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            ) : null}
           </button>
 
           {activePopover === 'notifications' && (
-            <div className="artisan-v2-notif-dropdown" role="region" aria-label="Danh sách thông báo">
-              <div className="notif-header">
-                <strong>Thông báo làng nghề</strong>
-                <span className="notif-badge">Hệ thống</span>
-              </div>
-              <div className="notif-item">
-                <div className="notif-dot" />
-                <div>
-                  <div className="notif-title">Kết nối đồng bộ thời gian thực</div>
-                  <div className="notif-sub">Số liệu sản phẩm, đơn hàng và workshop đã cập nhật</div>
-                </div>
-              </div>
-              <div className="notif-item">
-                <div className="notif-dot" />
-                <div>
-                  <div className="notif-title">Bảo tồn di sản OCOP</div>
-                  <div className="notif-sub">Hệ thống quản lý làng nghề LocalCraft sẵn sàng vận hành</div>
-                </div>
-              </div>
-            </div>
+            <ArtisanNotificationDropdown
+              notifications={notifications}
+              unreadCount={unreadCount}
+              totalCount={totalCount}
+              filter={filter}
+              isLoading={isLoading}
+              isUpdating={isUpdating}
+              onFilterChange={setFilter}
+              onMarkAsRead={markAsRead}
+              onMarkAllAsRead={markAllAsRead}
+              onDelete={deleteNotification}
+              onNavigateTab={onNavigateTab}
+              onClose={() => setActivePopover(null)}
+            />
           )}
         </div>
 
         {/* Help Circle Button */}
-        <button
+        {/* <button
           type="button"
           className="artisan-v2-circle-btn"
           title="Trợ giúp & Hướng dẫn"
@@ -139,7 +156,7 @@ export const ArtisanTopHeader: React.FC<ArtisanTopHeaderProps> = ({
           onClick={() => window.open('https://localcraft.vn/help', '_blank')}
         >
           <span style={{ fontSize: 13, fontWeight: 700 }} aria-hidden="true">?</span>
-        </button>
+        </button> */}
 
         {/* User Profile Pill */}
         <div className="artisan-v2-user-wrap" ref={profileRef}>
@@ -186,7 +203,7 @@ export const ArtisanTopHeader: React.FC<ArtisanTopHeaderProps> = ({
                   onNavigateToProfile?.();
                 }}
               >
-                Hồ sơ làng nghề (V02)
+                Hồ sơ làng nghề
               </button>
               <button
                 type="button"

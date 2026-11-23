@@ -3,6 +3,7 @@ import logging
 from rest_framework import generics, permissions, status
 from apps.common.responses import api_success, api_error
 from apps.common.permissions import user_has_role
+from apps.notifications.services import NotificationService, VillageNotificationService
 from .models import WorkshopBooking
 from .serializers import (
     WorkshopBookingSerializer,
@@ -86,6 +87,12 @@ class BookingListCreateView(generics.GenericAPIView):
         serializer = CreateBookingSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         booking = serializer.save()
+        try:
+            if hasattr(booking, 'session') and hasattr(booking.session, 'workshop') and hasattr(booking.session.workshop, 'village'):
+                VillageNotificationService.notify_new_booking(booking.session.workshop.village, booking)
+            NotificationService.notify_tourist_booking_confirmed(booking)
+        except Exception:
+            pass
         return api_success(
             data=WorkshopBookingDetailSerializer(booking).data,
             message="Đặt chỗ trải nghiệm thành công!",
@@ -211,6 +218,12 @@ class BookingDetailCancelView(generics.GenericAPIView):
 
         # Fetch detail with full relations for response
         booking.refresh_from_db()
+        try:
+            if hasattr(booking, 'session') and hasattr(booking.session, 'workshop') and hasattr(booking.session.workshop, 'village'):
+                VillageNotificationService.notify_booking_cancelled(booking.session.workshop.village, booking)
+            NotificationService.notify_tourist_booking_cancelled(booking)
+        except Exception:
+            pass
         return api_success(data=WorkshopBookingDetailSerializer(booking).data, message="Hủy đơn đặt workshop thành công")
 
 

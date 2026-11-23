@@ -652,3 +652,364 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ==========================================================================
+   TOURIST NOTIFICATION SYSTEM (F11.01 & F11.07)
+   ========================================================================== */
+
+.navbar-notif-badge-pill {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  background: #984628;
+  color: #FFFFFF;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 17px;
+  text-align: center;
+  border-radius: 9999px;
+  border: 2px solid #FCF9F3;
+  box-shadow: 0 2px 4px rgba(152, 70, 40, 0.3);
+  pointer-events: none;
+}
+
+.navbar-notification-popover.tourist-notif-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -50px;
+  width: 360px;
+  max-width: calc(100vw - 24px);
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid #E6D8C5;
+  box-shadow: 0 12px 36px rgba(0, 39, 32, 0.14);
+  padding: 0;
+  overflow: hidden;
+  z-index: 1050;
+  animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tourist-notif-header {
+  padding: 12px 14px 8px;
+  background: #FCFAF7;
+  border-bottom: 1px solid #F0EAE1;
+}
+
+.tourist-notif-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.tourist-notif-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tourist-notif-title {
+  font-family: 'Manrope', var(--font-ui), sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1C1C18;
+}
+
+.tourist-notif-badge-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: #FDF4F0;
+  color: #984628;
+  border: 1px solid rgba(152, 70, 40, 0.2);
+}
+
+.tourist-notif-badge-pill.neutral {
+  background: #F3F4F6;
+  color: #6B7280;
+  border: 1px solid #E5E7EB;
+}
+
+.tourist-notif-btn-readall {
+  background: transparent;
+  border: none;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #984628;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.tourist-notif-btn-readall:hover:not(:disabled) {
+  background: #FDF4F0;
+}
+
+.tourist-notif-btn-readall:disabled {
+  color: #A8A29E;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.tourist-notif-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.tourist-notif-tab-btn {
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid #E6D8C5;
+  background: #FFFFFF;
+  color: #57534E;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tourist-notif-tab-btn:hover {
+  background: #FAF7F2;
+  color: #1C1C18;
+}
+
+.tourist-notif-tab-btn.active {
+  background: #984628;
+  border-color: #984628;
+  color: #FFFFFF;
+}
+
+.tourist-notif-list {
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tourist-notif-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: #717A76;
+}
+
+.tourist-notif-empty-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #FAF7F2;
+  color: #984628;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+}
+
+.tourist-notif-empty strong {
+  display: block;
+  font-size: 13px;
+  color: #1C1C18;
+  margin-bottom: 4px;
+}
+
+.tourist-notif-empty p {
+  font-size: 11.5px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.tourist-notif-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #E6D8C5;
+  border-top-color: #984628;
+  border-radius: 50%;
+  animation: notif-spin 0.7s linear infinite;
+  margin: 0 auto 8px;
+}
+
+.tourist-notif-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.tourist-notif-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #F0EAE1;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.tourist-notif-card:hover {
+  background: #FDF9F5;
+}
+
+.tourist-notif-card.unread {
+  background: #FFFDFB;
+}
+
+.tourist-notif-card.unread:hover {
+  background: #FAF4EE;
+}
+
+.tourist-notif-icon-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tourist-notif-cat-booking { background: #EFF6FF; color: #1D4ED8; }
+.tourist-notif-cat-order { background: #FDF4F0; color: #984628; }
+.tourist-notif-cat-payment { background: #ECFDF5; color: #047857; }
+.tourist-notif-cat-review { background: #FEF3C7; color: #B45309; }
+.tourist-notif-cat-system { background: #F3F4F6; color: #374151; }
+
+.tourist-notif-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.tourist-notif-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.tourist-notif-category {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #78716C;
+}
+
+.tourist-notif-time {
+  font-size: 10.5px;
+  color: #A8A29E;
+}
+
+.tourist-notif-item-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1C1C18;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.tourist-notif-card.unread .tourist-notif-item-title {
+  color: #7D341C;
+  font-weight: 800;
+}
+
+.tourist-notif-item-message {
+  font-size: 11px;
+  color: #57534E;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tourist-notif-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tourist-notif-action-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  border: 1px solid #E6D8C5;
+  background: #FFFFFF;
+  color: #78716C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.15s ease;
+}
+
+.tourist-notif-card:hover .tourist-notif-action-btn,
+.tourist-notif-card:focus-within .tourist-notif-action-btn {
+  opacity: 1;
+}
+
+.tourist-notif-action-btn:hover {
+  background: #FAF7F2;
+  color: #1C1C18;
+}
+
+.tourist-notif-action-btn.read:hover {
+  color: #059669;
+  border-color: #A7F3D0;
+}
+
+.tourist-notif-action-btn.delete:hover {
+  color: #DC2626;
+  border-color: #FECACA;
+}
+
+.tourist-notif-unread-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #984628;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+.tourist-notif-footer {
+  padding: 6px 14px;
+  background: #FCFAF7;
+  border-top: 1px solid #F0EAE1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tourist-notif-sync-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: #78716C;
+}
+
+.tourist-notif-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+  animation: notif-pulse 2s infinite;
+}
+
+@media (max-width: 640px) {
+  .navbar-notification-popover.tourist-notif-dropdown {
+    width: min(340px, calc(100vw - 20px));
+    right: -60px;
+  }
+
+  .tourist-notif-card .tourist-notif-action-btn {
+    opacity: 1;
+  }
+}

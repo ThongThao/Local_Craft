@@ -16,7 +16,7 @@ import { VILLAGES_DATA, PRODUCTS_DATA } from '@/data/landing';
 
 interface LandingPageProps {
   onNavigateToLogin?: () => void;
-  onNavigateToProfile?: () => void;
+  onNavigateToProfile?: (subTab?: 'profile' | 'workshops' | 'orders' | 'favorites') => void;
   onLogout?: () => void;
   isLoggedIn?: boolean;
   currentUser?: {

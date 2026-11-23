@@ -19,6 +19,7 @@ interface ProfilePageProps {
   onExploreWorkshops?: () => void;
   userEmail?: string;
   userFullName?: string;
+  initialTab?: 'profile' | 'workshops' | 'orders' | 'favorites' | 'preferences';
 }
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({
@@ -28,11 +29,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
   onExploreWorkshops,
   userEmail,
   userFullName,
+  initialTab = 'profile',
 }) => {
   // Navigation tabs
   const [activeTab, setActiveTab] = useState<
     'profile' | 'workshops' | 'orders' | 'favorites' | 'preferences'
-  >('profile');
+  >(initialTab);
 
   // Form states (Synchronized with backend DB)
   const [fullName, setFullName] = useState<string>(userFullName || '');
@@ -201,6 +203,12 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (initialTab && initialTab !== 'profile') {
+      handleTabChange(initialTab);
+    }
+  }, [initialTab]);
+
   return (
     <div className="profile-page-canvas">
       {/* Toast Notification */}
@@ -219,7 +227,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
       <Navbar
         onBackToHome={onBackToHome}
         onOpenLogin={onNavigateToLogin}
-        onOpenProfile={() => {}}
+        onOpenProfile={(subTab) => {
+          if (subTab) handleTabChange(subTab);
+        }}
         onLogout={onNavigateToLogin}
         onOpenExplore={onBackToHome}
         onOpenSearch={() => showToast('Tính năng tìm kiếm nhanh di sản')}

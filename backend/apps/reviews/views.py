@@ -6,6 +6,7 @@ from rest_framework import generics, permissions, status
 from apps.common.responses import api_success, api_error
 from apps.common.permissions import user_has_role, IsCraftVillage
 from apps.notifications.models import Notification
+from apps.notifications.services import VillageNotificationService
 from .models import Review
 from .serializers import (
     ReviewSerializer,
@@ -185,6 +186,16 @@ class ReviewListCreateView(generics.GenericAPIView):
         serializer = CreateReviewSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         review = serializer.save()
+        try:
+            village = None
+            if getattr(review, 'product', None) and getattr(review.product, 'village', None):
+                village = review.product.village
+            elif getattr(review, 'booking', None) and getattr(review.booking, 'session', None) and getattr(review.booking.session, 'workshop', None):
+                village = review.booking.session.workshop.village
+            if village:
+                VillageNotificationService.notify_new_review(village, review)
+        except Exception:
+            pass
         return api_success(
             data=ReviewSerializer(review).data,
             message="Gửi đánh giá thành công!",

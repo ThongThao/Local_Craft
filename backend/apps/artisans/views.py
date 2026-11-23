@@ -3,6 +3,7 @@ from rest_framework import generics, permissions, status
 from apps.common.responses import api_success, api_error
 # pyrefly: ignore [missing-import]
 from apps.common.permissions import IsVillageManager, IsCraftVillage, user_has_role
+from apps.notifications.services import VillageNotificationService
 from .models import ArtisanProfile
 from .serializers import ArtisanProfileSerializer, ArtisanProfileDetailSerializer
 
@@ -173,9 +174,19 @@ class ArtisanDetailView(generics.RetrieveUpdateDestroyAPIView):
                     status_code=400
                 )
 
+        old_status = instance.verification_status
         serializer = ArtisanProfileSerializer(instance, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        instance.refresh_from_db()
+        if is_admin and old_status != instance.verification_status:
+            try:
+                if instance.verification_status == ArtisanProfile.VerificationStatus.APPROVED:
+                    VillageNotificationService.notify_artisan_status(instance.village, instance, is_approved=True)
+                elif instance.verification_status == ArtisanProfile.VerificationStatus.REJECTED:
+                    VillageNotificationService.notify_artisan_status(instance.village, instance, is_approved=False, reason=instance.verification_note or "")
+            except Exception:
+                pass
         return api_success(
             data=serializer.data,
             message="Cập nhật hồ sơ nghệ nhân thành công!"

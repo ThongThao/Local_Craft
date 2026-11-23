@@ -8,6 +8,7 @@ from apps.common.responses import api_success, api_error
 from apps.orders.models import Order, VendorOrder
 # pyrefly: ignore [missing-import]
 from apps.bookings.models import WorkshopBooking
+from apps.notifications.services import NotificationService
 from .models import Payment
 from .serializers import PaymentSerializer, CreatePaymentSerializer
 
@@ -71,6 +72,11 @@ class PaymentVerifyView(generics.GenericAPIView):
             if payment.booking:
                 payment.booking.status = WorkshopBooking.BookingStatus.CONFIRMED
                 payment.booking.save(update_fields=['status', 'updated_at'])
+
+        try:
+            NotificationService.notify_tourist_payment_success(payment)
+        except Exception:
+            pass
 
         return api_success(
             data=PaymentSerializer(payment).data,

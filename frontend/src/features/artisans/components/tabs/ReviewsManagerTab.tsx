@@ -784,15 +784,15 @@ export const ReviewsManagerTab: React.FC<ReviewsManagerTabProps> = ({
                       </span>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginTop: '2px' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px', flexWrap: 'wrap' }}>
                       {hasReply ? (
                         <span className="v15-reply-tag replied">
-                          <IconCheck size={11} />
+                          <IconCheck size={12} />
                           <span>Đã phản hồi</span>
                         </span>
                       ) : (
                         <span className="v15-reply-tag unreplied">
-                          <IconClock size={11} />
+                          <IconClock size={12} />
                           <span>Chờ phản hồi</span>
                         </span>
                       )}

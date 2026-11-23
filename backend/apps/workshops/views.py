@@ -11,6 +11,7 @@ from apps.common.responses import api_success, api_error
 # pyrefly: ignore [missing-import]
 from apps.common.permissions import IsVillageManager, IsCraftVillage, user_has_role
 from apps.notifications.models import Notification
+from apps.notifications.services import VillageNotificationService
 from apps.bookings.models import WorkshopBooking
 from apps.payments.models import Payment, Refund
 from .models import Workshop, WorkshopSession
@@ -149,9 +150,20 @@ class WorkshopDetailView(generics.RetrieveUpdateDestroyAPIView):
         if not user_has_role(request.user, 'ADMIN') and 'village' in data:
             data['village'] = instance.village_id
 
+        old_status = instance.status
         serializer = WorkshopSerializer(instance, data=data, partial=partial, context=self.get_serializer_context())
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        instance.refresh_from_db()
+
+        if user_has_role(request.user, 'ADMIN') and old_status != instance.status:
+            try:
+                if instance.status == Workshop.WorkshopStatus.APPROVED:
+                    VillageNotificationService.notify_workshop_status(instance.village, instance, is_approved=True)
+                elif instance.status == Workshop.WorkshopStatus.REJECTED:
+                    VillageNotificationService.notify_workshop_status(instance.village, instance, is_approved=False)
+            except Exception:
+                pass
 
         return api_success(data=serializer.data, message="Cập nhật workshop thành công!")
 

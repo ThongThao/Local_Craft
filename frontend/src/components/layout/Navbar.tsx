@@ -2,12 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import AppIcon from '../ui/AppIcon';
 import Button from '../ui/Button';
 import { authApi, UserProfile, getAccessToken } from '@/services/api';
+import { useNotifications } from '@/hooks/useNotifications';
+import TouristNotificationDropdown from './TouristNotificationDropdown';
 
 export interface NavbarProps {
   onOpenSearch?: () => void;
   onOpenLogin?: () => void;
   onOpenExplore?: () => void;
-  onOpenProfile?: () => void;
+  onOpenProfile?: (subTab?: 'profile' | 'workshops' | 'orders' | 'favorites') => void;
   onLogout?: () => void;
   onBackToHome?: () => void;
   isLoggedIn?: boolean;
@@ -41,6 +43,29 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  const {
+    notifications,
+    unreadCount,
+    totalCount,
+    filter,
+    setFilter,
+    isLoading,
+    isUpdating,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications(notificationsOpen && isLoggedIn);
+
+  const handleTouristNotificationNavigate = (targetType?: string | null) => {
+    if (targetType === 'BOOKING') {
+      onOpenProfile?.('workshops');
+    } else if (targetType === 'ORDER' || targetType === 'VENDOR_ORDER') {
+      onOpenProfile?.('orders');
+    } else {
+      onOpenProfile?.('profile');
+    }
+  };
 
   // Fetch real user data from database when logged in
   useEffect(() => {
@@ -206,7 +231,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
                   role="button"
                   tabIndex={0}
-                  title="Thông báo"
+                  title={`Thông báo di sản (${unreadCount} chưa đọc)`}
                   className="navbar-icon-button"
                   style={{
                     width: 40,
@@ -228,8 +253,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                     }}
                   >
                     <svg
-                      width="13.33"
-                      height="16.67"
+                      width="15"
+                      height="18"
                       viewBox="0 0 14 17"
                       fill="none"
                       stroke="#414846"
@@ -241,61 +266,29 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <path d="M5.53 14.67a1.67 1.67 0 0 0 2.94 0" />
                     </svg>
                   </div>
-                  <div
-                    style={{
-                      width: 8,
-                      height: 8,
-                      left: 24,
-                      top: 8,
-                      position: 'absolute',
-                      background: '#984628',
-                      borderRadius: 9999,
-                      flexDirection: 'column',
-                      justifyContent: 'flex-start',
-                      alignItems: 'flex-end',
-                      display: 'inline-flex',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 8,
-                        height: 8,
-                        background: 'rgba(255, 255, 255, 0)',
-                        boxShadow: '0px 0px 0px 2px #FCF9F3',
-                        borderRadius: 9999,
-                      }}
-                    />
-                  </div>
+                  {unreadCount > 0 && (
+                    <span className="navbar-notif-badge-pill">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </div>
 
                 {/* Notifications Dropdown Popover */}
                 {notificationsOpen && (
-                  <div className="navbar-notification-popover">
-                    <div className="navbar-notification-header">
-                      <span>Thông báo di sản</span>
-                      <span className="navbar-notification-badge">Mới</span>
-                    </div>
-                    <div className="navbar-notification-list">
-                      <div className="navbar-notification-item">
-                        <span className="navbar-notification-item-dot" />
-                        <div>
-                          <strong>Chào mừng đến với LocalCraft!</strong>
-                          <p style={{ margin: '2px 0 0', color: '#717A76' }}>
-                            Tài khoản {userEmail || displayName} đã được đồng bộ với hệ thống di sản.
-                          </p>
-                        </div>
-                      </div>
-                      <div className="navbar-notification-item">
-                        <span className="navbar-notification-item-dot" />
-                        <div>
-                          <strong>Trải nghiệm làm gốm Bát Tràng</strong>
-                          <p style={{ margin: '2px 0 0', color: '#717A76' }}>
-                            Suất trải nghiệm nghệ nhân cuối tuần đang mở đăng ký.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <TouristNotificationDropdown
+                    notifications={notifications}
+                    unreadCount={unreadCount}
+                    totalCount={totalCount}
+                    filter={filter}
+                    isLoading={isLoading}
+                    isUpdating={isUpdating}
+                    onFilterChange={setFilter}
+                    onMarkAsRead={markAsRead}
+                    onMarkAllAsRead={markAllAsRead}
+                    onDelete={deleteNotification}
+                    onNavigate={handleTouristNotificationNavigate}
+                    onClose={() => setNotificationsOpen(false)}
+                  />
                 )}
               </div>
 

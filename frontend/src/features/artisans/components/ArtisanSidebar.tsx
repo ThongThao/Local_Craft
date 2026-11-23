@@ -54,7 +54,6 @@ export const ArtisanSidebar: React.FC<ArtisanSidebarProps> = ({
   counts,
   villageName,
   villageSubtitle,
-  villageId,
   isMobileOpen = false,
   onCloseMobile,
 }) => {
@@ -313,7 +312,7 @@ export const ArtisanSidebar: React.FC<ArtisanSidebarProps> = ({
           </div>
           <div className="artisan-v2-heritage-text">
             <span className="title">{villageName || 'Di sản làng nghề'}</span>
-            <span className="sub">Cơ sở làng nghề #{String(villageId || 1).padStart(3, '0')}</span>
+            {/* <span className="sub">Cơ sở làng nghề #{String(villageId || 1).padStart(3, '0')}</span> */}
           </div>
           <button type="button" className="artisan-v2-heritage-info-btn" title="Thông tin cơ sở di sản">
             ⓘ
